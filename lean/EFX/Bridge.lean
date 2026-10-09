@@ -1,13 +1,13 @@
 import EFX.Model
-import EFX.SerialDictatorship
+import EFX.Lists
 
 /-!
 # Bridge: the model and the list layer agree
 
 Over `List.finRange`, the list notions of `EFX.Lists` coincide with the model's (`EFX.Model`):
-`finSum` is a list sum, `bundleVal` is the value of a bundle (with a good removed), and `EFX0L`
-is `Inst.EFX0` (`efx0_iff`). Results proved over lists therefore hold in the model; the headline
-`exists_efx0_of_count` is L2c in the model's terms.
+`finSum` is a list sum, `bundleVal` is the value of a bundle (with a good removed), `EFX0L` is
+`Inst.EFX0` (`efx0_iff`), and `numRelevant` counts the list of relevant goods (`numRelevant_eq`).
+Results proved over lists therefore hold in the model.
 -/
 
 set_option autoImplicit false
@@ -86,16 +86,6 @@ theorem numRelevant_eq (I : Inst) (i : Fin I.n) :
   unfold numRelevant relevant
   rw [finSum_eq_sum, sum_map_ite (fun g => 0 < I.v i g) (fun _ => 1), sum_map_one]
 
-/-- **L2c.** If every agent has at most two relevant goods (`|R_i| ≤ 2`), a complete strongly EFX₀
-allocation exists. Same hypotheses as `MRD.main_theorem_L` in evanlin23/mrd-efx, which also
-proves the shape property; here the witness is serial dictatorship. -/
-theorem exists_efx0_of_count (I : Inst) (hn : 0 < I.n) (h : ∀ i, numRelevant I i ≤ 2) :
-    ∃ X : I.Alloc, I.EFX0 X := by
-  obtain ⟨X, _, hE⟩ := serialDictatorship I.v (List.finRange I.n) (List.finRange I.m)
-    (List.ne_nil_of_mem (List.mem_finRange ⟨0, hn⟩)) (List.nodup_finRange _)
-    (List.nodup_finRange _) (fun i _ => (numRelevant_eq I i) ▸ h i)
-  exact ⟨X, (Inst.efx0_iff I X).mpr hE⟩
-
 end EFX
 
 /-! ## Axiom certificates (audited by `check.sh`) -/
@@ -105,4 +95,3 @@ end EFX
 #print axioms EFX.Inst.bundleVal_some
 #print axioms EFX.Inst.efx0_iff
 #print axioms EFX.numRelevant_eq
-#print axioms EFX.exists_efx0_of_count

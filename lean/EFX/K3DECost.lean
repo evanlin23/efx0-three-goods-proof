@@ -1,5 +1,4 @@
 import EFX.K3DEAlgo
-import EFX.K3Cost
 
 /-!
 # The running time of Draft and Exchange, part 1: arrays with writes, and peeling
@@ -9,10 +8,10 @@ import EFX.K3Cost
 (in the cost monad `EFX.Timed`) whose value is `EFX.DE.deSpec` (`EFX.DE.de_eq_spec`), and a bound
 `O((n + 1)(n + m + 1))` on its counted operations (`EFX.DE.deC_cost`).
 
-**The cost model.** The units of `EFX.Timed` and `EFX.K3CostLB`: one step of a loop (a list cell visited, or one
+**The cost model.** The units of `EFX.Timed`: one step of a loop (a list cell visited, or one
 round of a walk such as `σ ↦ σ(w)`), one comparison of two agents, goods or numbers, one addition (values or
 counters), one read of a table or of an input value `v i g`; `EFX.Timed.mkTable` fills an array of `k` entries at
-the cost of its entries plus `k`, and `K3.finRangeC k` costs `k`. As there, building a pair, an `Option` or a list
+the cost of its entries plus `k`, and `K3.finRangeC k` costs `k`. Building a pair, an `Option` or a list
 cell, pattern matching, and Boolean connectives are free, and straight-line code is charged by one `tick`. One new
 kind of unit is introduced here:
 - **an array write** (`wr`): an array is represented by its read function `α → β` (with `α = Fin k` in the

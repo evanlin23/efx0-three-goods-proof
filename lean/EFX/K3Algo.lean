@@ -1,31 +1,24 @@
-import EFX.Target
+import EFX.Peeling
+import EFX.PreAlloc
+import EFX.Timed
 
 /-!
-# Algorithm K3ALG: the specification and its correctness (`proofs/k3_algorithm.md` §2–§3)
+# Rule R1 as a search, rankings from values, and their counted versions
 
-A computable composition of proven constructions that returns an EFX₀ allocation of every instance in which
-every agent positively values at most three goods:
+Parts of algorithm K3ALG (the research repository's earlier, longer algorithm for the same theorem,
+`proofs/k3_algorithm.md`) that Draft and Exchange reuses (`EFX/K3DEAlgo.lean`, `EFX/K3DECost*.lean`):
 
-1. `reduce`: while at least two agents and some goods remain, the first agent (in list order) to which rule R1
-   applies is removed (`r1Step`, `findR1`). If it values no remaining good it leaves with nothing (R1 with
-   `P = ∅`, `EFX.peelEmpty`); otherwise it leaves with its favourite remaining good `p`, which it values at
-   least as much as all other remaining goods together (R1, `EFX.peel`). One agent left takes everything.
-2. When R1 applies to nobody, every remaining agent has exactly three relevant goods and is strictly balanced
-   (`EFX.not_R1`). Its ranking is computed by sorting its three goods (`sort3`, `profileOf`), Phase 1's order
-   by `EFX.LB.r1Order`, and the allocation by construction LB⁺ (`EFX.LB.lbPlus`), which is EFX₀ by Theorem C
-   (`EFX.LB.lbPlus_sound`). Goods that no remaining agent values are allowed there, so neither rule L3 nor rule
-   R2 of the CORE reduction is needed.
-
-- `reduce_sound`: the output of `reduce` is a complete allocation and EFX₀ (over lists).
-- `algoSpec`, `algoSpec_efx0`: the same for the model's instances (`EFX.Inst`, `EFX.Inst.EFX0`).
-
-`EFX.K3Cost` defines the algorithm `EFX.K3.algo` as this computation with tables and an operation counter, and
-proves that it equals `algoSpec` and runs in `O((n + m)⁴)` counted operations.
-
-Owner test (`proofs/k3_algorithm.md` §4): LB⁺ tests the owner `r` with `EFX.LB.hitSet`, one junk good per
-exposed pair and one shared good for the first two pairs that meet. By `EFX.LB.validOwner_iff` this test is
-exact: `r` is a valid owner (Lemma 1's condition holds for *some* set of junk goods, so a minimum hitting set
-fits) iff `hitSet` fits. No minimum vertex cover is computed.
+- `r1Step`, `findR1`: rule R1 for one agent (`some none`: it values no remaining good and leaves with nothing,
+  `EFX.peelEmpty`; `some (some p)`: its favourite `p` is worth at least all other remaining goods together and
+  it leaves with `p`, `EFX.peel`; `none`: R1 does not apply), and the first agent of a list to which it applies;
+  `findR1_some`, `findR1_none`, `r1Step_none_zero`, `r1Step_some`, `r1Step_eq_none`.
+- `sort3`, `profileOf`: an agent's ranking, computed by sorting its three relevant goods by value;
+  `sort3_ranking`: for an agent with exactly three relevant goods, balanced, it is a ranking consistent with the
+  values.
+- Counted versions in the cost monad `EFX.Timed` (units as in `EFX.K3DECost`), with value lemmas (`fooC_val`:
+  `fooC` computes `foo`) and cost lemmas: `rankC`, `pickRankC`, `prefersC` (`Profile.rank`, `Profile.pickRank`,
+  `Profile.Prefers`), `favoriteC`, `valueC` (`favorite`, `value`), `sort3C`, and `finRangeC` (`List.finRange k`,
+  one unit per element).
 -/
 
 set_option autoImplicit false
@@ -67,30 +60,7 @@ def sort3 (f : G → Nat) (g0 : G) : List G → G × G × G
 def profileOf (v : A → G → Nat) (goods : List G) (g0 : G) : LB.Profile A G :=
   ⟨fun i => (sort3 (v i) g0 (relevant v i goods)).1, fun i => (sort3 (v i) g0 (relevant v i goods)).2.1,
     fun i => (sort3 (v i) g0 (relevant v i goods)).2.2⟩
-
-/-! ## The algorithm -/
-
-/-- LB⁺ with the computed rankings and Phase 1 in `r1Order` (the first agent with at most two goods left, else
-the first agent). -/
-def lbStage (v : A → G → Nat) (agents : List A) (goods : List G) (g0 : G) (d : A) : G → A :=
-  LB.lbPlus (profileOf v goods g0) agents goods (LB.r1Order (profileOf v goods g0) agents.length agents goods) d
-
-/-- **The algorithm, over lists**, with `fuel ≥` the number of agents: peel by R1 while it applies to some agent
-(at least two agents and some goods left), then LB⁺. The agent `d` only receives goods in unreachable cases. -/
-def reduce (v : A → G → Nat) (d : A) : Nat → List A → List G → G → A
-  | 0, _, _ => fun _ => d
-  | fuel + 1, agents, goods =>
-    if agents.length ≤ 1 then fun _ => agents.headD d
-    else
-      match goods with
-      | [] => fun _ => d
-      | g0 :: gs =>
-        match findR1 v agents (g0 :: gs) with
-        | some (i, none) => reduce v d fuel (agents.erase i) (g0 :: gs)
-        | some (i, some p) => extend i p (reduce v d fuel (agents.erase i) ((g0 :: gs).erase p))
-        | none => lbStage v agents (g0 :: gs) g0 d
-
-/-! ## Correctness -/
+/-! ## Properties -/
 
 section proofs
 
@@ -239,117 +209,126 @@ theorem sort3_ranking (v : A → G → Nat) (i : A) {goods : List G} (g0 : G) (h
   · exact ⟨hz.1, hy.1, hx.1, Ne.symm hyz, Ne.symm hxz, Ne.symm hxy, hx.2, hcb, hba, by omega,
       fun g hg h1 h2 h3' => hother g hg h3' h2 h1⟩
 
-/-- **LB⁺ with the computed rankings is sound.** If every agent of `agents` has exactly three relevant goods
-among `goods` and is balanced, `lbStage` is a complete EFX₀ allocation. -/
-theorem lbStage_sound (v : A → G → Nat) {agents : List A} {goods : List G} (g0 : G) (d : A)
-    (hag : agents.Nodup) (hgd : goods.Nodup) (hne : agents ≠ [])
-    (h3 : ∀ i ∈ agents, (relevant v i goods).length = 3)
-    (hbal : ∀ i ∈ agents, ∀ g ∈ goods, 2 * v i g ≤ value v i goods) :
-    IsAllocation agents goods (lbStage v agents goods g0 d) ∧
-      EFX0L v agents goods (lbStage v agents goods g0 d) := by
-  let P := profileOf v goods g0
-  let v' : A → G → Nat := fun j g => if g ∈ goods then v j g else 0
-  have hWF : LB.WF P agents goods := fun i hi => by
-    obtain ⟨h1, h2, h3', h4, h5, h6, -⟩ := sort3_ranking v i g0 hgd (h3 i hi) (hbal i hi)
-    exact ⟨h1, h2, h3', h4, h5, h6⟩
-  have hcons : P.Consistent agents v' := by
-    intro i hi
-    obtain ⟨h1, h2, h3', h4, h5, h6, h7, h8, h9, h10, h11⟩ := sort3_ranking v i g0 hgd (h3 i hi) (hbal i hi)
-    refine ⟨by simp [v', P, profileOf, h3', h7], by simp [v', P, profileOf, h2, h3', h8],
-      by simp [v', P, profileOf, h1, h2, h9], by simp [v', P, profileOf, h1, h2, h3', h10],
-      fun g hg => ?_, h4, h5, h6⟩
-    obtain ⟨ha, hb, hc⟩ := LB.ne_of_rank_three hg
-    by_cases hgg : g ∈ goods
-    · simp only [v', hgg, ↓reduceIte]; exact h11 g hgg ha hb hc
-    · simp [v', hgg]
-  obtain ⟨hord1, hord2, hord3⟩ := LB.r1Order_spec P agents.length agents goods hag (Nat.le_refl _)
-  obtain ⟨hX, hE, -⟩ := LB.lbPlus_sound (P := P) d hag hgd hne hWF hord2 (fun x => hord1 x) hord3
-  show IsAllocation agents goods (LB.lbPlus P agents goods (LB.r1Order P agents.length agents goods) d) ∧
-    EFX0L v agents goods (LB.lbPlus P agents goods (LB.r1Order P agents.length agents goods) d)
-  generalize LB.lbPlus P agents goods (LB.r1Order P agents.length agents goods) d = X at hX hE ⊢
-  refine ⟨hX, fun x hx y hy hxy g hg => ?_⟩
-  have := hE v' hcons x hx y hy hxy g hg
-  have hsub : ∀ S : List G, S.Sublist goods → value v' x S = value v x S := fun S hS =>
-    LB.value_restrict v goods x (fun g hg => hS.subset hg)
-  rwa [hsub ((bundle goods X y).erase g) (List.erase_sublist.trans List.filter_sublist),
-    hsub (bundle goods X x) List.filter_sublist] at this
-
-/-- **Correctness of the algorithm, over lists.** For every instance in which every agent has at most three
-relevant goods, `reduce` (with fuel at least the number of agents) returns a complete EFX₀ allocation. -/
-theorem reduce_sound (v : A → G → Nat) (d : A) : ∀ (fuel : Nat) (agents : List A) (goods : List G),
-    agents ≠ [] → agents.Nodup → goods.Nodup → agents.length ≤ fuel →
-    (∀ i ∈ agents, (relevant v i goods).length ≤ 3) →
-    IsAllocation agents goods (reduce v d fuel agents goods) ∧
-      EFX0L v agents goods (reduce v d fuel agents goods)
-  | 0, agents, _, hne, _, _, hl, _ => by
-    exact absurd (List.length_eq_zero_iff.mp (by omega)) hne
-  | fuel + 1, agents, goods, hne, hag, hgd, hl, h3 => by
-    unfold reduce
-    by_cases h1 : agents.length ≤ 1
-    · simp only [h1, ↓reduceIte]
-      obtain ⟨i0, rest, rfl⟩ := List.exists_cons_of_ne_nil hne
-      have hrest : rest = [] := by
-        cases rest with
-        | nil => rfl
-        | cons _ _ => simp at h1
-      subst hrest
-      refine ⟨fun _ _ => by simp, fun x hx y hy hxy => ?_⟩
-      simp at hx hy
-      exact absurd (hx.trans hy.symm) hxy
-    simp only [h1, ↓reduceIte]
-    cases goods with
-    | nil =>
-      simp only
-      exact ⟨fun g hg => by simp at hg, fun _ _ _ _ _ g hg => by simp [bundle] at hg⟩
-    | cons g0 gs =>
-      simp only
-      have hrest : ∀ i ∈ agents, agents.erase i ≠ [] := by
-        intro i hi h
-        have := List.length_erase_of_mem hi
-        rw [h] at this; simp at this; omega
-      cases hf : findR1 v agents (g0 :: gs) with
-      | some q =>
-        obtain ⟨i, s⟩ := q
-        obtain ⟨hi, hs⟩ := findR1_some hf
-        cases s with
-        | none =>
-          simp only
-          obtain ⟨hX', hE'⟩ := reduce_sound v d fuel (agents.erase i) (g0 :: gs) (hrest i hi) (hag.erase i) hgd
-            (by rw [List.length_erase_of_mem hi]; omega)
-            (fun j hj => h3 j (List.mem_of_mem_erase hj))
-          obtain ⟨hX, hE⟩ := peelEmpty v (List.Nodup.not_mem_erase hag) hX' hE' (r1Step_none_zero hs)
-          exact ⟨fun g hg => (mem_cons_erase hi _).mp (hX g hg), efx0L_congr v (mem_cons_erase hi) hE⟩
-        | some p =>
-          simp only
-          obtain ⟨hp, htop⟩ := r1Step_some hs
-          obtain ⟨hX', hE'⟩ := reduce_sound v d fuel (agents.erase i) ((g0 :: gs).erase p) (hrest i hi)
-            (hag.erase i) (hgd.erase p) (by rw [List.length_erase_of_mem hi]; omega)
-            (fun j hj => Nat.le_trans (relevant_sublist v List.erase_sublist) (h3 j (List.mem_of_mem_erase hj)))
-          obtain ⟨hX, hE⟩ := peel v (List.Nodup.not_mem_erase hag) hp hgd hX' hE' htop
-          exact ⟨fun g hg => (mem_cons_erase hi _).mp (hX g hg), efx0L_congr v (mem_cons_erase hi) hE⟩
-      | none =>
-        simp only
-        have hnone := findR1_none hf
-        have hb : ∀ i ∈ agents, 3 ≤ (relevant v i (g0 :: gs)).length ∧
-            ∀ g ∈ g0 :: gs, 2 * v i g < value v i (g0 :: gs) :=
-          fun i hi => not_R1 v (by simp) (r1Step_eq_none (hnone i hi))
-        exact lbStage_sound v g0 d hag hgd hne (fun i hi => Nat.le_antisymm (h3 i hi) (hb i hi).1)
-          (fun i hi g hg => Nat.le_of_lt ((hb i hi).2 g hg))
-
 end proofs
 
-/-! ## The model's instances -/
+end K3
+end EFX
 
-/-- **The algorithm's specification** for an instance of the model with `n ≥ 1` agents: `reduce` on all agents
-and all goods (in index order), with agent `0` as the default. -/
-def algoSpec (I : Inst) (hn : 0 < I.n) : I.Alloc :=
-  reduce I.v ⟨0, hn⟩ I.n (List.finRange I.n) (List.finRange I.m)
+/-! ## Counted versions -/
 
-/-- **Correctness.** If every agent positively values at most three goods, `algoSpec` is EFX₀. -/
-theorem algoSpec_efx0 (I : Inst) (hn : 0 < I.n) (h : ∀ i, numRelevant I i ≤ 3) : I.EFX0 (algoSpec I hn) :=
-  (Inst.efx0_iff I _).mpr (reduce_sound I.v ⟨0, hn⟩ I.n (List.finRange I.n) (List.finRange I.m)
-    (List.ne_nil_of_mem (List.mem_finRange ⟨0, hn⟩)) (List.nodup_finRange _) (List.nodup_finRange _)
-    (by simp) (fun i _ => (numRelevant_eq I i) ▸ h i)).2
+namespace EFX
+namespace K3
+
+open Timed LB
+
+section
+variable {A G : Type} [DecidableEq A] [DecidableEq G]
+
+/-- `P.rank i g`: three table reads (`a i`, `b i`, `c i`) and at most three comparisons. -/
+def rankC (P : Profile A G) (i : A) (g : G) : Timed Nat := do
+  tick 6
+  pure (P.rank i g)
+
+/-- `P.pickRank Y i`: one table read (`Y i`) and a rank. -/
+def pickRankC (P : Profile A G) (Y : A → Option G) (i : A) : Timed Nat := do
+  tick 1
+  match Y i with
+  | none => pure 3
+  | some y => rankC P i y
+
+/-- `P.Prefers Y i g`: two ranks and one comparison. -/
+def prefersC (P : Profile A G) (Y : A → Option G) (i : A) (g : G) : Timed Bool := do
+  let r ← rankC P i g
+  let q ← pickRankC P Y i
+  tick 1
+  pure (decide (r < q))
+
+omit [DecidableEq A] in
+@[simp] theorem rankC_val (P : Profile A G) (i : A) (g : G) : (rankC P i g).val = P.rank i g := rfl
+
+omit [DecidableEq A] in
+@[simp] theorem pickRankC_val (P : Profile A G) (Y : A → Option G) (i : A) :
+    (pickRankC P Y i).val = P.pickRank Y i := by
+  unfold pickRankC Profile.pickRank
+  cases Y i <;> rfl
+
+omit [DecidableEq A] in
+@[simp] theorem prefersC_val (P : Profile A G) (Y : A → Option G) (i : A) (g : G) :
+    (prefersC P Y i g).val = decide (P.Prefers Y i g) := by
+  simp only [prefersC, bind_val, rankC_val, pickRankC_val, pure_val]
+  rfl
+
+end
+
+section generic
+variable {A G : Type} [DecidableEq A] [DecidableEq G]
+
+/-- `favorite f S` with `f` a counted function (a value read): one comparison per good. -/
+def favoriteC (f : G → Timed Nat) : List G → Timed (Option G)
+  | [] => pure none
+  | g :: S => do
+    let r ← favoriteC f S
+    match r with
+    | none => do tick 1; pure (some g)
+    | some h => do
+      let fh ← f h
+      let fg ← f g
+      tick 1
+      pure (if fh ≤ fg then some g else some h)
+
+/-- `value v i S`: one value read per good (and one addition, counted by `sumMapC`). -/
+def valueC (v : A → G → Nat) (i : A) (S : List G) : Timed Nat :=
+  sumMapC (fun g => do tick 1; pure (v i g)) S
+
+omit [DecidableEq G] in
+@[simp] theorem favoriteC_val (f : G → Timed Nat) : ∀ S : List G,
+    (favoriteC f S).val = favorite (fun g => (f g).val) S
+  | [] => rfl
+  | g :: S => by
+    unfold favoriteC favorite
+    simp only [bind_val, favoriteC_val f S]
+    cases favorite (fun g => (f g).val) S with
+    | none => rfl
+    | some h => simp only [bind_val, pure_val]
+
+omit [DecidableEq A] [DecidableEq G] in
+@[simp] theorem valueC_val (v : A → G → Nat) (i : A) (S : List G) : (valueC v i S).val = value v i S := by
+  simp [valueC, value]
+
+end generic
+
+section fin
+variable {n m : Nat}
+
+/-- `sort3` of a list: at most four list cells inspected, three value reads, three comparisons. -/
+def sort3C (f : Fin m → Nat) (g0 : Fin m) (l : List (Fin m)) : Timed (Fin m × Fin m × Fin m) := do
+  tick 10
+  pure (sort3 f g0 l)
+
+/-- `List.finRange k`, one unit per element. -/
+def finRangeC (k : Nat) : Timed (List (Fin k)) := do
+  tick k
+  pure (List.finRange k)
+
+end fin
+
+section generic
+variable {A G : Type} [DecidableEq A] [DecidableEq G] {N : Nat}
+
+omit [DecidableEq A] in
+theorem rankC_cost (P : Profile A G) (i : A) (g : G) : (rankC P i g).cost = 6 := rfl
+
+omit [DecidableEq A] in
+theorem pickRankC_cost (P : Profile A G) (Y : A → Option G) (i : A) : (pickRankC P Y i).cost ≤ 7 := by
+  unfold pickRankC; cases Y i <;> simp [rankC]
+
+omit [DecidableEq A] in
+theorem prefersC_cost (P : Profile A G) (Y : A → Option G) (i : A) (g : G) : (prefersC P Y i g).cost ≤ 14 := by
+  have := pickRankC_cost P Y i
+  simp only [prefersC, bind_cost, rankC_cost, tick_cost, pure_cost]
+  omega
+
+end generic
 
 end K3
 end EFX
@@ -357,6 +336,3 @@ end EFX
 /-! ## Axiom certificates (audited by `check.sh`) -/
 
 #print axioms EFX.K3.sort3_ranking
-#print axioms EFX.K3.lbStage_sound
-#print axioms EFX.K3.reduce_sound
-#print axioms EFX.K3.algoSpec_efx0

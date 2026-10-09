@@ -1,5 +1,4 @@
 import EFX.K3DECostRun
-import EFX.K3CostBound
 
 /-!
 # The running time of Draft and Exchange, part 4: `O(n(n + m))` operations

@@ -1,12 +1,13 @@
-import EFX.K3CostBound
+import EFX.K3Algo
 import EFX.RealValues
 
 /-!
-# K3ALG on ordered values in the comparison model (Corollary "real values")
+# L12's surrogate, computed with a comparison oracle
 
-`EFX.K3.algo` takes natural-number values. This file runs it on values in any `EFX.OrderedValue` type `V` (the
-axioms of a linearly ordered cancellative commutative monoid; `ℝ≥0` satisfies them by the textbook fact, core Lean
-has no reals) through the integer surrogate of Lemma L12 (`EFX.l12`), which it *computes* with a comparison oracle.
+Values in any `EFX.OrderedValue` type `V` (the axioms of a linearly ordered cancellative commutative monoid; `ℝ≥0`
+satisfies them by the textbook fact, core Lean has no reals) are replaced by the natural-number surrogate of Lemma
+L12 (`EFX.l12`), which this file *computes* with a comparison oracle. `EFX/K3DEReal.lean` runs Draft and Exchange
+on the surrogate (it was written for K3ALG, the research repository's earlier algorithm, which ran the same way).
 
 **The oracle.** The program receives `le : V → V → Bool` and inspects the values only through it; otherwise it only
 reads them and adds two values of one agent in `V` (six additions per agent, `patC`, one unit each). It asks whether
@@ -15,8 +16,8 @@ goods these are comparisons of two subset sums; with one or two, the phantom slo
 can be `2 v_i(g₁)` (e.g. `v_i(g₂) ≤ v_i(g₁) + v_i(g₁)`), a sum with repetition that subset-sum comparisons do not
 determine. So the oracle compares sums of one agent's values with repetition, as in the real-RAM model of
 `proofs/k3_algorithm.md` §3. The theorems assume the oracle is correct, `∀ x y, le x y = true ↔ x ≤ y`.
-A call is charged `c` units (`askC`); the algorithm fixes `c = 1`, and `surrogateC_cost` is stated for every `c`,
-so its coefficient of `c` bounds the number of calls.
+A call is charged `c` units (`askC`), and `surrogateC_cost` is stated for every `c`, so its coefficient of `c`
+bounds the number of calls.
 
 **The surrogate** (`surrogate`, the constructive content of `EFX.OrderedValue.exists_agree`). For each agent `i`:
 - its relevant goods, in index order: one oracle call `v_i(g) ≤ 0` per good (`relOf`, `relC`);
@@ -24,25 +25,18 @@ so its coefficient of `c` bounds the number of calls.
   goods, the phantom-slot values of `exists_agree`): twelve oracle calls (`patOf`, `patC`);
 - the first row of the 31-row table `EFX.Pat.reps` with that pattern (`repOf`, `repC`; no oracle call), whose
   entries become `w_i` on those goods, and `w_i(g) = 0` elsewhere (`wOf`).
-`surrogateC` stores `w` as an `n × m` table (arrays filled once, `EFX.Timed.mkTable`), so K3ALG reads it at unit
-cost, as it reads its input.
-
-**The algorithm** `algoOrd le I hn := (algoOrdC le I hn).val`, where `algoOrdC` computes the surrogate and runs
-`EFX.K3.algoC` on the instance `⟨n, m, w⟩` (`algoOrd_eq`: `algoOrd` is `EFX.K3.algo` on the surrogate).
+`surrogateC` stores `w` as an `n × m` table (arrays filled once, `EFX.Timed.mkTable`), so a program can read it at
+unit cost, as it reads its input.
 
 - `agree_surrogate`: for a correct oracle, nonnegative values and at most three relevant goods per agent, `w_i`
-  agrees with `v_i` on every comparison of two subset sums (`EFX.Agree`).
-- `algoOrd_efx0`: **correctness**: under the same hypotheses `algoOrd le I hn` is EFX₀ for the original values
-  (via `EFX.efx0_iff_of_agree` and `EFX.K3.algo_efx0`).
-- `surrogateC_cost`: with each oracle call charged `c` units, computing `w` costs at most
-  `c · n (m + 12) + 10 n m + 971 n`: the program asks `m + 12` oracle calls per agent (the coefficient of `c`), and
-  does `O(nm)` other operations.
-- `algoOrdC_cost`: **the cost** (`c = 1`): at most `n (m + 12) + 10 n m + 971 n + 400 (n + m + 1)⁴` counted
-  operations on every instance with `n ≥ 1`, each oracle call counted as one unit, whatever the number of relevant
-  goods (with the finer count of K3ALG: `EFX.K3.algoOrdC_cost_fine` in `EFX.K3CostFine`).
-- `Examples.peelOwnerZ_algoOrd`: an instance with values in `Int`, checked by `decide`.
+  agrees with `v_i` on every comparison of two subset sums (`EFX.Agree`); `numRelevant_eq_relOf`: `relOf` lists
+  the relevant goods.
+- `surrogateC_val`: the counted program computes `surrogate`. `surrogateC_cost`: with each oracle call charged `c`
+  units, computing `w` costs at most `c · n (m + 12) + 10 n m + 971 n`: the program asks `m + 12` oracle calls per
+  agent (the coefficient of `c`), and does `O(nm)` other operations.
+- `Examples.leZ`: the comparison oracle on `Int`, correct by `Examples.leZ_spec`.
 
-What a unit counts is `EFX.K3CostLB`'s list, plus: one oracle call (`askC`), one addition of two values in `V`
+What a unit counts is `EFX.K3DECost`'s list, plus: one oracle call (`askC`), one addition of two values in `V`
 (`patC`'s `tick 6`), one read of an input value `v i g` (`relC`'s `tick 1`).
 -/
 
@@ -151,19 +145,7 @@ def agentC (c : Nat) (le : V → V → Bool) {m : Nat} (f : Fin m → V) : Timed
 def surrogateC (c : Nat) (le : V → V → Bool) (I : OInst V) : Timed (Fin I.n → Fin I.m → Nat) :=
   mkTable I.n (fun i => agentC c le (I.v i))
 
-/-- **Algorithm K3ALG on ordered values, as a counted program** (comparison model: one unit per oracle call):
-compute the surrogate `w`, then run `EFX.K3.algoC` on `⟨n, m, w⟩`. -/
-def algoOrdC (le : V → V → Bool) (I : OInst V) (hn : 0 < I.n) : Timed I.Alloc := do
-  let w ← surrogateC 1 le I
-  algoC ⟨I.n, I.m, w⟩ hn
-
-/-- **Algorithm K3ALG on ordered values**: the allocation `algoOrdC` computes. -/
-def algoOrd (le : V → V → Bool) (I : OInst V) (hn : 0 < I.n) : I.Alloc := (algoOrdC le I hn).val
-
 /-! ## Value lemmas -/
-
-omit [OrderedValue V] in
-@[simp] theorem askC_val (c : Nat) (le : V → V → Bool) (x y : V) : (askC c le x y).val = le x y := rfl
 
 @[simp] theorem patC_val (c : Nat) (le : V → V → Bool) (x1 x2 x3 : V) :
     (patC c le x1 x2 x3).val = patOf le x1 x2 x3 := rfl
@@ -182,14 +164,6 @@ theorem agentC_val (c : Nat) (le : V → V → Bool) {m : Nat} (f : Fin m → V)
 theorem surrogateC_val (c : Nat) (le : V → V → Bool) (I : OInst V) : (surrogateC c le I).val = surrogate le I := by
   funext i
   simp only [surrogateC, mkTable_val, agentC_val, surrogate]
-
-/-- `algoOrd` is algorithm K3ALG (`EFX.K3.algo`) run on the surrogate instance. -/
-theorem algoOrd_eq (le : V → V → Bool) (I : OInst V) (hn : 0 < I.n) :
-    algoOrd le I hn = algo ⟨I.n, I.m, surrogate le I⟩ hn := by
-  have e : ∀ w w' : Fin I.n → Fin I.m → Nat, w = w' →
-      (algoC ⟨I.n, I.m, w⟩ hn).val = (algoC ⟨I.n, I.m, w'⟩ hn).val := by
-    intro w w' h; subst h; rfl
-  exact e _ _ (surrogateC_val 1 le I)
 
 /-! ## Correctness -/
 
@@ -298,20 +272,7 @@ theorem agree_surrogate {le : V → V → Bool} (hle : ∀ x y, le x y = true �
   refine le_antisymm _ _ (Classical.byContradiction fun hc => hg ?_) (hv i g)
   exact List.mem_filter.mpr ⟨List.mem_finRange g, (hrel g).mpr hc⟩
 
-/-- **Correctness of K3ALG on ordered values.** For a correct comparison oracle, every instance with `n ≥ 1` agents,
-nonnegative values in an `EFX.OrderedValue` type (e.g. `ℝ≥0`), and at most three relevant goods per agent,
-`algoOrd le I hn` is an EFX₀ allocation for the original values. -/
-theorem algoOrd_efx0 {le : V → V → Bool} (hle : ∀ x y, le x y = true ↔ x ≤ y) (I : OInst V) (hn : 0 < I.n)
-    (hv : ∀ i g, 0 ≤ I.v i g) (h : ∀ i, I.numRelevant i ≤ 3) : I.EFX0 (algoOrd le I hn) := by
-  have hw := agree_surrogate hle I hv h
-  rw [algoOrd_eq]
-  exact (efx0_iff_of_agree I (surrogate le I) hw _).mpr
-    (algo_efx0 _ hn (fun i => (numRelevant_eq_of_agree I _ hw i) ▸ h i))
-
 /-! ## Cost -/
-
-omit [OrderedValue V] in
-theorem askC_cost (c : Nat) (le : V → V → Bool) (x y : V) : (askC c le x y).cost = c := rfl
 
 /-- The pattern: exactly twelve oracle calls and six additions. -/
 theorem patC_cost (c : Nat) (le : V → V → Bool) (x1 x2 x3 : V) : (patC c le x1 x2 x3).cost = 12 * c + 6 := by
@@ -364,58 +325,16 @@ theorem surrogateC_cost (c : Nat) (le : V → V → Bool) (I : OInst V) :
   unfold surrogateC
   omega
 
-/-- **The cost of K3ALG on ordered values** (comparison model, one unit per oracle call): at most
-`n (m + 12) + 10 n m + 971 n` operations for the surrogate (of which `n (m + 12)` oracle calls,
-`surrogateC_cost`), plus `EFX.K3.algoC_cost`'s `400 (n + m + 1)⁴` for K3ALG on it, on every instance with
-`n ≥ 1` (whatever the number of relevant goods). -/
-theorem algoOrdC_cost (le : V → V → Bool) (I : OInst V) (hn : 0 < I.n) :
-    (algoOrdC le I hn).cost ≤
-      I.n * (I.m + 12) + 10 * (I.n * I.m) + 971 * I.n + 400 * (I.n + I.m + 1) ^ 4 := by
-  have h1 := surrogateC_cost 1 le I
-  have h2 := algoC_cost ⟨I.n, I.m, (surrogateC 1 le I).val⟩ hn
-  simp only at h2
-  simp only [algoOrdC, bind_cost]
-  omega
-
 end oracle
 
-/-! ## An example (non-vacuity; values in `Int`)
-
-The instance `EFX.K3.Examples.peelOwner` (the paper's example of a peel followed by owner `r`) with values in `Int`
-and the oracle `decide (x ≤ y)`. Agent 0's values `84, 73, 54` have the pattern `a > b > c`, `a < b + c`, so its
-surrogate is `4, 3, 2`; the output is the allocation `EFX.K3.Examples.peelOwner_algo` finds on the natural-number
-values, and it is EFX₀ for the `Int` values by `algoOrd_efx0`. -/
+/-! ## The comparison oracle on `Int` -/
 
 namespace Examples
-
-/-- `EFX.K3.Examples.peelOwner` with values in `Int`. -/
-def peelOwnerZ : OInst Int :=
-  ⟨3, 6, fun i g => (([[0, 0, 84, 0, 73, 54], [0, 87, 0, 0, 0, 0], [0, 0, 83, 44, 92, 0]] : List (List Int)).getD
-    i.val []).getD g.val 0⟩
 
 /-- The comparison oracle on `Int`. -/
 def leZ (x y : Int) : Bool := decide (x ≤ y)
 
 theorem leZ_spec (x y : Int) : leZ x y = true ↔ x ≤ y := decide_eq_true_iff
-
-theorem peelOwnerZ_surrogate :
-    (List.finRange 6).map (fun g => surrogate leZ peelOwnerZ ⟨0, by decide⟩ g) = [0, 0, 4, 0, 3, 2] ∧
-    (List.finRange 6).map (fun g => surrogate leZ peelOwnerZ ⟨1, by decide⟩ g) = [0, 1, 0, 0, 0, 0] ∧
-    (List.finRange 6).map (fun g => surrogate leZ peelOwnerZ ⟨2, by decide⟩ g) = [0, 0, 3, 2, 4, 0] := by
-  decide
-
-theorem peelOwnerZ_spec :
-    (List.finRange 6).map (fun g => (algoSpec ⟨3, 6, surrogate leZ peelOwnerZ⟩ (by decide) g).val) =
-      [2, 1, 0, 2, 2, 0] := by
-  decide
-
-/-- K3ALG on the `Int` values: its output, and it is EFX₀. -/
-theorem peelOwnerZ_algoOrd :
-    (List.finRange 6).map (fun g => (algoOrd leZ peelOwnerZ (by decide) g).val) = [2, 1, 0, 2, 2, 0] ∧
-      peelOwnerZ.EFX0 (algoOrd leZ peelOwnerZ (by decide)) :=
-  ⟨by simp only [algoOrd_eq, algo_eq_spec]; exact peelOwnerZ_spec,
-    algoOrd_efx0 leZ_spec peelOwnerZ (by decide) (by decide)
-      (fun i => (numRelevant_eq_relOf leZ_spec peelOwnerZ i) ▸ (by revert i; decide))⟩
 
 end Examples
 end K3
@@ -427,8 +346,4 @@ end EFX
 #print axioms EFX.K3.agree_surrOfL
 #print axioms EFX.K3.numRelevant_eq_relOf
 #print axioms EFX.K3.agree_surrogate
-#print axioms EFX.K3.algoOrd_eq
-#print axioms EFX.K3.algoOrd_efx0
 #print axioms EFX.K3.surrogateC_cost
-#print axioms EFX.K3.algoOrdC_cost
-#print axioms EFX.K3.Examples.peelOwnerZ_algoOrd

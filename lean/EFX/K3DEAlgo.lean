@@ -6,8 +6,7 @@ import EFX.K3DEImprove
 Algorithm DE of `paper/k3-simple/long.tex` §6, as a computable function, and Theorem "DE is correct":
 
 1. **Peeling** (`run`): while at least two agents and some goods remain, the first agent to which rule R1 applies
-   leaves, with its favourite remaining good or with nothing (`EFX.K3.findR1`, as in `EFX.K3.reduce`); one agent left
-   takes everything.
+   leaves, with its favourite remaining good or with nothing (`EFX.K3.findR1`); one agent left takes everything.
 2. **The core** (`deStage`): when R1 applies to nobody, every remaining agent values exactly three goods and is
    strictly balanced (`EFX.not_R1`); its ranking is computed by sorting (`EFX.K3.profileOf`). The draft is
    serial dictatorship in the order of `agents` (`EFX.LB.phase1`, a valid state: `draft_valid`). Then `loop` repeats

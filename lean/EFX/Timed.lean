@@ -4,13 +4,14 @@
 `Timed α` is a value of type `α` together with a natural number, the number of elementary operations spent to
 compute it. Programs are written in `Timed`'s monad; `tick k` spends `k` operations; `bind` adds the costs. So a
 program's `cost` is the sum of the ticks along the path its evaluation takes, and its `val` is what it computes.
-A program's `cost` therefore counts exactly what its ticks count; `proofs/k3_algorithm.md` §6 and the module doc
-of `EFX.K3Cost` list what one unit stands for.
+A program's `cost` therefore counts exactly what its ticks count; the module doc of `EFX.K3DECost` lists what
+one unit stands for.
 
-This file defines the monad and the list operations used by the algorithm (`EFX.K3Cost`), each with:
+This file defines the monad and the list operations used by the counted programs (`EFX.K3Algo`,
+`EFX/K3DECost*.lean`), each with:
 - a *value lemma*: its `val` is the corresponding function of Lean's core library (`List.map`, `List.filter`,
-  `List.any`, `List.find?`, `List.findSome?`, membership, `List.erase`, `List.take`, `List.drop`, `++`, `length`,
-  sums), with the element function's `val` in place of the element function;
+  `List.find?`, `List.findSome?`, `List.erase`, `++`, `length`, sums), with the element function's `val` in place
+  of the element function;
 - a *cost lemma*: one unit per list cell visited, plus the cost of the element function at each visited cell.
 
 `mkTable n f` evaluates `f` once at each index of `Fin n` and stores the results in an array (`Array.ofFn`); the
@@ -46,7 +47,6 @@ end Timed
 /-- Spend `k` elementary operations. -/
 def tick (k : Nat) : Timed Unit := ⟨(), k⟩
 
-@[simp] theorem tick_val (k : Nat) : (tick k).val = () := rfl
 @[simp] theorem tick_cost (k : Nat) : (tick k).cost = k := rfl
 
 namespace Timed
@@ -72,14 +72,6 @@ def filterC (p : α → Timed Bool) : List α → Timed (List α)
     let b ← p x
     let ys ← filterC p xs
     pure (if b then x :: ys else ys)
-
-/-- `List.any`, stopping at the first element that passes. -/
-def anyC (p : α → Timed Bool) : List α → Timed Bool
-  | [] => pure false
-  | x :: xs => do
-    tick 1
-    let b ← p x
-    if b then pure true else anyC p xs
 
 /-- `List.find?`, stopping at the first element that passes. -/
 def findC (p : α → Timed Bool) : List α → Timed (Option α)
@@ -124,32 +116,8 @@ def appendC : List α → List α → Timed (List α)
     let ys ← appendC xs l'
     pure (x :: ys)
 
-/-- `List.take k`. -/
-def takeC : Nat → List α → Timed (List α)
-  | 0, _ => pure []
-  | _ + 1, [] => pure []
-  | k + 1, x :: xs => do
-    tick 1
-    let ys ← takeC k xs
-    pure (x :: ys)
-
-/-- `List.drop k`. -/
-def dropC : Nat → List α → Timed (List α)
-  | 0, l => pure l
-  | _ + 1, [] => pure []
-  | k + 1, _ :: xs => do
-    tick 1
-    dropC k xs
-
 section deq
 variable [DecidableEq α]
-
-/-- Membership: one unit per comparison. -/
-def memC (a : α) : List α → Timed Bool
-  | [] => pure false
-  | x :: xs => do
-    tick 1
-    if a = x then pure true else memC a xs
 
 /-- `List.erase`: one unit per comparison. -/
 def eraseC (a : α) : List α → Timed (List α)
@@ -173,12 +141,6 @@ end deq
   | [] => rfl
   | x :: xs => by
     simp only [filterC, bind_val, pure_val, filterC_val p xs, List.filter_cons]
-
-@[simp] theorem anyC_val (p : α → Timed Bool) : ∀ l : List α, (anyC p l).val = l.any (fun x => (p x).val)
-  | [] => rfl
-  | x :: xs => by
-    simp only [anyC, bind_val, List.any_cons]
-    cases (p x).val <;> simp [anyC_val p xs]
 
 @[simp] theorem findC_val (p : α → Timed Bool) : ∀ l : List α, (findC p l).val = l.find? (fun x => (p x).val)
   | [] => rfl
@@ -206,26 +168,8 @@ end deq
   | [], _ => rfl
   | x :: xs, l' => by simp [appendC, appendC_val xs l']
 
-@[simp] theorem takeC_val : ∀ (k : Nat) (l : List α), (takeC k l).val = l.take k
-  | 0, _ => rfl
-  | _ + 1, [] => rfl
-  | k + 1, x :: xs => by simp [takeC, takeC_val k xs]
-
-@[simp] theorem dropC_val : ∀ (k : Nat) (l : List α), (dropC k l).val = l.drop k
-  | 0, _ => rfl
-  | _ + 1, [] => rfl
-  | k + 1, _ :: xs => by simp [dropC, dropC_val k xs]
-
 section deq
 variable [DecidableEq α]
-
-@[simp] theorem memC_val (a : α) : ∀ l : List α, (memC a l).val = decide (a ∈ l)
-  | [] => rfl
-  | x :: xs => by
-    simp only [memC, bind_val]
-    by_cases h : a = x
-    · simp [h]
-    · simp [h, memC_val a xs]
 
 @[simp] theorem eraseC_val (a : α) : ∀ l : List α, (eraseC a l).val = l.erase a
   | [] => rfl
@@ -257,15 +201,6 @@ theorem filterC_cost (p : α → Timed Bool) (B : Nat) : ∀ l : List α, (∀ x
     have := h x (by simp)
     simp only [filterC, bind_cost, tick_cost, pure_cost, List.length_cons, Nat.succ_mul]
     omega
-
-theorem anyC_cost (p : α → Timed Bool) (B : Nat) : ∀ l : List α, (∀ x ∈ l, (p x).cost ≤ B) →
-    (anyC p l).cost ≤ l.length * (B + 1)
-  | [], _ => by simp [anyC]
-  | x :: xs, h => by
-    have ih := anyC_cost p B xs (fun y hy => h y (by simp [hy]))
-    have := h x (by simp)
-    simp only [anyC, bind_cost, tick_cost, List.length_cons, Nat.succ_mul]
-    split <;> (try simp only [pure_cost]) <;> omega
 
 theorem findC_cost (p : α → Timed Bool) (B : Nat) : ∀ l : List α, (∀ x ∈ l, (p x).cost ≤ B) →
     (findC p l).cost ≤ l.length * (B + 1)
@@ -302,25 +237,8 @@ theorem appendC_cost : ∀ l l' : List α, (appendC l l').cost = l.length
   | [], _ => rfl
   | _ :: xs, l' => by simp [appendC, appendC_cost xs l']; omega
 
-theorem takeC_cost : ∀ (k : Nat) (l : List α), (takeC k l).cost ≤ k
-  | 0, _ => by simp [takeC]
-  | _ + 1, [] => by simp [takeC]
-  | k + 1, _ :: xs => by have := takeC_cost k xs; simp [takeC]; omega
-
-theorem dropC_cost : ∀ (k : Nat) (l : List α), (dropC k l).cost ≤ k
-  | 0, _ => by simp [dropC]
-  | _ + 1, [] => by simp [dropC]
-  | k + 1, _ :: xs => by have := dropC_cost k xs; simp [dropC]; omega
-
 section deq
 variable [DecidableEq α]
-
-theorem memC_cost (a : α) : ∀ l : List α, (memC a l).cost ≤ l.length
-  | [] => by simp [memC]
-  | x :: xs => by
-    have := memC_cost a xs
-    simp only [memC, bind_cost, tick_cost, List.length_cons]
-    split <;> (try simp only [pure_cost]) <;> omega
 
 theorem eraseC_cost (a : α) : ∀ l : List α, (eraseC a l).cost ≤ l.length
   | [] => by simp [eraseC]

@@ -1,16 +1,22 @@
-import EFX.LBRun
+import EFX.Rankings
 
 /-!
-# Valid pre-allocations and their completions (`proofs/lb_last_step.md` §2)
+# The draft, and valid pre-allocations with their soundness theorem (`proofs/lb_last_step.md` §2)
 
-Theorem 1′ of `proofs/lb_last_step.md` generalizes Theorem 1 of `proofs/construction.md` (`EFX.LB.Hyp`,
-`EFX.LB.sound`) from LB's output to the completions of any *valid pre-allocation*.
+The rank-based states of Draft and Exchange (`EFX/K3DE*.lean`) and their soundness theorem, Theorem 1′. They come
+from the research repository's construction LB (`proofs/construction.md` §3) and its generalization
+(`proofs/lb_last_step.md` §2); only what the formalization of the paper uses is kept here. The rankings are those
+of `EFX.Rankings`.
+
+**The draft** (`phase1`, Phase 1 of LB): the agents of a list take, one at a time, their favourite remaining good;
+`phase1_spec`: each pick is one of the picker's goods, no good is picked twice, and invariant (I1) holds (a good
+that an agent ranks above its pick was picked). `fill` distributes a list of goods over the slots of a list of
+agents (`fill_count`, `fill_cover`); `picker`, `upOf`, `frozenB`, `naB` are the lookups.
 
 A pre-allocation consists of picks `Y` (each agent's pick is one of its three goods, or none; picks are
-distinct) and a list `up` of upgraded agents: each `u ∈ up` picked its `b u` and also holds its `c u`; the
-goods `c u` are distinct and nobody's pick. The junk is every other good. `NA` is the set of goods that some
-agent outside `up` ranks above its pick (all its goods if it has none). The pre-allocation is *valid*
-(`Valid`) if (V1) no junk is in `NA` and (V2) `b u`, `c u ∉ NA` for every `u ∈ up`.
+distinct) and a list `up` of upgraded agents (pair holders): each `u ∈ up` picked its `b u` and also holds its
+`c u`; the goods `c u` are distinct and nobody's pick. The junk is every other good (`junkList`). The
+pre-allocation is *valid* (`Valid`) if (V1) no junk is in `NA` and (V2) `b u`, `c u ∉ NA` for every `u ∈ up`.
 
 An agent outside `up` is *frozen* if its pick is in `NA`, and a *terminal* otherwise; a terminal has one
 slot if it has a pick and two if not. A *completion* with an optional owner `o` (`Completion`) gives every
@@ -19,22 +25,275 @@ only `b u` and `c u`, and a terminal other than `o` at most its slots beyond its
 owner constraint (OC) if no agent `x ∉ up`, `x ≠ o`, with pick `a x`, finds both `b x` and `c x` in `o`'s
 bundle.
 
-- `HypNA`: the hypotheses of `EFX.LB.Hyp` with invariant (I1) replaced by what the proof of Theorem 1 uses
-  of it (every good of `NA` is somebody's pick) and an optional owner; `Hyp.toHypNA`: every `Hyp` is one.
-  `HypNA.efx0`, `HypNA.length_le_two`: Theorem 1 for `HypNA`.
+- `HypNA`, `HypNA.efx0`, `HypNA.length_le_two`: the hypotheses of Theorem 1 of `proofs/construction.md`, with
+  (I1) replaced by what its proof uses of it (every good of `NA` is somebody's pick) and an optional owner, and
+  the theorem for them.
 - `Valid`, `Completion`, `Valid.sound`: **Theorem 1′**. Every completion of a valid pre-allocation that
   satisfies (OC) is EFX₀ for every additive valuation consistent with the rankings (ties allowed), and every
   bundle but the owner's has at most two goods.
-- `complete`: a concrete completion. The terminals other than the owner fill their slots, in the order of
-  `agents`, first from a list `H` of junk goods and then from the rest of the junk; the owner takes what is
-  left. `complete_none` (no owner: all junk fits the slots) and `complete_some` (**Lemma 1**, the owner
-  criterion: `H` meets every exposed pair and fits the other terminals' slots) show it is a completion
-  satisfying (OC).
 
 As in the written proof, only the envier's own values are used; L5 is not used.
 -/
 
 set_option autoImplicit false
+
+namespace EFX
+namespace LB
+
+variable {A G : Type} [DecidableEq G]
+
+/-! ## Phase 1: serial dictatorship in a given order -/
+
+/-- `i`'s favourite remaining good: the first of `a i`, `b i`, `c i` still in `pool`. -/
+def fav (P : Profile A G) (pool : List G) (i : A) : Option G :=
+  if P.a i ∈ pool then some (P.a i) else if P.b i ∈ pool then some (P.b i)
+  else if P.c i ∈ pool then some (P.c i) else none
+
+/-- The pool after a pick. -/
+def removePick (pool : List G) : Option G → List G
+  | none => pool
+  | some g => pool.erase g
+
+/-- The rank of `fav`, `3` if none. -/
+def favRank (P : Profile A G) (pool : List G) (i : A) : Nat :=
+  match fav P pool i with
+  | none => 3
+  | some y => P.rank i y
+
+theorem fav_some {P : Profile A G} {pool : List G} {i : A} {y : G} (h : fav P pool i = some y) :
+    y ∈ pool ∧ P.rank i y < 3 := by
+  unfold fav at h
+  unfold Profile.rank
+  by_cases ha : P.a i ∈ pool <;> by_cases hb : P.b i ∈ pool <;> by_cases hc : P.c i ∈ pool <;>
+    simp [ha, hb, hc] at h <;> subst h <;> grind
+
+/-- No good of the pool ranks above the favourite. -/
+theorem fav_best (P : Profile A G) (pool : List G) (i : A) :
+    ∀ g ∈ pool, ¬ P.rank i g < favRank P pool i := by
+  intro g hg hlt
+  unfold favRank fav at hlt
+  unfold Profile.rank at hlt
+  by_cases ha : P.a i ∈ pool <;> by_cases hb : P.b i ∈ pool <;> by_cases hc : P.c i ∈ pool <;>
+    simp [ha, hb, hc] at hlt <;> grind
+
+theorem nodup_removePick {pool : List G} (h : pool.Nodup) (p : Option G) :
+    (removePick pool p).Nodup := by
+  cases p with
+  | none => exact h
+  | some g => exact h.erase g
+
+theorem mem_removePick {pool : List G} {p : Option G} {g : G} (h : g ∈ removePick pool p) :
+    g ∈ pool := by
+  cases p with
+  | none => exact h
+  | some y => exact List.mem_of_mem_erase h
+
+variable [DecidableEq A]
+
+/-- Phase 1: the agents of `order` take, one at a time, their favourite remaining good (or nothing if
+none of their goods remains). The result is each agent's pick. -/
+def phase1 (P : Profile A G) : List A → List G → A → Option G
+  | [], _, _ => none
+  | i :: order, pool, k =>
+    if k = i then fav P pool i else phase1 P order (removePick pool (fav P pool i)) k
+
+/-- Phase 1 in any order of distinct agents: each pick is a good of the picker taken from the pool,
+no good is picked twice, and invariant (I1) holds. -/
+theorem phase1_spec (P : Profile A G) :
+    ∀ (order : List A) (pool : List G), order.Nodup → pool.Nodup →
+      (∀ k y, phase1 P order pool k = some y → k ∈ order ∧ y ∈ pool ∧ P.rank k y < 3) ∧
+      (∀ k k' y, phase1 P order pool k = some y → phase1 P order pool k' = some y → k = k') ∧
+      (∀ i ∈ order, ∀ g ∈ pool, P.Prefers (phase1 P order pool) i g →
+        ∃ k, phase1 P order pool k = some g)
+  | [], pool, _, _ => by simp [phase1]
+  | i :: order, pool, hord, hpool => by
+    have hi : i ∉ order := (List.nodup_cons.mp hord).1
+    obtain ⟨ih1, ih2, ih3⟩ :=
+      phase1_spec P order (removePick pool (fav P pool i)) (List.nodup_cons.mp hord).2
+        (nodup_removePick hpool _)
+    have hY : ∀ k, phase1 P (i :: order) pool k =
+        if k = i then fav P pool i else phase1 P order (removePick pool (fav P pool i)) k :=
+      fun k => rfl
+    have hYi : phase1 P order (removePick pool (fav P pool i)) i = none := by
+      cases h : phase1 P order (removePick pool (fav P pool i)) i with
+      | none => rfl
+      | some y => exact absurd (ih1 i y h).1 hi
+    -- a pick of a later agent is not `i`'s pick
+    have hnot : ∀ k y, fav P pool i = some y →
+        phase1 P order (removePick pool (fav P pool i)) k ≠ some y := by
+      intro k y hf hk
+      have := (ih1 k y hk).2.1
+      rw [hf] at this
+      exact absurd rfl ((List.Nodup.mem_erase_iff hpool).mp this).1
+    refine ⟨fun k y hk => ?_, fun k k' y hk hk' => ?_, fun i' hi' g hg hp => ?_⟩
+    · rw [hY] at hk
+      by_cases hki : k = i
+      · subst hki; simp at hk; exact ⟨by simp, fav_some hk⟩
+      · simp [hki] at hk
+        obtain ⟨h1, h2, h3⟩ := ih1 k y hk
+        exact ⟨by simp [h1], mem_removePick h2, h3⟩
+    · rw [hY] at hk hk'
+      by_cases hki : k = i <;> by_cases hki' : k' = i
+      · rw [hki, hki']
+      · simp [hki, hki'] at hk hk'; exact absurd hk' (hnot k' y hk)
+      · simp [hki, hki'] at hk hk'; exact absurd hk (hnot k y hk')
+      · simp [hki, hki'] at hk hk'; exact ih2 k k' y hk hk'
+    · by_cases hii : i' = i
+      · subst hii
+        apply absurd hp
+        have e : P.pickRank (phase1 P (i' :: order) pool) i' = favRank P pool i' := by
+          unfold Profile.pickRank favRank; rw [hY]; simp only [↓reduceIte]; cases fav P pool i' <;> rfl
+        unfold Profile.Prefers; rw [e]; exact fav_best P pool i' g hg
+      · have hi'o : i' ∈ order := by simpa [hii] using hi'
+        have hp' : P.Prefers (phase1 P order (removePick pool (fav P pool i))) i' g := by
+          unfold Profile.Prefers Profile.pickRank at hp ⊢
+          rw [hY] at hp
+          simpa [hii] using hp
+        by_cases hgf : fav P pool i = some g
+        · exact ⟨i, by rw [hY]; simp [hgf]⟩
+        · have hg' : g ∈ removePick pool (fav P pool i) := by
+            cases hf : fav P pool i with
+            | none => exact hg
+            | some y =>
+              have hyg : g ≠ y := fun e => hgf (by rw [hf, e])
+              exact (List.Nodup.mem_erase_iff hpool).mpr ⟨hyg, hg⟩
+          obtain ⟨k, hk⟩ := ih3 i' hi'o g hg' hp'
+          have hki : k ≠ i := fun e => by rw [e, hYi] at hk; cases hk
+          exact ⟨k, by rw [hY]; simp [hki, hk]⟩
+
+/-! ## `NA` as a Boolean -/
+
+/-- `NA` for the upgraded agents `up`, as a Boolean. -/
+def naB (P : Profile A G) (agents up : List A) (Y : A → Option G) (g : G) : Bool :=
+  agents.any (fun i => !(up.contains i) && decide (P.Prefers Y i g))
+
+theorem naB_iff {P : Profile A G} {agents up : List A} {Y : A → Option G} {g : G} :
+    naB P agents up Y g = true ↔ P.NA agents (· ∈ up) Y g := by
+  simp [naB, Profile.NA]
+
+/-! ## Pickers, frozen agents, and the placement of the junk -/
+
+/-- The agent of `agents` that picked `g`, if any. -/
+def picker (agents : List A) (Y : A → Option G) (g : G) : Option A :=
+  agents.find? (fun k => Y k == some g)
+
+/-- The upgraded agent whose `c` is `g`, if any. -/
+def upOf (P : Profile A G) (up : List A) (g : G) : Option A :=
+  up.find? (fun k => P.c k == g)
+
+/-- `k` is frozen: its pick is in `NA`. -/
+def frozenB (P : Profile A G) (agents up : List A) (Y : A → Option G) (k : A) : Bool :=
+  match Y k with
+  | none => false
+  | some y => naB P agents up Y y
+
+/-- Distribute `rest` over the agents of `ks` in order, `s k` goods to `k`: the agent of each good. -/
+def fill (s : A → Nat) : List A → List G → G → Option A
+  | [], _, _ => none
+  | k :: ks, rest, g => if g ∈ rest.take (s k) then some k else fill s ks (rest.drop (s k)) g
+
+/-! ## Lemmas on the placement -/
+
+omit [DecidableEq A] in
+theorem length_le_of_subset : ∀ {S T : List G}, S.Nodup → (∀ x ∈ S, x ∈ T) → S.length ≤ T.length
+  | [], _, _, _ => by simp
+  | x :: S, T, hS, h => by
+    have hxT := h x (by simp)
+    have ih := length_le_of_subset (T := T.erase x) (List.nodup_cons.mp hS).2 (fun y hy => by
+      have hyx : y ≠ x := fun e => (List.nodup_cons.mp hS).1 (e ▸ hy)
+      exact (List.mem_erase_of_ne hyx).mpr (h y (by simp [hy])))
+    rw [List.length_erase_of_mem hxT] at ih
+    have := List.length_pos_of_mem hxT
+    simp only [List.length_cons]
+    omega
+
+omit [DecidableEq A] in
+theorem fill_some {s : A → Nat} : ∀ {ks : List A} {rest : List G} {g : G} {j : A},
+    fill s ks rest g = some j → j ∈ ks ∧ g ∈ rest ∧ 0 < s j
+  | [], _, _, _, h => by simp [fill] at h
+  | k :: ks, rest, g, j, h => by
+    unfold fill at h
+    split at h
+    · rename_i hg
+      cases h
+      refine ⟨by simp, List.mem_of_mem_take hg, ?_⟩
+      exact Nat.pos_of_ne_zero (fun hs => by rw [hs] at hg; simp at hg)
+    · obtain ⟨h1, h2, h3⟩ := fill_some h
+      exact ⟨List.mem_cons_of_mem k h1, List.mem_of_mem_drop h2, h3⟩
+
+/-- Each agent receives at most its slots. -/
+theorem fill_count {s : A → Nat} {j : A} : ∀ {ks : List A} {rest S : List G}, ks.Nodup → S.Nodup →
+    (∀ g ∈ S, fill s ks rest g = some j) → S.length ≤ s j
+  | [], _, S, _, _, h => by
+    cases S with
+    | nil => simp
+    | cons g _ => have := h g (by simp); simp [fill] at this
+  | k :: ks, rest, S, hks, hS, h => by
+    by_cases hjk : j = k
+    · subst hjk
+      have hsub : ∀ g ∈ S, g ∈ rest.take (s j) := by
+        intro g hg
+        have := h g hg
+        unfold fill at this
+        split at this
+        · assumption
+        · exact absurd (fill_some this).1 (List.nodup_cons.mp hks).1
+      exact Nat.le_trans (length_le_of_subset hS hsub) (List.length_take_le _ _)
+    · apply fill_count (ks := ks) (rest := rest.drop (s k)) (List.nodup_cons.mp hks).2 hS
+      intro g hg
+      have := h g hg
+      unfold fill at this
+      split at this
+      · cases this; exact absurd rfl hjk
+      · exact this
+
+omit [DecidableEq A] in
+/-- Every good of `rest` is placed when the slots suffice. -/
+theorem fill_cover {s : A → Nat} : ∀ {ks : List A} {rest : List G} {g : G}, g ∈ rest →
+    rest.length ≤ (ks.map s).sum → ∃ j, fill s ks rest g = some j
+  | [], rest, g, hg, hl => by
+    cases rest with
+    | nil => simp at hg
+    | cons _ _ => simp at hl
+  | k :: ks, rest, g, hg, hl => by
+    unfold fill
+    split
+    · exact ⟨k, rfl⟩
+    · rename_i hgt
+      have hgd : g ∈ rest.drop (s k) := by
+        rw [← List.take_append_drop (s k) rest] at hg
+        exact (List.mem_append.mp hg).resolve_left hgt
+      apply fill_cover hgd
+      simp only [List.map_cons, List.sum_cons] at hl
+      rw [List.length_drop]
+      omega
+
+omit [DecidableEq A] in
+theorem picker_some {agents : List A} {Y : A → Option G} {g : G} {k : A}
+    (h : picker agents Y g = some k) : k ∈ agents ∧ Y k = some g :=
+  ⟨List.mem_of_find?_eq_some h, by simpa using List.find?_some h⟩
+
+omit [DecidableEq A] in
+theorem picker_none {agents : List A} {Y : A → Option G} {g : G} (h : picker agents Y g = none) :
+    ∀ k ∈ agents, Y k ≠ some g := by
+  intro k hk hY
+  have := List.find?_eq_none.mp h k hk
+  simp [hY] at this
+
+omit [DecidableEq A] in
+theorem upOf_some {P : Profile A G} {up : List A} {g : G} {k : A} (h : upOf P up g = some k) :
+    k ∈ up ∧ P.c k = g :=
+  ⟨List.mem_of_find?_eq_some h, by simpa using List.find?_some h⟩
+
+omit [DecidableEq A] in
+theorem upOf_none {P : Profile A G} {up : List A} {g : G} (h : upOf P up g = none) :
+    ∀ k ∈ up, P.c k ≠ g := by
+  intro k hk hc
+  have := List.find?_eq_none.mp h k hk
+  simp [hc] at this
+
+end LB
+end EFX
 
 namespace EFX
 namespace LB
@@ -45,8 +304,16 @@ open Profile
 
 /-! ## Theorem 1 with (I1) weakened -/
 
-/-- The hypotheses of Theorem 1 (`EFX.LB.Hyp`) with (I1) replaced by `na`: every good of `NA` is somebody's
-pick. The owner `o` is optional; with `o = none` the slot bounds apply to every agent. -/
+/-- The hypotheses of Theorem 1 (`proofs/construction.md` §3, on LB's output), with (I1) replaced by `na`: every
+good of `NA` is somebody's pick. The owner `o` is optional; with `o = none` the slot bounds apply to every agent:
+- `pick`: each pick is a good its picker values, and the picker holds it;
+- `upgraded`: an agent of `U` picked its `b`, holds its `c`, and its `b` is not in `NA`; unless it is the owner,
+  it holds nothing else;
+- `frozen`: an agent outside `U` whose pick is in `NA` holds only its pick;
+- `slots`: every other agent outside `U` except the owner holds, beyond its pick, at most its slots (1 with a
+  pick, 2 without);
+- `owner`: if the owner's bundle has more than two goods, it contains `b k` and `c k` of no other agent `k`
+  outside `U` that picked its top `a k`. -/
 structure HypNA (P : Profile A G) (agents : List A) (goods : List G) (X : G → A) (Y : A → Option G)
     (U : A → Prop) (o : Option A) : Prop where
   pick : ∀ k y, Y k = some y → y ∈ goods ∧ X y = k ∧ P.rank k y < 3
@@ -62,19 +329,6 @@ structure HypNA (P : Profile A G) (agents : List A) (goods : List G) (X : G → 
 
 variable {P : Profile A G} {agents : List A} {goods : List G} {X : G → A} {Y : A → Option G}
   {U : A → Prop}
-
-/-- Theorem 1's hypotheses are an instance. -/
-theorem Hyp.toHypNA {o : A} (h : Hyp P agents goods X Y U o) : HypNA P agents goods X Y U (some o) where
-  pick := h.pick
-  na := fun g hg hna => by
-    obtain ⟨i, hi, -, hp⟩ := hna
-    exact h.i1 i hi g hg hp
-  upgraded := fun k hk hU => by
-    obtain ⟨h1, h2, h3, h4, h5⟩ := h.upgraded k hk hU
-    exact ⟨h1, h2, h3, h4, fun hne => h5 (fun e => hne (by rw [e]))⟩
-  frozen := h.frozen
-  slots := fun j hj hne => h.slots j hj (fun e => hne (by rw [e]))
-  owner := fun w hw => by cases hw; exact h.owner
 
 variable {o : Option A}
 
@@ -259,287 +513,27 @@ theorem Valid.sound (hV : Valid P agents goods Y up) (hC : Completion P agents g
     ∀ j ∈ agents, o ≠ some j → (bundle goods X j).length ≤ 2 :=
   ⟨fun _ hv => (hC.hypNA hV).efx0 hg hv, (hC.hypNA hV).length_le_two hg⟩
 
-/-! ## A concrete completion (Lemma 1) -/
+/-! ## The junk -/
 
 /-- The junk of the pre-allocation `(Y, up)`: the goods that are no listed agent's pick and not the `c` of
 an upgraded agent. -/
 def junkList (P : Profile A G) (agents up : List A) (Y : A → Option G) (goods : List G) : List G :=
   goods.filter (fun g => (picker agents Y g).isNone && (upOf P up g).isNone)
 
-/-- `S`, the number of slots. -/
-def slotSum (P : Profile A G) (agents up : List A) (Y : A → Option G) : Nat :=
-  (agents.map (cap P agents up Y)).sum
-
 /-- `g` is in the base of `w`: `w`'s pick, or `w`'s `c` if `w` is upgraded. -/
 def InBase (P : Profile A G) (up : List A) (Y : A → Option G) (w : A) (g : G) : Prop :=
   Y w = some g ∨ (w ∈ up ∧ P.c w = g)
-
-/-- The completion with owner `o` (or none) built from the junk goods `H`: picks go to their pickers, `c u`
-to each upgraded `u`, and the junk fills the slots of the terminals other than the owner, in the order of
-`agents`, first the goods of `H` and then the rest of the junk; whatever is left goes to the owner. The
-agent `d` receives goods that nothing else places (none, under the hypotheses of `complete_none` and
-`complete_some`). -/
-def complete (P : Profile A G) (agents up : List A) (Y : A → Option G) (goods : List G) (o : Option A)
-    (H : List G) (d : A) (g : G) : A :=
-  match picker agents Y g with
-  | some k => k
-  | none =>
-    match upOf P up g with
-    | some u => u
-    | none =>
-      (fill (slotsExcept (cap P agents up Y) o) agents
-        (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g).getD (o.getD d)
 
 omit [DecidableEq A] in
 theorem mem_junkList {g : G} :
     g ∈ junkList P agents up Y goods ↔ g ∈ goods ∧ picker agents Y g = none ∧ upOf P up g = none := by
   simp [junkList, Option.isNone_iff_eq_none]
 
-omit [DecidableEq A] in
-/-- A good among the first `Σ s` goods of `rest` is placed by `fill`. -/
-theorem fill_of_mem_take {s : A → Nat} : ∀ {ks : List A} {rest : List G} {g : G},
-    g ∈ rest.take (ks.map s).sum → ∃ j, fill s ks rest g = some j
-  | [], rest, g, hg => by simp at hg
-  | k :: ks, rest, g, hg => by
-    unfold fill
-    split
-    · exact ⟨k, rfl⟩
-    · rename_i hgt
-      simp only [List.map_cons, List.sum_cons, List.take_add, List.mem_append] at hg
-      exact fill_of_mem_take (hg.resolve_left hgt)
-
-omit [DecidableEq A] in
-/-- `fill` never places a good with an agent that has no slot. -/
-theorem fill_pos {s : A → Nat} {ks : List A} {rest : List G} {g : G} {j : A}
-    (h : fill s ks rest g = some j) : 0 < s j :=
-  (fill_some h).2.2
-
-omit [DecidableEq G] in
-theorem mem_take_append {H R : List G} {g : G} (hg : g ∈ H) :
-    ∀ {n : Nat}, H.length ≤ n → g ∈ (H ++ R).take n := by
-  induction H with
-  | nil => simp at hg
-  | cons h H ih =>
-    intro n hn
-    cases n with
-    | zero => simp at hn
-    | succ n =>
-      rcases List.mem_cons.mp hg with rfl | hg
-      · simp
-      · simp only [List.cons_append, List.take_succ_cons, List.mem_cons]
-        exact Or.inr (ih hg (by simp at hn; omega))
-
-section complete
-variable {H : List G} {d : A}
-
-theorem complete_cases (g : G) :
-    (∃ k, picker agents Y g = some k ∧ complete P agents up Y goods o H d g = k) ∨
-    (picker agents Y g = none ∧ ∃ u, upOf P up g = some u ∧ complete P agents up Y goods o H d g = u) ∨
-    (picker agents Y g = none ∧ upOf P up g = none ∧ ∃ j, fill (slotsExcept (cap P agents up Y) o) agents
-      (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = some j ∧
-      complete P agents up Y goods o H d g = j) ∨
-    (picker agents Y g = none ∧ upOf P up g = none ∧ fill (slotsExcept (cap P agents up Y) o) agents
-      (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = none ∧
-      complete P agents up Y goods o H d g = o.getD d) := by
-  unfold complete
-  cases hp : picker agents Y g with
-  | some k => exact Or.inl ⟨k, rfl, rfl⟩
-  | none =>
-    cases hu : upOf P up g with
-    | some u => exact Or.inr (Or.inl ⟨rfl, u, rfl, rfl⟩)
-    | none =>
-      cases hf : fill (slotsExcept (cap P agents up Y) o) agents
-          (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g with
-      | some j => exact Or.inr (Or.inr (Or.inl ⟨rfl, rfl, j, rfl, by simp⟩))
-      | none => exact Or.inr (Or.inr (Or.inr ⟨rfl, rfl, rfl, by simp⟩))
-
-/-- The completion's properties, for an owner that is a listed terminal or upgraded agent, when every junk
-good is placed if there is no owner, and `H` (junk, fitting the other terminals' slots) meets every exposed
-pair. -/
-theorem complete_completion (hV : Valid P agents goods Y up) (hag : agents.Nodup)
-    (hgd : goods.Nodup)
-    (ho : ∀ w, o = some w → w ∈ agents ∧ (w ∈ up ∨ ∀ y, Y w = some y → ¬ P.NA agents (· ∈ up) Y y))
-    (hnone : o = none → ∀ g ∈ junkList P agents up Y goods, ∃ j, fill (slotsExcept (cap P agents up Y) o)
-      agents (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = some j)
-    (hH : ∀ h ∈ H, h ∈ junkList P agents up Y goods)
-    (hHfit : H.length ≤ (agents.map (slotsExcept (cap P agents up Y) o)).sum)
-    (hhit : ∀ w, o = some w → ∀ x ∈ agents, x ≠ w → x ∉ up → Y x = some (P.a x) →
-      (P.b x ∈ junkList P agents up Y goods ∨ InBase P up Y w (P.b x)) →
-      (P.c x ∈ junkList P agents up Y goods ∨ InBase P up Y w (P.c x)) → P.b x ∈ H ∨ P.c x ∈ H) :
-    Completion P agents goods Y up o (complete P agents up Y goods o H d) := by
-  -- the fallback `o.getD d` is used only for junk, and only when there is an owner
-  have hfall : ∀ {g}, g ∈ goods → picker agents Y g = none → upOf P up g = none →
-      fill (slotsExcept (cap P agents up Y) o) agents
-        (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = none →
-      ∃ w, o = some w := by
-    intro g hg hp hu hf
-    cases ho' : o with
-    | some w => exact ⟨w, rfl⟩
-    | none =>
-      obtain ⟨j, hj⟩ := hnone ho' g (mem_junkList.mpr ⟨hg, hp, hu⟩)
-      rw [hf] at hj; cases hj
-  -- the slots: `fill` places goods only with terminals other than the owner
-  have hfillj : ∀ {g j}, fill (slotsExcept (cap P agents up Y) o) agents
-      (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = some j →
-      o ≠ some j ∧ frozenB P agents up Y j = false ∧ j ∉ up := by
-    intro g j hf
-    have h3 := fill_pos hf
-    unfold slotsExcept cap at h3
-    by_cases hoj : o = some j
-    · simp [hoj] at h3
-    · by_cases hfz : frozenB P agents up Y j = true
-      · simp [hoj, hfz] at h3
-      · by_cases hu : j ∈ up
-        · simp [hoj, hu] at h3
-        · exact ⟨hoj, by simpa using hfz, hu⟩
-  have hpicker : ∀ k y, Y k = some y → picker agents Y y = some k := by
-    intro k y hk
-    cases hp : picker agents Y y with
-    | none => exact absurd hk (picker_none hp k (hV.pick k y hk).1)
-    | some k' => rw [hV.pick_inj k' k y (picker_some hp).2 hk]
-  refine ⟨fun g hg => ?_, fun k y hk => ?_, fun u hu => ?_, fun j _ hj y hy hna g hg hX => ?_,
-    fun u hu hou g hg hX => ?_, fun j _ hoj hj hnf => ?_, fun w hw x hx hxw hxu hxa hboth => ?_⟩
-  · -- `alloc`
-    rcases complete_cases (P := P) (agents := agents) (up := up) (Y := Y) (goods := goods) (o := o)
-      (H := H) (d := d) g with ⟨k, hp, hX⟩ | ⟨-, u, hu, hX⟩ | ⟨-, -, j, hf, hX⟩ | ⟨hp, hu, hf, hX⟩
-    · rw [hX]; exact (picker_some hp).1
-    · rw [hX]; exact hV.up_mem u (upOf_some hu).1
-    · rw [hX]; exact (fill_some hf).1
-    · obtain ⟨w, hw⟩ := hfall hg hp hu hf
-      rw [hX, hw]; exact (ho w hw).1
-  · -- `pick`
-    unfold complete; rw [hpicker k y hk]
-  · -- `upc`
-    have hp : picker agents Y (P.c u) = none := by
-      cases hp : picker agents Y (P.c u) with
-      | none => rfl
-      | some k => exact absurd (picker_some hp).2 ((hV.up_c u hu).2 k)
-    unfold complete; rw [hp]
-    cases hu' : upOf P up (P.c u) with
-    | none => exact absurd rfl (upOf_none hu' u hu)
-    | some u' => exact hV.up_c_inj u' (upOf_some hu').1 u hu (upOf_some hu').2
-  · -- `frozen`
-    have hfz : frozenB P agents up Y j = true := by
-      unfold frozenB; rw [hy]; exact naB_iff.mpr hna
-    rcases complete_cases (P := P) (agents := agents) (up := up) (Y := Y) (goods := goods) (o := o)
-      (H := H) (d := d) g with ⟨k, hp, hX'⟩ | ⟨-, u, hu, hX'⟩ | ⟨-, -, j', hf, hX'⟩ | ⟨hp, hu, hf, hX'⟩
-    · rw [hX'] at hX; subst hX
-      have := (picker_some hp).2
-      rw [hy] at this; cases this; rfl
-    · rw [hX'] at hX; subst hX; exact absurd (upOf_some hu).1 hj
-    · rw [hX'] at hX; subst hX
-      rw [(hfillj hf).2.1] at hfz; cases hfz
-    · obtain ⟨w, hw⟩ := hfall hg hp hu hf
-      rw [hX', hw] at hX
-      simp only [Option.getD_some] at hX
-      subst hX
-      rcases (ho w hw).2 with hwu | hwt
-      · exact absurd hwu hj
-      · exact absurd hna (hwt y hy)
-  · -- `upOnly`
-    rcases complete_cases (P := P) (agents := agents) (up := up) (Y := Y) (goods := goods) (o := o)
-      (H := H) (d := d) g with ⟨k, hp, hX'⟩ | ⟨-, u', hu', hX'⟩ | ⟨-, -, j', hf, hX'⟩ | ⟨hp, hu', hf, hX'⟩
-    · rw [hX'] at hX; subst hX
-      have := (picker_some hp).2
-      rw [hV.up_b k hu] at this; cases this; exact Or.inl rfl
-    · rw [hX'] at hX; subst hX; exact Or.inr (upOf_some hu').2.symm
-    · rw [hX'] at hX; subst hX; exact absurd hu (hfillj hf).2.2
-    · obtain ⟨w, hw⟩ := hfall hg hp hu' hf
-      rw [hX', hw] at hX
-      simp only [Option.getD_some] at hX
-      subst hX; exact absurd hw hou
-  · -- `slots`
-    have hS : ∀ g ∈ (bundle goods (complete P agents up Y goods o H d) j).filter (fun g => Y j ≠ some g),
-        fill (slotsExcept (cap P agents up Y) o) agents
-          (H ++ (junkList P agents up Y goods).filter (fun g => g ∉ H)) g = some j := by
-      intro g hgS
-      obtain ⟨hgb, hne⟩ := List.mem_filter.mp hgS
-      obtain ⟨hg, hX⟩ := mem_bundle.mp hgb
-      rcases complete_cases (P := P) (agents := agents) (up := up) (Y := Y) (goods := goods) (o := o)
-        (H := H) (d := d) g with ⟨k, hp, hX'⟩ | ⟨-, u, hu, hX'⟩ | ⟨-, -, j', hf, hX'⟩ | ⟨hp, hu, hf, hX'⟩
-      · rw [hX'] at hX; subst hX; simp [(picker_some hp).2] at hne
-      · rw [hX'] at hX; subst hX; exact absurd (upOf_some hu).1 hj
-      · rw [hX'] at hX; subst hX; exact hf
-      · obtain ⟨w, hw⟩ := hfall hg hp hu hf
-        rw [hX', hw] at hX
-        simp only [Option.getD_some] at hX
-        subst hX; exact absurd hw hoj
-    have hc := fill_count hag ((nodup_bundle hgd _ j).sublist List.filter_sublist) hS
-    have hfz : frozenB P agents up Y j = false := by
-      unfold frozenB
-      cases hy : Y j with
-      | none => rfl
-      | some y =>
-        show naB P agents up Y y = false
-        cases hb : naB P agents up Y y with
-        | false => rfl
-        | true => exact absurd (naB_iff.mp hb) (hnf y hy)
-    have : slotsExcept (cap P agents up Y) o j = if Y j = none then 2 else 1 := by
-      simp [slotsExcept, cap, hoj, hfz, hj]
-    omega
-  · -- `oc`: each of `b x`, `c x` in the owner's bundle is in its base, or junk that `fill` left over
-    have hsrc : ∀ g, g ∈ bundle goods (complete P agents up Y goods o H d) w →
-        (g ∈ junkList P agents up Y goods ∨ InBase P up Y w g) := by
-      intro g hgb
-      obtain ⟨hg, hX⟩ := mem_bundle.mp hgb
-      rcases complete_cases (P := P) (agents := agents) (up := up) (Y := Y) (goods := goods) (o := o)
-        (H := H) (d := d) g with ⟨k, hp, hX'⟩ | ⟨hp, u, hu, hX'⟩ | ⟨-, -, j', hf, hX'⟩ | ⟨hp, hu, hf, hX'⟩
-      · rw [hX'] at hX; subst hX; exact Or.inr (Or.inl (picker_some hp).2)
-      · rw [hX'] at hX; subst hX; exact Or.inr (Or.inr (upOf_some hu))
-      · rw [hX'] at hX; subst hX; exact absurd hw (hfillj hf).1
-      · exact Or.inl (mem_junkList.mpr ⟨hg, hp, hu⟩)
-    -- a good of `H` is placed by `fill`, so not with the owner
-    have hHout : ∀ h ∈ H, h ∉ bundle goods (complete P agents up Y goods o H d) w := by
-      intro h hh hhb
-      obtain ⟨-, hp, hu⟩ := mem_junkList.mp (hH h hh)
-      obtain ⟨j, hj⟩ := fill_of_mem_take (s := slotsExcept (cap P agents up Y) o) (ks := agents)
-        (mem_take_append (R := (junkList P agents up Y goods).filter (fun g => g ∉ H)) hh hHfit)
-      have hX := (mem_bundle.mp hhb).2
-      unfold complete at hX
-      rw [hp, hu] at hX
-      simp only [hj, Option.getD_some] at hX
-      exact (hfillj hj).1 (by rw [hw, hX])
-    rcases hhit w hw x hx hxw hxu hxa (hsrc _ hboth.1) (hsrc _ hboth.2) with hb | hc
-    · exact hHout _ hb hboth.1
-    · exact hHout _ hc hboth.2
-
-/-- **Completion without owner.** If the junk fits the slots (`|J| ≤ S`), `complete` with no owner is a
-completion; every bundle has at most two goods. -/
-theorem complete_none (hV : Valid P agents goods Y up) (hag : agents.Nodup) (hgd : goods.Nodup)
-    (hfit : (junkList P agents up Y goods).length ≤ slotSum P agents up Y) :
-    Completion P agents goods Y up none (complete P agents up Y goods none [] d) := by
-  refine complete_completion hV hag hgd (fun w hw => by cases hw) (fun _ g hg => ?_)
-    (fun h hh => by simp at hh) (by simp) (fun w hw => by cases hw)
-  have e1 : ([] : List G) ++ (junkList P agents up Y goods).filter (fun g => g ∉ ([] : List G)) =
-      junkList P agents up Y goods := by simp
-  have e2 : slotsExcept (cap P agents up Y) none = cap P agents up Y := by
-    funext k; simp [slotsExcept]
-  rw [e1, e2]
-  exact fill_cover hg hfit
-
-/-- **Lemma 1 (owner criterion).** Let `w` be a listed agent that is upgraded or a terminal, and `H` a list
-of junk goods, no longer than the number of slots of the agents other than `w`, that meets `{b x, c x}` for
-every exposed agent `x` (not upgraded, `x ≠ w`, pick `a x`, `b x` and `c x` each junk or in `w`'s base).
-Then `complete` with owner `w` is a completion satisfying the owner constraint. -/
-theorem complete_some (hV : Valid P agents goods Y up) (hag : agents.Nodup) (hgd : goods.Nodup)
-    {w : A} (hw : w ∈ agents) (hwT : w ∈ up ∨ ∀ y, Y w = some y → ¬ P.NA agents (· ∈ up) Y y)
-    (hH : ∀ h ∈ H, h ∈ junkList P agents up Y goods)
-    (hHfit : H.length ≤ (agents.map (slotsExcept (cap P agents up Y) (some w))).sum)
-    (hhit : ∀ x ∈ agents, x ≠ w → x ∉ up → Y x = some (P.a x) →
-      (P.b x ∈ junkList P agents up Y goods ∨ InBase P up Y w (P.b x)) →
-      (P.c x ∈ junkList P agents up Y goods ∨ InBase P up Y w (P.c x)) → P.b x ∈ H ∨ P.c x ∈ H) :
-    Completion P agents goods Y up (some w) (complete P agents up Y goods (some w) H d) :=
-  complete_completion hV hag hgd (fun w' hw' => by cases hw'; exact ⟨hw, hwT⟩)
-    (fun h => by cases h) hH hHfit (fun w' hw' => by cases hw'; exact hhit)
-
-end complete
-
 end LB
 end EFX
 
 /-! ## Axiom certificates (audited by `check.sh`) -/
 
+#print axioms EFX.LB.phase1_spec
 #print axioms EFX.LB.HypNA.efx0
 #print axioms EFX.LB.Valid.sound
-#print axioms EFX.LB.complete_none
-#print axioms EFX.LB.complete_some

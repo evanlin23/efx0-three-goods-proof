@@ -1,6 +1,4 @@
 import EFX.K3Algo
-import EFX.Junk
-import EFX.Blocks
 
 /-!
 # Draft and Exchange, part 1: states, soundness, transfers and exchanges (ledger K3S.PO.LEAN)
@@ -24,8 +22,7 @@ some agent (`EFX.LB.Valid.na_picked`). The utilities (the paper's scores) are `4
 **Definitions.**
 - `Free`: a listed agent outside `up` whose pick, if any, nobody needs (`freeB` decides it).
 - `Exposed o x` (the paper's Definition blockers, finishing: `x` is a blocker of `o`): `x ≠ o` holds only its top
-  `a x`, is not a pair holder, and each of `b x`, `c x` is junk or held by `o` (the premise of
-  `EFX.LB.complete_some`).
+  `a x`, is not a pair holder, and each of `b x`, `c x` is junk or held by `o`.
 - `Absorber o H` (Definition blockers, finishing: `o` can finish with `H`; also a pair holder `o`, for the case
   where every agent holds its pair): `o` is a pair holder or free, `H` is a list of junk goods that meets
   `{b x, c x}` for every `x` exposed for `o`, and `|H| ≤ |F ∖ {o}|` (`nFreeExcept`).

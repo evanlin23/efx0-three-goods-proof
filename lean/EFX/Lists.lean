@@ -5,6 +5,10 @@ The model in `EFX.Model` indexes agents and goods by `Fin n` and `Fin m`. Argume
 agent or a good (peeling, induction on the agents) are easier over explicit lists: agents and
 goods are arbitrary types with decidable equality, and an instance lists them. `EFX.Bridge` proves
 that, over `List.finRange`, the notions here coincide with the model's.
+
+Also: lemmas on values of lists, `favorite` (the first good of largest value), and list lemmas used by the other
+files (pigeonhole `length_le_of_nodup_of_subset`, iterates `iter`, `sum_map_le`, `sum_map_lt`, `value_erase`,
+`efx0L_congr`, `mem_cons_erase`, `relevant_sublist`).
 -/
 
 set_option autoImplicit false
@@ -155,5 +159,103 @@ theorem favorite_spec (f : G → Nat) :
         rcases List.mem_cons.mp hx with rfl | hx
         · omega
         · exact hqmax x hx
+
+/-! ## Pigeonhole, iterates of a map, sums -/
+
+/-- Pigeonhole: a duplicate-free list inside `m` is no longer than `m`. -/
+theorem length_le_of_nodup_of_subset [DecidableEq A] :
+    ∀ {l m : List A}, l.Nodup → (∀ x ∈ l, x ∈ m) → l.length ≤ m.length
+  | [], _, _, _ => Nat.zero_le _
+  | x :: l, m, hnd, hsub => by
+    have hx : x ∈ m := hsub x (by simp)
+    have hxl : x ∉ l := (List.nodup_cons.mp hnd).1
+    have ih := length_le_of_nodup_of_subset (m := m.erase x) (List.nodup_cons.mp hnd).2 (by
+      intro y hy
+      have hyx : y ≠ x := fun h => hxl (h ▸ hy)
+      exact (List.mem_erase_of_ne hyx).mpr (hsub y (by simp [hy])))
+    rw [List.length_erase_of_mem hx] at ih
+    have := List.length_pos_of_mem hx
+    simp only [List.length_cons]
+    omega
+
+/-- `iter e k a`: the map `e` applied `k` times to `a`. -/
+def iter (e : A → A) : Nat → A → A
+  | 0, a => a
+  | k + 1, a => e (iter e k a)
+
+theorem iter_add (e : A → A) (a : A) : ∀ j k : Nat, iter e (j + k) a = iter e j (iter e k a)
+  | 0, k => by simp [iter]
+  | j + 1, k => by rw [Nat.add_right_comm, iter, iter_add e a j k, iter]
+
+theorem iter_mem (e : A → A) {S : List A} (he : ∀ a ∈ S, e a ∈ S) {a : A} (ha : a ∈ S) :
+    ∀ k : Nat, iter e k a ∈ S
+  | 0 => ha
+  | k + 1 => he _ (iter_mem e he ha k)
+
+theorem sum_map_le {l : List A} {f g : A → Nat} (h : ∀ a ∈ l, f a ≤ g a) :
+    (l.map f).sum ≤ (l.map g).sum := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp only [List.map_cons, List.sum_cons]
+    have := h a (by simp)
+    have := ih (fun x hx => h x (List.mem_cons_of_mem _ hx))
+    omega
+
+theorem sum_map_lt {l : List A} {f g : A → Nat} (h : ∀ a ∈ l, f a ≤ g a)
+    (hlt : ∃ a ∈ l, f a < g a) : (l.map f).sum < (l.map g).sum := by
+  induction l with
+  | nil => obtain ⟨a, ha, _⟩ := hlt; simp at ha
+  | cons a l ih =>
+    simp only [List.map_cons, List.sum_cons]
+    obtain ⟨b, hb, hfg⟩ := hlt
+    rcases List.mem_cons.mp hb with rfl | hb
+    · have := sum_map_le (l := l) (fun x hx => h x (List.mem_cons_of_mem _ hx))
+      omega
+    · have := h a (by simp)
+      have := ih (fun x hx => h x (List.mem_cons_of_mem _ hx)) ⟨b, hb, hfg⟩
+      omega
+
+/-! ## Erasing a good, changing the list of agents -/
+
+section lemmas
+variable [DecidableEq A] [DecidableEq G] (v : A → G → Nat)
+
+omit [DecidableEq A] in
+theorem value_erase {i : A} {p : G} : ∀ {S : List G}, p ∈ S → value v i S = v i p + value v i (S.erase p)
+  | [], h => by simp at h
+  | g :: S, h => by
+    by_cases hg : g = p
+    · subst hg; simp
+    · have hp : p ∈ S := (List.mem_cons.mp h).resolve_left (Ne.symm hg)
+      have hne : (g == p) = false := by simp [hg]
+      simp only [List.erase_cons, hne, Bool.false_eq_true, ↓reduceIte, value_cons]
+      rw [value_erase hp]
+      omega
+
+theorem efx0L_congr {l l' : List A} {goods : List G} {X : G → A} (h : ∀ x, x ∈ l ↔ x ∈ l')
+    (hE : EFX0L v l goods X) : EFX0L v l' goods X :=
+  fun i hi j hj hij g hg => hE i ((h i).mpr hi) j ((h j).mpr hj) hij g hg
+
+omit [DecidableEq G] in
+theorem mem_cons_erase {agents : List A} {i : A} (hi : i ∈ agents) :
+    ∀ x, x ∈ i :: agents.erase i ↔ x ∈ agents := by
+  intro x
+  constructor
+  · intro hx
+    rcases List.mem_cons.mp hx with rfl | hx
+    · exact hi
+    · exact List.mem_of_mem_erase hx
+  · intro hx
+    by_cases hxi : x = i
+    · simp [hxi]
+    · exact List.mem_cons_of_mem _ (List.mem_erase_of_ne hxi |>.mpr hx)
+
+omit [DecidableEq A] [DecidableEq G] in
+theorem relevant_sublist {i : A} {S T : List G} (h : S.Sublist T) :
+    (relevant v i S).length ≤ (relevant v i T).length :=
+  (h.filter _).length_le
+
+end lemmas
 
 end EFX

@@ -75,8 +75,9 @@ paper.
 This repository was extracted from the research repository
 [evanlin23/efx0-three-goods](https://github.com/evanlin23/efx0-three-goods) at commit `31202dc` (merge of PR #93),
 which holds the full history, an earlier and longer construction for the same theorem, the claims ledger
-(`LEDGER.md`, rows K3S.*), and work on four relevant goods. File paths are kept as they were there, so the paper's
-references to files resolve here. The proofs, code, Lean formalization and the paper were developed with the
-assistance of AI coding agents (Claude Code).
+(`LEDGER.md`, rows K3S.*), and work on four relevant goods. Of that repository's Lean library, `lean/` keeps only the
+paper's formalization (`lean/EFX/K3DE*.lean`) and what it uses (`lean/README.md`, "Contents"). File paths are
+otherwise kept as they were there, so the paper's references to files resolve here. The proofs, code, Lean
+formalization and the paper were developed with the assistance of AI coding agents (Claude Code).
 
 `lean/EFX/Model.lean` is copied from [evanlin23/mrd-efx](https://github.com/evanlin23/mrd-efx) (see `NOTICE`).

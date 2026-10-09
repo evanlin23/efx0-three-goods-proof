@@ -1,4 +1,5 @@
 import EFX.K3DEPrelim
+import EFX.RealValues
 
 /-!
 # Limits of the shape
@@ -44,7 +45,7 @@ over all `3⁵ = 243` and `4⁷ = 16384` owner maps, which are written as `mk5 x
 2. "`b` and `c` together in a bundle of at least three goods" is `X b = X c ∧ 3 ≤ |X_{X b}|` (`Together3`).
 3. In the Proposition the instance is `⟨n, m, v⟩` of the model with agents `Fin n` and goods `Fin m`; "all bundles
    of at most two goods" and the bundle sizes count `finSum m (fun g => if X g = j then 1 else 0)`, as in
-   `EFX.LB.corollaryD`; "bundle sizes `4, 1, 1, 1`" is "some bundle has four goods and every other bundle one".
+   `EFX.DE.de_correct`; "bundle sizes `4, 1, 1, 1`" is "some bundle has four goods and every other bundle one".
 4. In (a), "in any order" is: any three pairwise distinct agents `x`, `y`, `z` receive `{g₀}`, `{g₁}`, `{p₀, p₁, p₂}`.
 5. The paper's proof of (b) says "with at most one bundle of more than two goods"; that hypothesis is not needed
    (and not used): once `g₀`, `g₁`, `g₂` are alone, the fourth agent holds the four `p_i`.

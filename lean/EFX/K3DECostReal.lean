@@ -6,10 +6,9 @@ import EFX.K3DEReal
 
 `paper/k3-simple/long.tex` §6, paragraph "Real values", with Theorem `thm:algo` ("in time `O(n(n+m))`. On real
 values, every decision of DE compares two sums of at most two values of one agent"): the count in the comparison
-model. As for K3ALG
-(`EFX.K3.algoOrdC`, `EFX/K3Real.lean`), the program `deOrdC` computes L12's natural-number surrogate with a comparison
-oracle (`EFX.K3.surrogateC`, each oracle call charged one unit) and runs the counted DE (`EFX.DE.deC`,
-`EFX/K3DECost*.lean`) on it.
+model. The program `deOrdC` computes L12's natural-number surrogate with a comparison oracle (`EFX.K3.surrogateC`,
+`EFX/K3Real.lean`, each oracle call charged one unit) and runs the counted DE (`EFX.DE.deC`, `EFX/K3DECost*.lean`)
+on it.
 
 - `deOrdC_val`: its value is `EFX.DE.deOrd`, which is EFX₀ for the original values (`EFX.DE.deOrd_correct`).
 - `deOrdC_cost`: for a correct oracle, nonnegative values and at most three relevant goods per agent, it takes at most

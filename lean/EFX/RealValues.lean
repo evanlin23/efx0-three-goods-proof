@@ -1,13 +1,11 @@
-import EFX.Target
-import EFX.CorollaryD
+import EFX.Bridge
 
 /-!
-# L12: TARGET and conjecture D over any ordered value type
+# L12: values in an ordered type
 
-`EFX.target` and `EFX.LB.corollaryD` are stated over natural-number values (`EFX.Model`). This file
-proves them over any type of values `V` with `0`, `+` and `≤` satisfying the axioms of
-`OrderedValue` below: `+` associative and commutative with identity `0`, `≤` a total order, and
-`a ≤ b ↔ a + c ≤ b + c`. These axioms hold in `ℝ≥0`, `ℚ≥0` and `ℕ` (and in `ℝ`, `ℚ`, `ℤ`);
+The model (`EFX.Model`) has natural-number values. This file mirrors it for any type of values `V` with `0`, `+`
+and `≤` satisfying the axioms of `OrderedValue` below: `+` associative and commutative with identity `0`, `≤` a
+total order, and `a ≤ b ↔ a + c ≤ b + c`. These axioms hold in `ℝ≥0`, `ℚ≥0` and `ℕ` (and in `ℝ`, `ℚ`, `ℤ`);
 nonnegativity of the values is a hypothesis of the theorems (`∀ i g, 0 ≤ v i g`), not an axiom.
 Core Lean has no `ℝ`, so the `ℝ≥0` instance is the textbook fact that `ℝ≥0` is a linearly ordered
 cancellative commutative monoid; the instances for `Nat` and `Int` are below.
@@ -25,11 +23,10 @@ positivity), and every pattern satisfying them is realized by one of 31 natural-
 permutations of the representatives of proofs/real_values.md (`table`, checked by `decide +kernel`). Agents
 with one or two relevant goods use the same table with a phantom slot that no subset contains.
 
-**Consequences.** EFX₀, the relevant-goods count and balance transfer along `Agree`
-(`efx0_iff_of_agree`, `numRelevant_eq_of_agree`, `balanced_iff_of_agree`), so `EFX.target` and
-`EFX.LB.corollaryD` applied to `w` give `target_ordered` and `corollaryD_ordered`. At `V = Nat`
-the model is `EFX.Model` (`efx0_nat_iff`, `numRelevant_nat`), and `target_ordered` specializes to
-the statement of `EFX.target` (`target_of_ordered`).
+**Consequences.** EFX₀ and the relevant-goods count transfer along `Agree` (`efx0_iff_of_agree`,
+`numRelevant_eq_of_agree`), so a theorem about natural-number values applies to `w` and gives the same
+conclusion for `v` (`EFX/K3DEReal.lean` does this for Draft and Exchange). At `V = Nat` the mirrored model is
+`EFX.Model` (`efx0_nat_iff`, `numRelevant_nat`).
 -/
 
 set_option autoImplicit false
@@ -209,12 +206,6 @@ theorem finSumO_support (k : Nat) : ∀ (L : List (Fin k)) (h : Fin k → V), L.
     simp only [List.map_cons, listSum]
     congr 2
     exact List.map_congr_left fun g hg => by simp [show g ≠ a from fun e => haL (e ▸ hg)]
-
-/-- Splitting off one good: `v(M) = v(g) + v(M \ {g})`. -/
-theorem finSumO_split (k : Nat) (f : Fin k → V) (a : Fin k) :
-    finSumO k f = finSumO k (fun g => if g = a then f g else 0) +
-      finSumO k (fun g => if ¬ g = a then f g else 0) := by
-  rw [← finSumO_add]; congr 1; funext g; by_cases hg : g = a <;> simp [hg, add_zero, zero_add]
 
 /-- At `V = Nat`, `finSumO` is `finSum`. -/
 theorem finSumO_nat : ∀ (k : Nat) (f : Fin k → Nat), finSumO k f = finSum k f
@@ -572,17 +563,6 @@ theorem relevant_iff_of_agree {k : Nat} {f : Fin k → V} {w : Fin k → Nat} (h
     finSumO_false] at this
   rw [this]; exact Nat.not_le
 
-/-- Balance is a subset comparison: `2 v(a) ≤ v(M)` iff `v({a}) ≤ v(M \ {a})`. -/
-theorem double_le_iff {k : Nat} (f : Fin k → V) (a : Fin k) :
-    f a + f a ≤ finSumO k f ↔ finSumO k (fun g => if g = a then f g else 0) ≤
-      finSumO k (fun g => if ¬ g = a then f g else 0) := by
-  rw [finSumO_split k f a, finSumO_single']; exact (add_le_add_iff_left _ _ _).symm
-
-/-- Balance is preserved. -/
-theorem balanced_iff_of_agree {k : Nat} {f : Fin k → V} {w : Fin k → Nat} (h : Agree f w)
-    (a : Fin k) : f a + f a ≤ finSumO k f ↔ 2 * w a ≤ finSum k w := by
-  rw [double_le_iff, h, Nat.two_mul, ← finSumO_nat k w, double_le_iff, finSumO_nat, finSumO_nat]
-
 end OrderedValue
 
 open OrderedValue
@@ -621,28 +601,6 @@ theorem l12 {V : Type} [OrderedValue V] (I : OInst V) (hv : ∀ i g, 0 ≤ I.v i
   refine ⟨fun i => Classical.choose (hex i), fun i g => ?_, fun i => Classical.choose_spec (hex i)⟩
   exact (relevant_iff_of_agree (Classical.choose_spec (hex i)) g).symm
 
-/-- **TARGET over any ordered value type** (Corollary T; `ℝ≥0` by the textbook fact that it
-satisfies the axioms of `OrderedValue`). Every additive instance with nonnegative values in which every
-agent positively values at most three goods has a complete EFX₀ allocation. -/
-theorem target_ordered {V : Type} [OrderedValue V] (I : OInst V) (hn : 0 < I.n)
-    (hv : ∀ i g, 0 ≤ I.v i g) (h : ∀ i, I.numRelevant i ≤ 3) : ∃ X : I.Alloc, I.EFX0 X := by
-  obtain ⟨w, -, hw⟩ := l12 I hv h
-  obtain ⟨X, hX⟩ := target ⟨I.n, I.m, w⟩ hn (fun i => (numRelevant_eq_of_agree I w hw i) ▸ h i)
-  exact ⟨X, (efx0_iff_of_agree I w hw X).mpr hX⟩
-
-/-- **Corollary D over any ordered value type.** Every instance with nonnegative values in which every
-agent values exactly three goods and is balanced (`2 v_i(g) ≤ v_i(M)`) has an EFX₀ allocation in
-which at most one bundle has more than two goods. -/
-theorem corollaryD_ordered {V : Type} [OrderedValue V] (I : OInst V) (hn : 0 < I.n)
-    (hv : ∀ i g, 0 ≤ I.v i g) (h3 : ∀ i, I.numRelevant i = 3)
-    (hbal : ∀ i g, I.v i g + I.v i g ≤ finSumO I.m (I.v i)) :
-    ∃ X : I.Alloc, I.EFX0 X ∧ ∃ o, ∀ j, j ≠ o → finSum I.m (fun g => if X g = j then 1 else 0) ≤ 2 := by
-  obtain ⟨w, -, hw⟩ := l12 I hv (fun i => Nat.le_of_eq (h3 i))
-  obtain ⟨X, hX, o, ho⟩ := LB.corollaryD ⟨I.n, I.m, w⟩ hn
-    (fun i => (numRelevant_eq_of_agree I w hw i).trans (h3 i))
-    (fun i g => (balanced_iff_of_agree (hw i) g).mp (hbal i g))
-  exact ⟨X, (efx0_iff_of_agree I w hw X).mpr hX, o, ho⟩
-
 /-! ## Sanity: at `V = Nat` this is `EFX.Model` -/
 
 /-- At `V = Nat`, `OInst.EFX0` is `Inst.EFX0`. -/
@@ -660,28 +618,6 @@ theorem numRelevant_nat (I : Inst) (i : Fin I.n) :
   · simp [h, Nat.not_le.mpr h]
   · simp [h, show I.v i g ≤ 0 from Nat.le_of_not_lt h]
 
-/-- `target_ordered` at `V = Nat` is `EFX.target` (same statement; see the `example` below). -/
-theorem target_of_ordered (I : Inst) (hn : 0 < I.n) (h : ∀ i, numRelevant I i ≤ 3) :
-    ∃ X : I.Alloc, I.EFX0 X := by
-  obtain ⟨X, hX⟩ := target_ordered (V := Nat) ⟨I.n, I.m, I.v⟩ hn (fun _ _ => Nat.zero_le _)
-    (fun i => (numRelevant_nat I i) ▸ h i)
-  exact ⟨X, (efx0_nat_iff I X).mp hX⟩
-
-/-- `corollaryD_ordered` at `V = Nat` is `EFX.LB.corollaryD` (same statement). -/
-theorem corollaryD_of_ordered (I : Inst) (hn : 0 < I.n) (h3 : ∀ i, numRelevant I i = 3)
-    (hbal : ∀ i g, 2 * I.v i g ≤ finSum I.m (I.v i)) :
-    ∃ X : I.Alloc, I.EFX0 X ∧ ∃ o, ∀ j, j ≠ o → finSum I.m (fun g => if X g = j then 1 else 0) ≤ 2 := by
-  obtain ⟨X, hX, o, ho⟩ := corollaryD_ordered (V := Nat) ⟨I.n, I.m, I.v⟩ hn
-    (fun _ _ => Nat.zero_le _) (fun i => (numRelevant_nat I i).trans (h3 i))
-    (fun i g => by
-      show I.v i g + I.v i g ≤ finSumO I.m (I.v i)
-      rw [finSumO_nat]; have := hbal i g; omega)
-  exact ⟨X, (efx0_nat_iff I X).mp hX, o, ho⟩
-
-/-- The specializations have exactly the statements of the natural-number theorems. -/
-example : @target_of_ordered = @target := rfl
-example : @corollaryD_of_ordered = @LB.corollaryD := rfl
-
 end EFX
 
 /-! ## Axiom certificates (audited by `check.sh`) -/
@@ -691,9 +627,4 @@ end EFX
 #print axioms EFX.OrderedValue.exists_agree
 #print axioms EFX.efx0_iff_of_agree
 #print axioms EFX.numRelevant_eq_of_agree
-#print axioms EFX.OrderedValue.balanced_iff_of_agree
 #print axioms EFX.l12
-#print axioms EFX.target_ordered
-#print axioms EFX.corollaryD_ordered
-#print axioms EFX.target_of_ordered
-#print axioms EFX.corollaryD_of_ordered
