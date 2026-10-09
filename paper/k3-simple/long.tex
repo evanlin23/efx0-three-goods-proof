@@ -20,8 +20,8 @@
 \setlength{\emergencystretch}{1.5em}
 \begin{document}
 
-\title{\efxz{} Allocations with at Most Three Relevant Goods: A Short Proof}
-\titlerunning{\efxz{} with at Most Three Relevant Goods: A Short Proof}
+\title{\efxz{} Allocations with at Most Three Relevant Goods}
+\titlerunning{\efxz{} Allocations with at Most Three Relevant Goods}
 
 \author{Evan Lin}
 \authorrunning{E. Lin}
@@ -30,7 +30,7 @@
 \maketitle
 
 \begin{abstract}
-An allocation of indivisible goods is \efxz{} if no agent envies another agent's bundle after removing any single good from it, even a good that the envious agent values at zero. We give a short proof that every instance with nonnegative additive valuations in which each agent positively values at most three goods has a complete \efxz{} allocation in which all bundles but at most one have at most two goods. An algorithm we call Draft and Exchange (\DE{}) computes one in time $O(n(n+m))$. Agents that can leave with at most one good do so; the others draft at most one good each; then, until a free agent can take all the leftover goods (or every agent holds its pair), goods are traded along a chain or a ring of agents, each of which gets strictly better off. There are at most $4n$ trades. The key fact is that when no free agent can take the leftovers, the free agents have enough distinct obstacles to point at, and following these pointers closes a ring. The proof is machine-checked in Lean, together with the algorithm, its bound of $4n$ trades and its running time.
+An allocation of indivisible goods is \efxz{} if no agent envies another agent's bundle after removing any single good from it, even a good that the envious agent values at zero. We prove that every instance with nonnegative additive valuations in which each agent positively values at most three goods has a complete \efxz{} allocation in which all bundles but at most one have at most two goods. An algorithm we call Draft and Exchange (\DE{}) computes one in time $O(n(n+m))$. Agents that can leave with at most one good do so; the others draft at most one good each; then, until a free agent can take all the leftover goods (or every agent holds its pair), goods are traded along a chain or a ring of agents, each of which gets strictly better off. There are at most $4n$ trades. The key fact is that when no free agent can take the leftovers, the free agents have enough distinct obstacles to point at, and following these pointers closes a ring. The proof is machine-checked in Lean, together with the algorithm, its bound of $4n$ trades and its running time.
 \keywords{Fair division \and Indivisible goods \and EFX \and Serial dictatorship \and Trading cycles}
 \end{abstract}
 

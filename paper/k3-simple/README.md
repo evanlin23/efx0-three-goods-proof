@@ -13,7 +13,7 @@ good. The novelty claim (§1, "What is new") rests on the literature search of `
 - `main.tex` → `main.pdf`: **the paper** (about 9 pages of body before the references): what is new (with an instance
   no earlier result covers), peeling, states, finishing (with the soundness proof), improving (chain, ring, the
   finishing test, the Improvement Lemma, all with proofs), DE with pseudocode and a three-agent example; in the
-  appendix the short proofs of §2–§3, the corollary on Pareto-optimal states, the worked example with its figure, how
+  appendix the proofs of §2–§3, the corollary on Pareto-optimal states, the worked example with its figure, how
   large a ring must be, the limits of the shape, the verification in detail and the related-work table.
 - `long.tex` → `long.pdf`: a detailed exposition of the same result, with every proof in the main text, an informal
   overview, the three-agent example and the worked example in the body, and appendices on how large a ring must be,

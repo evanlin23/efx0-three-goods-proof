@@ -154,8 +154,8 @@ and notes (`proofs/…`), which are not copied here.
   `EFX.K3.agree_surrogate`, the constructive L12. Cost: `EFX.K3.surrogateC_cost` charges `c` units per oracle call
   and bounds the surrogate by `c · n (m + 12) + 10 n m + 971 n`, so at most `n (m + 12)` calls. The oracle on `Int`,
   `EFX.K3.Examples.leZ`.
-- `EFX/K3DE.lean`, `EFX/K3DEImprove.lean`, `EFX/K3DEAlgo.lean`, `EFX/K3DEExamples.lean`: the short proof of the
-  k = 3 result and algorithm Draft and Exchange (DE) (`paper/k3-simple/main.tex` §3–§6,
+- `EFX/K3DE.lean`, `EFX/K3DEImprove.lean`, `EFX/K3DEAlgo.lean`, `EFX/K3DEExamples.lean`: the proof of the
+  result and algorithm Draft and Exchange (DE) (`paper/k3-simple/main.tex` §3–§6,
   `k3/simplify/po/hall/NOTES.md`; ledger K3S.PO.LEAN), over the valid pre-allocations of `PreAlloc` (rank-based
   states: each agent holds nothing, one of its goods, or its pair `{b, c}`). The Lean names are the earlier ones of
   the paper: needs (wants), utility (score), exposed (blocker), protecting good (the blocker's leftover good `h_x`),

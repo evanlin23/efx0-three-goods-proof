@@ -4,7 +4,7 @@ import EFX.K3Algo
 /-!
 # Draft and Exchange, preliminaries: threats, safety and peeling
 
-The preliminaries of the short proof of the k = 3 result (`paper/k3-simple/main.tex`: the model of §1, §2 "Peeling",
+The preliminaries of the paper (`paper/k3-simple/main.tex`: the model of §1, §2 "Peeling",
 and the threats `θ_i` of Appendix D; Lemmas threats and safety below are the case analysis of safety that the
 soundness proof of §4 argues inline), over the
 list layer of `EFX/Lists.lean` (agents and goods are lists, an allocation is an owner map `X : G → A`, the bundle of

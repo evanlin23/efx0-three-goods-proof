@@ -3,7 +3,7 @@ import EFX.K3Algo
 /-!
 # Draft and Exchange, part 1: states, soundness, transfers and exchanges (ledger K3S.PO.LEAN)
 
-The objects of the short proof of the k = 3 result (`paper/k3-simple/main.tex` §3–§5, `k3/simplify/po/hall/NOTES.md`),
+The objects of the paper's proof (`paper/k3-simple/main.tex` §3–§5, `k3/simplify/po/hall/NOTES.md`),
 over the valid pre-allocations of `EFX/PreAlloc.lean`. In the core case every agent `i` values exactly three goods,
 ranked `a i`, `b i`, `c i` (`EFX.LB.Profile`, well formed: `EFX.LB.WF`).
 
