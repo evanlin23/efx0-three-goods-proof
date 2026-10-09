@@ -3,7 +3,7 @@ import EFX.K3DECost
 /-!
 # The running time of Draft and Exchange, part 2: one step of the loop in `O(n + m)`
 
-`stepC` is `EFX.DE.step` (one iteration of the loop of Algorithm DE, `paper/k3-simple/long.tex` §6: chain, finish,
+`stepC` is `EFX.DE.step` (one iteration of the loop of Algorithm DE, `paper/k3-simple/main.tex` §6: chain, finish,
 ring) as a counted program over `Fin n` and `Fin m`, and `stepC_val` proves that it computes `step`. Units as in
 `EFX.K3DECost`.
 

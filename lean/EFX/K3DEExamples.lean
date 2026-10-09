@@ -6,14 +6,14 @@ import EFX.K3DEAlgo
 The outputs below are computed by kernel evaluation (`decide`) of `EFX.DE.deSpec` and `EFX.DE.deMoves`, and they are
 EFX₀ with at most one large bundle by `EFX.DE.deSpec_correct`.
 
-- `worked`: the worked example of `paper/k3-simple/long.tex` §7 (n = 6, m = 10, values 4, 3, 2): the draft state has
+- `worked`: the worked example of `paper/k3-simple/main.tex` Appendix B (n = 6, m = 10, values 4, 3, 2): the draft state has
   no ring of want arrows and no chain applies, no free agent can finish, and one ring with two pair arrows
   (`o₁ → x₁ → o₂ → x₂ → o₁`) gives two pairs; then `x₁'` finishes (absorbs) with `H = ∅`. The output is the paper's.
 - `small`: the small example at the end of §6 (n = 3, m = 5; the paper's `g₄`): `o` cannot finish (`H_o = {g₂}`, no
   other free agent), the ring `o → x → o` gives `x` its pair `{g₁, g₂}` and `o` the good `g₀`, then `z` finishes with
   `H = ∅`: `X_z = {g₄, g₃}`, `X_x = {g₁, g₂}`, `X_o = {g₀}`. The output is the paper's.
-- `twoAgents`: the remark "the protecting goods cannot be dropped" of the earlier version of the paper (kept in Lean,
-  `EFX/K3DERemarks.lean`; n = 2, m = 3): both agents hold their tops, each is exposed for (a blocker of) the other,
+- `twoAgents`: a further remark, "the protecting goods cannot be dropped", which is not in the paper
+  (`EFX/K3DERemarks.lean`; n = 2, m = 3): both agents hold their tops, each is exposed for (a blocker of) the other,
   and agent 0 absorbs with `H = {g₂}`, which goes to agent 1. No exchange.
 - `chains`: n = 2, m = 5: (P) fails after the draft, a pair chain (agent 0 takes its pair, agent 1 takes `g₀`),
   then (P) fails at agent 1, a second pair chain of length 0, and every agent is a pair holder; agent 0 absorbs.

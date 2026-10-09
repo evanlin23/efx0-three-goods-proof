@@ -3,7 +3,7 @@ import EFX.K3DECostRun
 /-!
 # The running time of Draft and Exchange, part 4: `O(n(n + m))` operations
 
-`paper/k3-simple/long.tex` §6, paragraph "Running time": "an iteration takes `O(n + m)` steps, and so does a
+`paper/k3-simple/main.tex` §6, paragraph "Running time": "an iteration takes `O(n + m)` steps, and so does a
 round of peeling once the relevant goods of each agent are known … So DE runs in `O(n(n + m))` steps, reading the
 input included. This count is machine-checked in Lean". This file proves it for the counted program
 `EFX.DE.deC` (`EFX.K3DECostRun`, whose value is `deSpec`: `EFX.DE.de_eq_spec`). The units are those of
@@ -768,7 +768,7 @@ theorem expand4 (n m : Nat) :
     rw [Nat.add_mul, Nat.one_mul, Nat.mul_add, Nat.mul_add, Nat.mul_one]; omega
   rw [Nat.mul_assoc, h]; omega
 
-/-- **The running time of DE** (`paper/k3-simple/long.tex` §6, "Running time"): on every instance with `n ≥ 1`
+/-- **The running time of DE** (`paper/k3-simple/main.tex` §6, "Running time"): on every instance with `n ≥ 1`
 agents and `m` goods in which every agent positively values at most three goods, the counted program `deC` (whose
 value is `deSpec`, `de_eq_spec`) performs at most `730 n² + 48 nm + 326 n + 29 m + 10` operations, reading the
 input included. -/

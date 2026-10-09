@@ -4,20 +4,20 @@ import EFX.K3DERings
 /-!
 # Draft and Exchange: two small examples of the paper (ledger K3S.EX.LEAN)
 
-Two statements of `paper/k3-simple/long.tex` about concrete instances, checked by kernel evaluation (`decide`) with the
+Two statements of `paper/k3-simple/main.tex` about concrete instances, checked by kernel evaluation (`decide`) with the
 decision procedures of `EFX/K3DEShortExamples.lean`.
 
 - **Example "EFX, but not EFX₀"** (§1, `ex:efx-vs-efx0`): two agents and goods `a, b, c`; agent 1 values `a, b, c`
   at `3, 2, 0`, agent 2 values only `c`, at `1` (here agents `0`, `1` and goods `0, 1, 2`). The allocation
   `X₁ = {b}`, `X₂ = {a, c}` is EFX (`EFX`: only goods the envier values positively may be removed) but not EFX₀,
   and `X₁ = {a}`, `X₂ = {b, c}` is EFX₀ (`efx_not_efx0`). EFX₀ implies EFX (`efx_of_efx0`).
-- **Remark "The protecting goods cannot be dropped"** (a remark of the earlier version of the paper, after Corollary
-  `cor:po`; it is no longer in the paper and is kept here): two agents ranking
+- **Remark "The protecting goods cannot be dropped"** (a further remark, not in the paper; it
+  complements Corollary `cor:po`): two agents ranking
   `g₀ ≻ g₁ ≻ g₂` and `g₁ ≻ g₀ ≻ g₂`, each holding its top. The state is valid, both agents are free, `J = {g₂}`, and
   each agent is exposed for the other (`pg_facts`); no valid state Pareto-dominates it (`pg_undominated`, through the
   utility code of `EFX.DE.canon_of_valid`); every valid absorber has `H = {g₂}` (`pg_only_g2`), and both agents
   absorb with it (`pg_absorbers`).
-- **The worked example's remaining numbers** (§7, with `EFX/K3DEShortExamples.lean`): with `H = {g₆}` and absorber
+- **The worked example's remaining numbers** (Appendix B, with `EFX/K3DEShortExamples.lean`): with `H = {g₆}` and absorber
   `o₁`, `X_{o₁} = {g₄, g₇, g₈, g₉}`, which `x₁'` values at `5` without `g₈`, more than its `4` (`w_detail`); every
   cycle of the exchange digraph `D⁺` of the draft state has four agents and two exposure arcs (`w_cycles`, the
   Figure's caption; cycles as in `EFX.DE.Rings.DCycle`); DE's step moves along `o₁ → x₁ → o₂ → x₂ → o₁` (`w_step`);
@@ -159,7 +159,7 @@ theorem pg_absorbers : Absorber P2 ag2 gs2 Y2 [] 0 [2] ∧ Absorber P2 ag2 gs2 Y
 /-! ## The worked example's remaining numbers -/
 
 open ShortExamples Rings in
-/-- **The failing completion of §7**: with absorber `o₁` and `H = {g₆}`, `X_{o₁} = {g₄, g₇, g₈, g₉}`; without `g₈`
+/-- **The failing completion of Appendix B**: with absorber `o₁` and `H = {g₆}`, `X_{o₁} = {g₄, g₇, g₈, g₉}`; without `g₈`
 it is worth `3 + 2 = 5` to `x₁'`, which holds `g₁`, worth `4`. -/
 theorem w_detail : bundle gw (completeDE Pw ag [] Yw 4 [6]) 4 = [4, 7, 8, 9] ∧
     value vw 1 ((bundle gw (completeDE Pw ag [] Yw 4 [6]) 4).erase 8) = 5 ∧
@@ -265,7 +265,7 @@ theorem w_totals : total Pw ag Yw [] = 14 ∧ total Pw ag Y1 up1 = 20 := by
   decide
 
 open ShortExamples in
-/-- **The completion paragraph of §7**: in the new state nobody needs a good, `J = {g₇, g₉}`, the free agents are
+/-- **The completion paragraph of Appendix B**: in the new state nobody needs a good, `J = {g₇, g₉}`, the free agents are
 `x₁', x₂', o₁, o₂`, nobody is exposed for `x₁'`, and DE's next step stops with absorber `x₁'` and `H = ∅`. -/
 theorem w_after : (∀ g, ¬ Pw.NA ag (· ∈ up1) Y1 g) ∧ junkList Pw ag up1 Y1 gw = [7, 9] ∧
     ag.filter (freeB Pw ag up1 Y1) = [1, 3, 4, 5] ∧ (∀ x, ¬ Exposed Pw ag up1 Y1 gw 1 x) ∧

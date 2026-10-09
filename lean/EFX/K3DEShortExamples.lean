@@ -4,8 +4,8 @@ import EFX.K3DEExamples
 /-!
 # Draft and Exchange: the worked example, and the instances of Proposition short
 
-The worked example of `paper/k3-simple/long.tex` §7 (`sec:example`) and the two instances that attain the bounds
-of Proposition short (Appendix A, `prop:short`), with the remark after its proof. Every fact about a concrete state is
+The worked example of `paper/k3-simple/main.tex` Appendix B (`sec:example`) and the two instances that attain the bounds
+of Proposition short (Appendix C, `prop:short`), with the remark after its proof. Every fact about a concrete state is
 proved by kernel evaluation (`decide`) of decidable formulations, proved equivalent to (or sound for) the
 propositions of `EFX/K3DE.lean`, `EFX/K3DEImprove.lean` and `EFX/K3DEShort.lean`.
 
@@ -21,7 +21,7 @@ propositions of `EFX/K3DE.lean`, `EFX/K3DEImprove.lean` and `EFX/K3DEShort.lean`
   `1` `c`, `0` nothing): `valid_ext`. This reduces "every valid state that dominates `Y`" to finitely many utility
   vectors.
 
-**The worked example** (§7; agents `x₁, x₁', x₂, x₂', o₁, o₂` are `0, …, 5`, goods `g₀, …, g₉` are `0, …, 9`,
+**The worked example** (Appendix B; agents `x₁, x₁', x₂, x₂', o₁, o₂` are `0, …, 5`, goods `g₀, …, g₉` are `0, …, 9`,
 rankings `Pw`, values `4, 3, 2`: `vw`, the instance `EFX.DE.Examples.worked`). The draft state `Yw`
 (`w_draft`: the draft of Lemma draft in index order) has `NA = {g₀, g₁, g₂, g₃}`, is valid, `J = {g₆, g₇, g₈, g₉}`,
 `F = {o₁, o₂}`, the need arcs `x₁ → o₂`, `x₁' → o₂`, `x₂ → o₁`, `x₂' → o₁` (so `D` has no cycle), (P) holds,
@@ -269,7 +269,7 @@ theorem fin6_eta (u : Fin 6 → Nat) : u = vec6 (u 0) (u 1) (u 2) (u 3) (u 4) (u
   | ⟨5, _⟩ => rfl
   | ⟨k + 6, h⟩ => exact absurd h (by omega)
 
-/-! ## The worked example (§7) -/
+/-! ## The worked example (Appendix B) -/
 
 /-- The agents `x₁, x₁', x₂, x₂', o₁, o₂` (`0` to `5`). -/
 def ag : List (Fin 6) := List.finRange 6
@@ -277,7 +277,7 @@ def ag : List (Fin 6) := List.finRange 6
 /-- The goods `g₀, …, g₉`. -/
 def gw : List (Fin 10) := List.finRange 10
 
-/-- The rankings of §7: `x₁` `g₀ ≻ g₄ ≻ g₆`, `x₁'` `g₁ ≻ g₄ ≻ g₇`, `x₂` `g₂ ≻ g₅ ≻ g₈`, `x₂'` `g₃ ≻ g₅ ≻ g₉`,
+/-- The rankings of Appendix B: `x₁` `g₀ ≻ g₄ ≻ g₆`, `x₁'` `g₁ ≻ g₄ ≻ g₇`, `x₂` `g₂ ≻ g₅ ≻ g₈`, `x₂'` `g₃ ≻ g₅ ≻ g₉`,
 `o₁` `g₂ ≻ g₃ ≻ g₄`, `o₂` `g₀ ≻ g₁ ≻ g₅`. -/
 def Pw : Profile (Fin 6) (Fin 10) where
   a := fun i => ([0, 1, 2, 3, 2, 0] : List (Fin 10)).getD i.val 0
@@ -314,7 +314,7 @@ theorem w_noShort : ¬ ShortMove Pw ag gw Yw [] :=
 theorem w_noAbsorber : ¬ ∃ o H, Free Pw ag [] Yw o ∧ Absorber Pw ag gw Yw [] o H :=
   (no_free_absorber w_wf (List.nodup_finRange 6) (by decide)).mpr (by decide)
 
-/-- **The facts of §7 about the draft state.** `NA = {g₀, g₁, g₂, g₃}`; `J = {g₆, g₇, g₈, g₉}`;
+/-- **The facts of Appendix B about the draft state.** `NA = {g₀, g₁, g₂, g₃}`; `J = {g₆, g₇, g₈, g₉}`;
 `F = {o₁, o₂}`; the need arcs are `x₁ → o₂`, `x₁' → o₂`, `x₂ → o₁`, `x₂' → o₁`, and `D` has no cycle; (P) holds;
 `E_{o₁} = {x₁, x₁'}`, `E_{o₂} = {x₂, x₂'}`, `H_{o₁} = {g₆, g₇}`, `H_{o₂} = {g₈, g₉}`; no free agent absorbs; no short
 move applies. -/
@@ -330,7 +330,7 @@ theorem w_facts :
   ⟨by decide, by decide, by decide, by decide, fun h => w_noShort (Or.inl h), by decide, by decide, by decide,
     by decide, by decide, w_noAbsorber, w_noShort⟩
 
-/-- **Attainment, `n = 6`** (`m = 10`): the draft state of §7 satisfies every hypothesis of Proposition short
+/-- **Attainment, `n = 6`** (`m = 10`): the draft state of Appendix B satisfies every hypothesis of Proposition short
 (`EFX.DE.prop_short`), with `|F| = 2`. -/
 theorem w_attains :
     WF Pw ag gw ∧ Valid Pw ag gw Yw [] ∧ ag.Nodup ∧ gw.Nodup ∧
@@ -375,7 +375,7 @@ theorem w_check : ∀ u0 ∈ [3, 4], ∀ u1 ∈ [3, 4], ∀ u2 ∈ [3, 4], ∀ u
       [u0, u1, u2, u3, u4, u5] ∈ wVecs ∨ [u0, u1, u2, u3, u4, u5] = [3, 3, 3, 3, 1, 1] := by
   decide
 
-/-- **Exactly four valid states dominate the draft state** (§7, "exhaustive listing"): every valid state that
+/-- **Exactly four valid states dominate the draft state** (Appendix B, "exhaustive listing"): every valid state that
 Pareto-dominates `Yw` has the utility vector of one of the four exchanges (`w_exchanges`), so by `valid_ext` it is one
 of them; each gives pairs to exactly two agents. -/
 theorem w_dominators (Y' : Fin 6 → Option (Fin 10)) (up' : List (Fin 6)) (hV : Valid Pw ag gw Y' up')
@@ -417,7 +417,7 @@ theorem w_vecs_cycles : ∀ l ∈ wVecs, ∃ p ∈ wCycles, ∀ i : Fin 6,
       (exchY Pw ag [] Yw (cOn 4 p.1 5 p.2) (cPred 4 p.1 5 p.2)) i = l.getD i.val 0 := by
   decide
 
-/-- **Exactly four valid states Pareto-dominate the draft state** (§7): every valid state that dominates `Yw` is
+/-- **Exactly four valid states Pareto-dominate the draft state** (Appendix B): every valid state that dominates `Yw` is
 the exchange along one of the four cycles `o₁ → x → o₂ → x' → o₁` (the same picks and the same pair holders), and
 these four states are different (their utility vectors differ). Each gives pairs to exactly two agents
 (`w_exchanges`). -/
@@ -434,7 +434,7 @@ theorem w_exactly_four : wVecs.Nodup ∧
   have h := valid_ext (w_exchanges.2.1 p hp).1 hV hU i (List.mem_finRange i)
   exact ⟨h.1.symm, h.2.symm⟩
 
-/-- **The ten candidate completions fail EFX₀** (§7): with absorber `o₁` or `o₂` and `H = ∅` or one leftover good,
+/-- **The ten candidate completions fail EFX₀** (Appendix B): with absorber `o₁` or `o₂` and `H = ∅` or one leftover good,
 the completion `completeDE` is not EFX₀ for the values `4, 3, 2`. -/
 theorem w_completions : ∀ o ∈ ([4, 5] : List (Fin 6)), ∀ H ∈ ([[], [6], [7], [8], [9]] : List (List (Fin 10))),
     ¬ EFX0L vw ag gw (completeDE Pw ag [] Yw o H) := by

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Recompute every example and every computed number of paper/k3-simple/long.tex, and test its lemmas and algorithm DE.
+"""Recompute every example and every computed number of the paper (paper/k3-simple/main.tex; the same examples and
+numbers appear in long.tex), and test its lemmas and algorithm DE.
 
     python3 paper/k3-simple/examples/check_examples.py          (from the repository root, or from anywhere)
 
 Exit status 0 iff every check passes. One process, no pools; about a minute. check_output.txt (same folder) is a
 copy of what this script prints.
 
-This script implements the definitions of long.tex as now written (states and scores, wants, validity, free agents,
+This script implements the paper's definitions (states and scores, wants, validity, free agents,
 leftover goods, blockers, finishing and completions, want arrows and pair arrows, rings, chains) and algorithm DE
 (Algorithm 1: peeling by rule R1, the draft, then the loop chain / finish / ring), written from the paper's text and
 not from earlier code. Every claim of the proofs that DE relies on is an assert. Allocations are checked against the
@@ -14,21 +15,21 @@ raw definition of EFX0 with exact integer arithmetic. `k3/simplify/po/hall/hall.
 only for cross-checks of claims that are still the same: the improving step of the Improvement Lemma, and DE's output.
 
 Sections (as printed):
-  [1] Introduction: Example "EFX, but not EFX0"; three goods break serial dictatorship; Corollary "two relevant goods".
-  [2] Section 6, "A small example" (also in main.tex): three agents, one ring with one pair arrow, then a completion.
-  [3] Section 7 "A Worked Example" and Figure 1: the draft state, wants, free agents, blockers, the sets H_o, the ten
+  [1] Introduction: Example "EFX, but not EFX0"; three goods break serial dictatorship; two relevant goods suffice.
+  [2] "A small example": three agents, one ring with one pair arrow, then a completion.
+  [3] The worked example and its figure: the draft state, wants, free agents, blockers, the sets H_o, the ten
       candidate completions, no small trade, the four dominating valid states, the arrows and cycles, DE's ring and
       final allocation, raw EFX0 (values 4, 3, 2 and 2,000 random strictly balanced valuations with these rankings).
-  [4] Appendix A, Proposition "when short moves are not enough": both instances, and the remark that two of the four
+  [4] Proposition "when short moves are not enough": both instances, and the remark that two of the four
       cycles with two pair arrows reuse a leftover good.
-  [5] Appendix A, "No bounded number of pair arrows suffices": the ring family for k <= 4 and depths d <= 3, and DE
+  [5] "No bounded number of pair arrows suffices": the ring family for k <= 4 and depths d <= 3, and DE
       from the draft at depth 4 (Conclusion, open problem (2)).
-  [6] Appendix B: Lemma "cases of safety" and Proposition "limits of the shape", by listing every allocation.
+  [6] Lemma "cases of safety" and Proposition "limits of the shape", by listing every allocation.
   [7] Every valid state of every core profile with n = 2 (m <= 6) and n = 3 (m <= 7), up to renaming goods: the
       draft (Lemma "the draft", every order), the finishing test, soundness (every completion), Lemma "ring" (every
       ring), the Improvement Lemma in the form of its proof, short moves (Proposition: none missing for n <= 5), and
       the loop of DE started at every valid state.
-  [8] DE, peeling included, on random instances; comparison with the loop of the previous version of the paper and
+  [8] DE, peeling included, on random instances; comparison with an alternative loop and
       with hall.py.
 """
 import traceback
@@ -482,7 +483,7 @@ def improvement(st, x=None):
 def de_loop(rank, m, start=None, stats=None, old_finish=False):
     """the draft (or the valid state `start`) and the loop of Algorithm 1, then its last two lines. Returns
     (X, o, H, trace, final state); trace lists the trades. With old_finish (for comparison only): the loop of the
-    previous version of the paper, in which the first free agent holding nothing finishes, with H = {}, before the
+    alternative loop, in which the first free agent holding nothing finishes, with H = {}, before the
     count is tried; it breaks in the same states, so only the finishing agent can differ."""
     n = len(rank)
     hold = draft(rank) if start is None else tuple(start)
@@ -586,7 +587,7 @@ def with_core(c, Xc):
 
 # ============================================================================================ [1]
 def sec_intro():
-    out('[1] Introduction: Example "EFX, but not EFX0"; serial dictatorship at three goods; Corollary "two relevant '
+    out('[1] Introduction: Example "EFX, but not EFX0"; serial dictatorship at three goods; serial dictatorship for "two relevant '
         'goods"')
     a, b, c = 0, 1, 2
     v = [{a: 3, b: 2}, {c: 1}]
@@ -628,7 +629,7 @@ def sec_intro():
 
 # ============================================================================================ [2]
 def sec_small():
-    out('[2] Section 6, "A small example" (agents z, x, o in this index order; goods g0, g1, g2, g3, g4)')
+    out('[2] "A small example" (agents z, x, o in this index order; goods g0, g1, g2, g3, g4)')
     gn = ['g0', 'g1', 'g2', 'g3', 'g4']                       # the goods, numbered 0..4 in index order
     G0, G1, G2, G3, G5 = range(5)
     Z, XX, O = range(3)
@@ -683,7 +684,7 @@ def nm(i):
 
 
 def sec_worked():
-    out('[3] Section 7 "A Worked Example" (goods g0..g9; agents x1, x1\', x2, x2\', o1, o2 in this index order)')
+    out('[3] The worked example (goods g0..g9; agents x1, x1\', x2, x2\', o1, o2 in this index order)')
     rank, m = RANK6, 10
     v = values_from_ranking(rank)
     check(all(rule_r1(v[i], set(range(m))) is None for i in range(6)) and all(4 < 3 + 2 for _ in rank),
@@ -805,11 +806,11 @@ def hypothesis(st):
 
 
 def sec_short():
-    out('[4] Appendix A, Proposition "when short moves are not enough"')
+    out('[4] Proposition "when short moves are not enough"')
     rank, m = RANK6, 10
     st = State(rank, m, draft(rank))
     check(hypothesis(st) and not short_move(st) and len(st.F) == 2 and st.n == 6 and m == 10,
-          'the draft state of Section 7: valid, not all pairs, nobody can finish, no short move; |F| = 2, n = 6 '
+          'the draft state of the worked example: valid, not all pairs, nobody can finish, no short move; |F| = 2, n = 6 '
           '(m = 10)')
     # the m = 8 instance; agents in the order the paper lists them
     names = ['o1', 'o2', 'x1', "x1'", 'x2', "x2'"]
@@ -857,7 +858,7 @@ def sec_short():
 
 # ============================================================================================ [5]
 def ring_family(k, d, shared):
-    """Appendix A, 'No bounded number of pair arrows suffices' (as gen_tree of k3/simplify/po/potential/
+    """'No bounded number of pair arrows suffices' (as gen_tree of k3/simplify/po/potential/
     test_exchange.py): agents 0..k-1 are o_0..o_{k-1}, each holding its c and wanting the goods of the two roots of a
     binary tree (o_i and the tree have depth d); inner agents hold their c and want their children's goods; the 2^d
     leaves of the tree of o_{i+1} hold their tops and have b, c = the good of o_i and a leftover good (private, or
@@ -900,7 +901,7 @@ def ring_family(k, d, shared):
 
 
 def sec_rings():
-    out('[5] Appendix A, the ring family: k free agents, trees of depth d (values 4, 3, 2)')
+    out('[5] The ring family: k free agents, trees of depth d (values 4, 3, 2)')
     for k in (2, 3, 4):
         for d in (1, 2, 3):
             for shared in (False, True):
@@ -938,7 +939,7 @@ def sec_rings():
         X, o, H, trace, _ = de_loop(rank, m)
         res[k] = len(trace)
         assert is_efx0(values_from_ranking(rank), X)
-    check(max(res.values()) > 8, 'Conclusion (2), "on the rings of Appendix A many more [trades than 8]": DE from the '
+    check(max(res.values()) > 8, 'Open problems: "on the rings of depth 4, up to 12 trades": DE from the '
                                  'draft on the family with d = 4 (private leftover goods) makes '
                                  + ', '.join(f'{t} trades for k = {k} (n = {k * 31})' for k, t in res.items())
                                  + '; outputs EFX0')
@@ -984,7 +985,7 @@ def all_allocations(n, m):
 
 
 def sec_limits():
-    out('[6] Appendix B: Lemma "cases of safety" and Proposition "limits of the shape", by listing every allocation')
+    out('[6] Lemma "cases of safety" and Proposition "limits of the shape", by listing every allocation')
     trips = [(4, 3, 2), (5, 4, 3), (10, 9, 2), (7, 5, 3)]      # v(a) > v(b) > v(c) > 0, v(a) < v(b) + v(c)
     for t in trips:
         vi = dict(zip((0, 1, 2), t))                            # agent 0 values a, b, c = g0, g1, g2; g3..g5 at 0
@@ -1215,7 +1216,7 @@ def sec_random(K_general=20000, K_core=20000):
         f'trade, at most {stats["max trades"]} trades; peeled agents {stats["peeled agents"]}; trades: '
         + ', '.join(f'{k} {c}' for k, c in sorted(stats.items()) if k.startswith(('chain', 'ring')))
         + '; ' + ', '.join(f'{k} {c}' for k, c in sorted(stats.items()) if k.startswith('finish')))
-    # comparisons on the cores reached: the loop of the previous version of the paper (a free agent holding nothing
+    # comparisons on the cores reached: an alternative loop (a free agent holding nothing
     # finishes first), and hall.py (whose stop rule takes the first free agent that holds nothing or has
     # |H_o| <= |F| - 1, that is, the rule of this version)
     d_old_o, d_old_X, d_hall, ok = 0, 0, 0, True
@@ -1227,14 +1228,14 @@ def sec_random(K_general=20000, K_core=20000):
         Bh = [{g for g in range(c['m']) if Xh[g] == i} for i in range(len(c['rank']))]
         d_hall += Bh != c['Xc']
         ok &= is_efx0(v, with_core(c, Xo)) and is_efx0(v, with_core(c, Bh)) and len(tro) == c['trades']
-    check(ok, f'on the {len(cores)} cores reached: the previous paper\'s loop (a free agent holding '
+    check(ok, f'on the {len(cores)} cores reached: an alternative loop (a free agent holding '
                               f'nothing finishes first) picks another finishing agent in {d_old_o} run(s), another '
                               f'output in {d_old_X}; hall.py (another tie-break among the leftover goods) differs in {d_hall}; all these outputs EFX0 (raw, '
                               f'the instance\'s values)')
 
 
 def sec_novel(K=2000):
-    out('[9] Section 1, "What is new": an instance of the model that no earlier existence result covers')
+    out('[9] "What is new": an instance of the model that no earlier existence result covers')
     sets = [(0, 1, 6), (0, 1, 7), (0, 2, 8), (2, 3, 4), (3, 5, 9), (4, 5, 10)]
     n, m = len(sets), 1 + max(g for S in sets for g in S)
     valuers = {g: [i for i, S in enumerate(sets) if g in S] for g in range(m)}

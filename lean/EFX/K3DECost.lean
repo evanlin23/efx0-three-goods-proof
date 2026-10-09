@@ -3,7 +3,7 @@ import EFX.K3DEAlgo
 /-!
 # The running time of Draft and Exchange, part 1: arrays with writes, and peeling
 
-`paper/k3-simple/long.tex` §6, paragraph "Running time": DE runs in `O(n(n + m))` steps. This file and
+`paper/k3-simple/main.tex` §6, paragraph "Running time": DE runs in `O(n(n + m))` steps. This file and
 `EFX.K3DECostStep`, `EFX.K3DECostRun`, `EFX.K3DECostBound` formalize that count: a counted program `EFX.DE.deC`
 (in the cost monad `EFX.Timed`) whose value is `EFX.DE.deSpec` (`EFX.DE.de_eq_spec`), and a bound
 `O((n + 1)(n + m + 1))` on its counted operations (`EFX.DE.deC_cost`).

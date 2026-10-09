@@ -3,9 +3,9 @@ import EFX.K3DEAlgo
 /-!
 # Draft and Exchange, part 4: when short moves are not enough (Proposition short)
 
-Proposition "when short moves are not enough" of `paper/k3-simple/long.tex` Appendix A (`prop:short`; written source
+Proposition "when short moves are not enough" of `paper/k3-simple/main.tex` Appendix C (`prop:short`; written source
 `k3/simplify/po/potential/NOTES.md`, Lemma 3), over the states of `EFX/K3DE.lean` (a pick map `Y` and a list `up`
-of pair holders, `EFX.LB.Valid`). The worked example of §7 and the instances that attain the bounds are in
+of pair holders, `EFX.LB.Valid`). The worked example of Appendix B and the instances that attain the bounds are in
 `EFX/K3DEShortExamples.lean`.
 
 **Definitions.**
@@ -454,7 +454,7 @@ theorem short_counts (hWF : WF P agents goods) (hV : Valid P agents goods Y up) 
   rw [h2eq] at hU2
   omega
 
-/-- **Proposition short** (`paper/k3-simple/long.tex` Appendix A, "when short moves are not enough"). In the core case, let
+/-- **Proposition short** (`paper/k3-simple/main.tex` Appendix C, "when short moves are not enough"). In the core case, let
 `(Y, up)` be a valid state in which no free agent is a valid absorber, some agent is not a pair holder, and no short
 move applies (no need cycle, no pair chain, no exchange cycle with exactly one exposure arc). Then `|F| ≥ 2`, `n ≥ 6`
 and `m ≥ 8`; if `|F| ≥ 3`, then `n ≥ 9` and `m ≥ 12` (`n = |agents|`, `m = |goods|`, `F` the free agents). -/

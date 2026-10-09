@@ -3,7 +3,7 @@ import EFX.K3DECostStep
 /-!
 # The running time of Draft and Exchange, part 3: the counted program `deC` computes `deSpec`
 
-Algorithm DE (`paper/k3-simple/long.tex` §6, Algorithm `alg:de`) as a counted program over the model's instances,
+Algorithm DE (`paper/k3-simple/main.tex` §6, Algorithm `alg:de`) as a counted program over the model's instances,
 built from the parts of `EFX.K3DECost` and `EFX.K3DECostStep`; units as in `EFX.K3DECost`.
 
 - **Reading the input** (`deC`): the lists of agents and goods, and for each agent its relevant goods among all
@@ -351,7 +351,7 @@ def deC (I : Inst) (hn : 0 < I.n) : Timed I.Alloc := do
   let inG ← constT I.m true
   peelC I.v rel ⟨0, hn⟩ I.n agents goods inG
 
-/-- **Algorithm DE** (`paper/k3-simple/long.tex`, Algorithm `alg:de`): the allocation `deC` computes. -/
+/-- **Algorithm DE** (`paper/k3-simple/main.tex`, Algorithm `alg:de`): the allocation `deC` computes. -/
 def de (I : Inst) (hn : 0 < I.n) : I.Alloc := (deC I hn).val
 
 /-- **`deC` computes the specification** `EFX.DE.deSpec`, on every instance. -/

@@ -2,7 +2,7 @@ import EFX.K3DEAlgo
 import EFX.K3Real
 
 /-!
-# Draft and Exchange on ordered values, and the peeling bound (`paper/k3-simple/long.tex` §6)
+# Draft and Exchange on ordered values, and the peeling bound (`paper/k3-simple/main.tex` §6)
 
 `EFX/K3DEAlgo.lean` formalizes algorithm DE and Theorem "DE is correct" (`thm:de`) over natural-number values, with
 the bound of `4n` exchanges. This file adds the two parts of §6 that it leaves out: the bound "DE peels at most
@@ -162,10 +162,10 @@ theorem dePeels_le_pred (I : Inst) : dePeels I ≤ I.n - 1 := by
   have := peels_le I.v I.n (List.finRange I.n) (List.finRange I.m)
   rwa [List.length_finRange] at this
 
-/-- **DE peels at most `n` agents** (`paper/k3-simple/long.tex`, Theorem `thm:de`). -/
+/-- **DE peels at most `n` agents** (`paper/k3-simple/main.tex`, Theorem `thm:de`). -/
 theorem dePeels_le (I : Inst) : dePeels I ≤ I.n := Nat.le_trans (dePeels_le_pred I) (Nat.sub_le _ _)
 
-/-- **Theorem DE is correct, in full** (`paper/k3-simple/long.tex` §6, Theorem `thm:de`). On every instance in
+/-- **Theorem DE is correct, in full** (`paper/k3-simple/main.tex` §6, Theorem `thm:de`). On every instance in
 which every agent positively values at most three goods, DE returns an EFX₀ allocation in which all bundles but at
 most one have at most two goods; it peels at most `n` agents and applies at most `4n` exchanges. -/
 theorem de_correct (I : Inst) (hn : 0 < I.n) (h : ∀ i, numRelevant I i ≤ 3) :
@@ -199,7 +199,7 @@ theorem deOrd_eq_surrogateC (c : Nat) (le : V → V → Bool) (I : OInst V) (hn 
     deOrd le I hn = deSpec ⟨I.n, I.m, (K3.surrogateC c le I).val⟩ hn := by
   rw [K3.surrogateC_val]; rfl
 
-/-- **Theorem DE is correct, on ordered values** (`paper/k3-simple/long.tex` §6, the proof of Theorems
+/-- **Theorem DE is correct, on ordered values** (`paper/k3-simple/main.tex` §6, the proof of Theorems
 `thm:target`, `thm:D` and `thm:algo` for nonnegative real values). For a correct comparison oracle, every instance
 with `n ≥ 1` agents, nonnegative values in an `EFX.OrderedValue` type (e.g. `ℝ≥0`) and at most three relevant goods
 per agent: `deOrd le I hn` is EFX₀ for the original values, all its bundles but at most one have at most two goods,
@@ -214,7 +214,7 @@ theorem deOrd_correct {le : V → V → Bool} (hle : ∀ x y, le x y = true ↔ 
     (fun i => (numRelevant_eq_of_agree I _ hw i) ▸ h i)
   exact ⟨(efx0_iff_of_agree I _ hw _).mpr hE, hS, hP, hM⟩
 
-/-- **Theorems existence and one large bundle on ordered values, in general** (`paper/k3-simple/long.tex`,
+/-- **Theorem existence and shape on ordered values, in general** (`paper/k3-simple/main.tex`,
 Theorems `thm:target` and `thm:D`, for nonnegative real values). Every instance with `n ≥ 1` agents, nonnegative
 values in an `EFX.OrderedValue` type (e.g. `ℝ≥0`) and at most three relevant goods per agent has an EFX₀
 allocation in which all bundles but at most one have at most two goods. -/

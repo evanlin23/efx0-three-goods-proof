@@ -4,14 +4,14 @@ import EFX.Bridge
 /-!
 # At most two relevant goods: serial dictatorship in any order
 
-Corollary "two relevant goods" of the paper (`paper/k3-simple/long.tex`, `cor:k2`): serial dictatorship in any
+The remark after rule R1 in §2 of the paper (`paper/k3-simple/main.tex`: if every agent values at most two goods, serial dictatorship is EFX₀): serial dictatorship in any
 order, each agent taking *a* favourite remaining good (any good of largest value to it), or nothing once no good is
 left, and the last agent everything left, returns an EFX₀ allocation when every agent positively values at most two
 goods. `EFX.SDRun` is the set of runs (any order, any favourite at every step); `EFX.sdRun_efx0` (over lists) and
 `EFX.Inst.sdRun_efx0` (model) prove that every run is EFX₀. `EFX.serialDict` is one run, computable (index-order
 favourite, `EFX.favorite`); `EFX.Inst.serialDict_efx0`: it is EFX₀ for every order of all agents.
 
-In the research repository this file also held other results of the earlier paper on k = 3 (`paper/k3/`); only
+In the research repository this file also held other results; only
 serial dictatorship, which the present paper cites from here, is kept.
 -/
 
@@ -22,7 +22,7 @@ namespace EFX
 section serial
 variable {A G : Type} [DecidableEq A] [DecidableEq G]
 
-/-- The runs of serial dictatorship (Corollary "two relevant goods" of the long version), over lists. The agents
+/-- The runs of serial dictatorship (the remark after rule R1 in §2 of the paper), over lists. The agents
 of `order` take turns; each takes a favourite remaining good (any good of largest value to it among those
 left), or nothing when no good is left; the last agent takes all remaining goods. `SDRun v order goods X`
 says that `X` is the outcome of one run on the goods of `goods`, whatever the favourite chosen at each step. -/

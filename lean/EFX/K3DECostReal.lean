@@ -4,7 +4,7 @@ import EFX.K3DEReal
 /-!
 # Draft and Exchange on ordered values: the count in the comparison model (ledger K3S.TIME)
 
-`paper/k3-simple/long.tex` §6, paragraph "Real values", with Theorem `thm:algo` ("in time `O(n(n+m))`. On real
+`paper/k3-simple/main.tex` §6, paragraph "Real values", with Theorem `thm:algo` ("in time `O(n(n+m))`. On real
 values, every decision of DE compares two sums of at most two values of one agent"): the count in the comparison
 model. The program `deOrdC` computes L12's natural-number surrogate with a comparison oracle (`EFX.K3.surrogateC`,
 `EFX/K3Real.lean`, each oracle call charged one unit) and runs the counted DE (`EFX.DE.deC`, `EFX/K3DECost*.lean`)
