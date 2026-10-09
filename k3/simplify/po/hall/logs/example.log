@@ -1,0 +1,2 @@
+example: valid True NA [0, 1, 2, 3] J [6, 7, 8, 9] F [4, 5] completable None
+  improve -> (4, 1, 4, 1, 1, 1) A-cycle valid True dominates True completable (0, [7])

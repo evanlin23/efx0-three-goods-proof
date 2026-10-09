@@ -1,0 +1,281 @@
+# Lean formalization
+
+The Lean 4 formalization of the paper `paper/k3-simple/` (EFX₀ with at most three relevant goods per agent), in core Lean 4. The conventions follow
+[evanlin23/mrd-efx](https://github.com/evanlin23/mrd-efx) (the formal companion to the paper on at most two
+relevant goods), whose model this library reuses verbatim.
+
+- **Core Lean only**: no Mathlib and no other packages (`lakefile.toml` has no `require`).
+- **No `sorry`**: the word may not appear in any source file, and the build must be free of errors and warnings.
+- **Standard axioms only**: every declaration of the library depends only on `propext`, `Classical.choice`
+  and `Quot.sound`. This rules out unfinished proofs, `native_decide` and new axioms.
+
+Toolchain: `leanprover/lean4:v4.34.0`, pinned in `lean-toolchain` (the same as mrd-efx).
+
+## Build and audit
+
+    cd lean && ./check.sh
+
+The script fails if any source file contains the word `sorry`, if any source file or `lakefile.toml` uses a
+debug option, metaprogramming or unsafe code (`debug.`, `import Lean`, `run_cmd`, `run_meta`, `run_elab`,
+`addDecl`, `implemented_by`, `extern`, `unsafe`), if the project has a dependency, if the build reports an error
+or a warning, if any `#print axioms` certificate lists an axiom other than the three standard ones (a certificate
+may also list none), if the number of certificates differs from the number of `#print axioms` commands, if any
+declaration of the library (certified or not; `CheckAxioms.lean`) depends on another axiom, or if Lean's replay
+checker `lake env leanchecker --fresh EFX` rejects the library (it re-checks every declaration, Init included,
+in a fresh kernel; about a minute). The last two checks exist because that a declaration added under `set_option debug.skipKernelTC true` is never kernel-checked, yet builds
+without warnings and has no axioms for `#print axioms` or `CheckAxioms.lean` to report; the tripwire refuses the
+option and the replay checker rejects such a declaration. On success the last line is
+
+    CHECK PASSED: 388 audited statements, 1022 theorems, standard axioms only
+
+CI runs it on every push and pull request (job `lean` in `.github/workflows/verify.yml`).
+
+To check one theorem interactively: `lake build`, then put `import EFX` and `#print axioms EFX.peel` in a scratch
+file and run `lake env lean scratch.lean`.
+
+## Trusted base
+
+The definitions a reader must accept, from `EFX/Model.lean` (copied from `MRD.lean` in mrd-efx `v1.2.0`, namespace
+`MRD` renamed to `EFX`):
+
+    def finSum : (k : Nat) → (Fin k → Nat) → Nat
+      | 0, _ => 0
+      | k+1, f => finSum k (fun i => f i.castSucc) + f (Fin.last k)
+
+    structure Inst where
+      n : Nat
+      m : Nat
+      v : Fin n → Fin m → Nat
+
+    abbrev Alloc := Fin I.m → Fin I.n
+
+    def bundleVal (X : I.Alloc) (i j : Fin I.n) (ex : Option (Fin I.m)) : Nat :=
+      finSum I.m (fun g => if X g = j ∧ ex ≠ some g then I.v i g else 0)
+
+    def EFX0 (X : I.Alloc) : Prop :=
+      ∀ i j : Fin I.n, i ≠ j → ∀ g : Fin I.m, X g = j →
+        I.bundleVal X i j (some g) ≤ I.bundleVal X i i none
+
+    def numRelevant (I : Inst) (i : Fin I.n) : Nat := finSum I.m (fun g => if 0 < I.v i g then 1 else 0)
+
+In `EFX/Model.lean` the docstring of `numRelevant` reads "The counting form of 2-relevance used in the paper:
+`|R_i| ≤ 2`": it is inherited verbatim from mrd-efx, whose theorem is about two goods. The definition counts the
+goods `g` with `0 < v i g` and has nothing to do with the bound 2 (`Model.lean` is left untouched, as copied).
+
+Values are natural numbers. EFX₀ only compares sums of values, so rational instances reduce to these by scaling
+each agent's values by a common denominator (machine-checked for K3ALG: `EFX.ratScale`, `EFX.K3.algoRat_efx0` in
+`EFX/K3Extras.lean`); nonnegative real values reduce to them by L12 (`proofs/real_values.md`), which is
+machine-checked: see the next section.
+
+### Values in an ordered type (`EFX/RealValues.lean`)
+
+TARGET and conjecture D are also stated for values in any type `V` satisfying the class `EFX.OrderedValue`, and the
+model is mirrored for such values (`Model.lean` is unchanged):
+
+    class OrderedValue (V : Type) extends Zero V, Add V, LE V where
+      add_assoc : ∀ a b c : V, a + b + c = a + (b + c)
+      add_comm : ∀ a b : V, a + b = b + a
+      zero_add : ∀ a : V, 0 + a = a
+      le_refl : ∀ a : V, a ≤ a
+      le_trans : ∀ a b c : V, a ≤ b → b ≤ c → a ≤ c
+      le_antisymm : ∀ a b : V, a ≤ b → b ≤ a → a = b
+      le_total : ∀ a b : V, a ≤ b ∨ b ≤ a
+      add_le_add_iff_right : ∀ a b c : V, a ≤ b ↔ a + c ≤ b + c
+
+    def finSumO : (k : Nat) → (Fin k → V) → V            -- as finSum
+    structure OInst (V : Type) where (n m : Nat) (v : Fin n → Fin m → V)
+    def OInst.bundleVal, OInst.EFX0                         -- as Inst.bundleVal, Inst.EFX0, word for word
+    def OInst.numRelevant (i : Fin I.n) : Nat := finSum I.m (fun g => if ¬ I.v i g ≤ 0 then 1 else 0)
+
+These are the axioms of a linearly ordered cancellative additive commutative monoid. `ℝ≥0`, `ℚ≥0` and `ℕ` satisfy
+them (so do `ℝ`, `ℚ`, `ℤ`); core Lean has no `ℝ`, so the `ℝ≥0` instance is the textbook fact, while the instances
+for `Nat` and `Int` are in the file, and the one for core Lean's `Rat` in `EFX/K3Extras.lean`. Nonnegativity is not an axiom but a hypothesis of the theorems
+(`∀ i g, 0 ≤ I.v i g`), which keeps the class to the order-and-sum axioms and lets `Int` (or `ℝ`) values with that
+hypothesis in. A good is relevant iff `¬ v i g ≤ 0` (that is, `v i g > 0`), and balance is
+`I.v i g + I.v i g ≤ finSumO I.m (I.v i)`. At `V = Nat` the mirrored model is the trusted base
+(`EFX.efx0_nat_iff`, `EFX.numRelevant_nat`), and `EFX.target_of_ordered`, `EFX.corollaryD_of_ordered` (the
+specializations) have exactly the types of `EFX.target`, `EFX.LB.corollaryD` (checked by `rfl` in the file).
+
+## Contents
+
+The files `EFX/K3DE*.lean` are the formalization of the paper. The other files are the model (`Model.lean`) and
+infrastructure they reuse from the research repository (evanlin23/efx0-three-goods), where they were written for an
+earlier, longer construction of the same theorem (K3ALG) and for work on four relevant goods: rank-based
+pre-allocations and their soundness theorem (`LBSound`, `PreAlloc`), rule R1 (`K3Algo`), the cost model (`Timed`,
+`K3CostLB`), values in an ordered type (`RealValues`, `K3Real`), and serial dictatorship (`K3Extras`). Their
+descriptions below come from that repository and mention its ledger (`LEDGER.md`) and notes, which are not copied
+here.
+
+- `EFX/Model.lean`: the trusted base above.
+- `EFX/Lists.lean`: the same notions over explicit lists of agents and goods (`value`, `bundle`, `EFX0L`), which
+  suit arguments that remove agents or goods; list lemmas; `favorite`, an agent's most valued remaining good.
+- `EFX/Peeling.lean`: `EFX.peel`, peeling rule R1.
+- `EFX/PeelingR2.lean`: `EFX.peelBundle`, the general peeling step (agent `i` leaves with a bundle `P` it values at
+  least as much as all remaining goods, and `P` minus any one good is worthless to everyone else); its instances
+  `EFX.peelR2`, peeling rule R2, and `EFX.peelEmpty`, rule R1 when nothing relevant to `i` remains (`P = ∅`).
+- `EFX/SerialDictatorship.lean`: `EFX.serialDictatorship`, L2c over lists.
+- `EFX/Bridge.lean`: over `List.finRange` the list notions equal the model's (`finSum_eq_sum`, `bundleVal_none`,
+  `bundleVal_some`, `efx0_iff`, `numRelevant_eq`); `EFX.exists_efx0_of_count`, L2c in the model's terms.
+- `EFX/Junk.lean`: L3. `EFX.rotate_efx0` (moving bundles along a permutation of the agents, each agent weakly
+  gaining, preserves EFX₀); `EFX.exists_unenvied` (envy-cycle elimination: some EFX₀ allocation has an agent
+  nobody envies; each rotation raises the bounded welfare, and a cycle exists by pigeonhole); `EFX.junkToSource`
+  and `EFX.junk` (goods worthless to all go to that agent); `EFX.Inst.exists_efx0_of_junk`, L3 in the model's
+  terms.
+- `EFX/TwoOwnGoods.lean`: L8. `EFX.envyFree_of_two_own` and `EFX.safe_of_two_own` over lists,
+  `EFX.Inst.safe_of_two_own` in the model's terms, `EFX.Inst.efx0_of_two_own` (every agent holds two own goods ⟹
+  EFX₀), and `EFX.balance_needed` (a top-heavy agent holding two own goods can be unsafe).
+- `EFX/LBSound.lean`: S2.S, abstract form. `EFX.LB.Profile` (rankings `a i`, `b i`, `c i`; consistent values `a ≥ b ≥ c > 0`, ties allowed), `Profile.Consistent`
+  (additive valuations consistent with them, balanced), `Profile.NA`, and `EFX.LB.Hyp`, the properties of LB's
+  output that the proof of Theorem 1 uses (picks, invariant (I1), upgraded, frozen and slot-filled bundles, the
+  owner constraint). `EFX.LB.Hyp.efx0` (EFX₀ for every consistent valuation), `EFX.LB.Hyp.length_le_two` (every
+  bundle but the owner's has at most two goods), `EFX.LB.sound` (both, in the model's terms).
+- `EFX/LBRun.lean`: S2.S for construction LB itself. `EFX.LB.lb` defines LB as `src/construct.py` does, with
+  Phase 1's processing order as an argument (LB's adaptive order is one choice); `EFX.LB.phase1_spec` (Phase 1
+  satisfies (I1)); `EFX.LB.lb_hyp` (every output satisfies `Hyp`); `EFX.LB.lb_sound`, `EFX.LB.lb_sound_model`
+  (Theorem 1: every output is EFX₀ for every consistent valuation and has at most one bundle of more than two
+  goods).
+- `EFX/PreAlloc.lean`, `EFX/Blocks.lean`, `EFX/OwnerR.lean`, `EFX/Rotation.lean`, `EFX/LBPlus.lean`,
+  `EFX/CorollaryD.lean`, `EFX/Target.lean`: construction LB⁺, conjecture D and TARGET
+  (`proofs/lb_last_step.md`); see the section below.
+- `EFX/K4Reduction.lean`: the k = 4 core reduction (K4.CORE, `k4/SCOUT.md` §2): `EFX.IsCore4` and
+  `EFX.core_reduction4`, reusing the k = 3 induction's peeling and junk steps unchanged; L6 (`EFX.efx0_split`)
+  restricts it to connected cores (`EFX.Connected`, `EFX.core_reduction4_conn`).
+- `EFX/K4Ties.lean`: ties reduce to strict profiles at k = 4 (K4.TIE): `EFX.Strict`, `EFX.tieBreak` (the
+  perturbation `2^|M| · v + w`), `EFX.tie_reduction`, `EFX.core_reduction4_strict`.
+- `EFX/PreAllocK.lean`: LB₄'s pre-allocations (`k4/lb4.md` §1–§2, ledger K4.LB4.S), for any number of
+  relevant goods (values in ℕ, as the model): bases and needs of any size (`EFX.LB4.Needs`, `Valid`, `Completion`, `OC`, `ownerNeeds`,
+  `SoundCompletion`); Theorem 1′₄ (`EFX.LB4.Valid.sound`, `EFX.LB4.Valid.sound_ownerNeeds`); the counting
+  (`EFX.LB4.numFrozen_eq`, `EFX.LB4.omega_eq`, `EFX.LB4.complete_none_exists`,
+  `EFX.LB4.Completion.owner_length`); Lemma 2₄ (`EFX.LB4.selfProtect`, `EFX.LB4.selfProtect_seq`, and
+  `EFX.LB4.selfProtect_five`: the value argument fails with five relevant goods, and `EFX.LB4.Ex5.counterexample`:
+  an instance of every other hypothesis of `EFX.LB4.selfProtect` in which the agent is threatened); Lemma 3₄ (`EFX.LB4.ownerSearch_exact_base`,
+  `EFX.LB4.ownerSearch_exact`); the D2 shape and the chain to K4.D and TARGET₄ (`EFX.LB4.Completion.length_le_two`,
+  `EFX.LB4.SoundCompletion.efx0_d2`, `EFX.LB4.sound_model`, `EFX.LB4.k4D_of_completion`,
+  `EFX.LB4.target4_of_completions`); non-vacuity examples by `decide` (`EFX.LB4.Ex.sound`, owner's needs from its
+  bundle; `EFX.LB4.ExB.sound`, `Valid.sound`'s hypotheses with a frozen agent, a two-good base, a filled slot
+  and a three-good owner's bundle).
+- `EFX/K3Algo.lean`, `EFX/Timed.lean`, `EFX/K3CostLB.lean`, `EFX/K3Cost.lean`, `EFX/K3CostBound.lean`,
+  `EFX/K3Examples.lean`: algorithm K3ALG, a polynomial-time algorithm for k = 3 with its running time
+  (`proofs/k3_algorithm.md`; ledger K3.ALG, K3.ALG.TIME).
+  - `K3Algo`: the specification. `EFX.K3.reduce` peels by R1, or by R1 with `P = ∅`, taking the first agent to
+    which the rule applies. The rankings are computed (`EFX.K3.sort3`, `EFX.K3.profileOf`), and LB⁺ runs with
+    `r1Order` (`EFX.K3.lbStage`). Theorems: `EFX.K3.reduce_sound`, `EFX.K3.algoSpec_efx0`.
+  - `Timed`: the cost model. `EFX.Timed` pairs a value with an operation count. It provides list operations with
+    value and cost lemmas, and tables (`EFX.Timed.mkTable`: arrays filled once).
+  - `K3CostLB`: every step of LB⁺ as a counted program, whose value lemma says it computes the existing definition.
+  - `K3Cost`: `EFX.K3.algoC`, the algorithm as a counted program; `EFX.K3.algo`, its value, the algorithm;
+    `EFX.K3.algo_eq_spec` and `EFX.K3.algo_efx0`.
+  - `K3CostBound`: the running-time theorem `EFX.K3.algoC_cost`, at most `400 (n + m + 1)⁴` counted operations
+    on every instance.
+  - `K3Examples`: three instances checked by `decide`.
+  `scripts/k3_eval.lean` runs `algo` and prints the count by `#eval`.
+- `EFX/K3DE.lean`, `EFX/K3DEImprove.lean`, `EFX/K3DEAlgo.lean`, `EFX/K3DEExamples.lean`: the short proof of the
+  k = 3 result and algorithm Draft and Exchange (DE) (`paper/k3-simple/long.tex` §3–§6,
+  `k3/simplify/po/hall/NOTES.md`; ledger K3S.PO.LEAN), over the valid pre-allocations of `PreAlloc` (rank-based
+  states: each agent holds nothing, one of its goods, or its pair `{b, c}`). The Lean names are the earlier ones of
+  the paper: needs (wants), utility (score), exposed (blocker), protecting good (the blocker's leftover good `h_x`),
+  valid absorber (an agent that can finish), need and exposure arcs (want and pair arrows), need and exchange cycles
+  (rings), pair chain (chain), (P) (NC).
+  - `K3DE`: utilities (`EFX.DE.util`, pair 4 > a 3 > b 2 > c 1 > nothing 0), Pareto domination, free agents,
+    exposure, valid absorbers (`EFX.DE.Absorber`), the paper's completion (`EFX.DE.completeDE`: the goods of `H` to
+    different free agents, the rest of the junk to the absorber) and soundness (`EFX.DE.soundness`, through Theorem 1′),
+    Lemma staying valid (`EFX.DE.transfer`), and one exchange lemma for chains and rings (`EFX.DE.exchange`: Lemma
+    ring, with Lemma chain; `EFX.DE.exchange_scores`: every agent of the ring strictly gains, every other agent keeps
+    its score).
+  - `K3DEImprove`: the computable step of DE (`EFX.DE.step`, the loop's three steps: *chain*, a pair chain if (P)
+    fails; *finish*, stop if every agent is a pair holder or with the first free agent `o` with `|H_o| ≤ |F| − 1`,
+    which covers a free agent holding nothing, `EFX.DE.count_of_none`; *ring*, otherwise the ring of σ built from
+    greedy distinct representatives), the finishing test (`EFX.DE.absorber_iff`, `EFX.DE.not_exposed_of_none`), the
+    paper's rule for the distinct leftover goods (`EFX.DE.reps_first_blocker`: `q_o` is the leftover good of the
+    first blocker of `o` whose good no earlier free agent took, and `σ(o)` is that blocker; `H_o` lists its goods in
+    the order of their first blockers, `EFX.DE.find?_Hset`), the scores of a move (`EFX.DE.step_next_scores`), and
+    the **Improvement Lemma** (`EFX.DE.improvement`) with its Corollary (`EFX.DE.completable_of_undominated`).
+  - `K3DEAlgo`: the draft is valid (`EFX.DE.draft_valid`), the loop ends at a valid absorber after at most `4n`
+    exchanges (`EFX.DE.loop_spec`), and DE with R1 peeling (`EFX.DE.run`, `EFX.DE.deSpec`) returns an EFX₀ allocation
+    with at most one bundle of more than two goods on every instance with at most three relevant goods per agent
+    (`EFX.DE.run_sound`, `EFX.DE.deSpec_correct`).
+  - `K3DEExamples`: by `decide`, DE on the paper's worked example (§7: one ring with two pair arrows; the paper's
+    output), on its small example (§6: one ring `o → x → o`, then `z` finishes; `EFX.DE.Examples.small_spec`) and on
+    three small instances (protecting goods, two pair chains, peeling).
+- `EFX/K3DEPrelim.lean`, `EFX/K3DELimits.lean`, `EFX/K3DEShort.lean`, `EFX/K3DEShortExamples.lean`,
+  `EFX/K3DERings.lean`, `EFX/K3DEReal.lean`, `EFX/K3DERemarks.lean`, `EFX/K3DECost*.lean`: the rest of `paper/k3-simple/` (ledger K3S.PRELIM.LEAN, K3S.LIMITS,
+  K3S.SHORT, K3S.EX.LEAN, K3S.RINGS, K3S.REAL.LEAN).
+  - `K3DEPrelim`: threats and safety (`EFX.DE.efx0L_iff_safe`), Lemmas threats and safety, Lemma peeling in the
+    paper's form (`EFX.DE.peeling`), Lemma R1fail (`EFX.DE.R1fail`).
+  - `K3DELimits`: Lemma cases of safety (`EFX.DE.Limits.safe_iff_cases`) and Proposition limits of the shape for every
+    strictly balanced valuation with distinct values (`limits_a`, `limits_b`), also for ordered values, by `decide`
+    over all allocations.
+  - `K3DEShort`, `K3DEShortExamples`: Proposition short moves (`EFX.DE.prop_short`) with both instances attaining its
+    bounds, and the worked example's facts (exactly four dominating valid states, `w_exactly_four`; all ten
+    candidate completions fail, `w_completions`).
+  - `K3DERings`: the ring family for every k and depth: every cycle of want and pair arrows uses exactly k pair
+    arrows (`EFX.DE.Rings.nExp_eq`), and no free agent absorbs iff k ≤ 2^d (`no_free_absorber_iff`).
+  - `K3DEReal`: DE on ordered values through L12's surrogate (`EFX.DE.deOrd_correct`), existence with the shape for
+    ordered values (`EFX.DE.thmD_ordered`), and at most n peeling rounds (`EFX.DE.de_correct`).
+  - `K3DECost`, `K3DECostStep`, `K3DECostRun`, `K3DECostBound`, `K3DECostReal` (ledger K3S.TIME): the running time.
+    A counted DE (`EFX.DE.deC`, with unit-cost array writes `EFX.DE.wr`) computes exactly DE's output
+    (`EFX.DE.de_eq_spec`) in at most `750 (n + 1)(n + m + 1)` counted operations (`EFX.DE.deC_cost`); on ordered
+    values with a comparison oracle, `EFX.DE.deOrdC_cost`.
+  - `K3DERemarks`: Example EFX-but-not-EFX₀ (`EFX.DE.Remarks.efx_not_efx0`), the remark that the protecting goods
+    cannot be dropped (`pg_undominated`, `pg_only_g2`; a remark of the earlier version of the paper, no longer in it,
+    kept in Lean), and the worked example's remaining numbers (every cycle of want and pair arrows has two pair
+    arrows, `w_cycles`; DE's step, the totals 14 and 20, the completion: `w_step`, `w_totals`, `w_after`).
+- `EFX/K3Real.lean`: K3ALG on values in any `EFX.OrderedValue` type in the comparison model (ledger K3.ALG.REAL;
+  `proofs/k3_algorithm.md` §3; the paper's Corollary "real values"). The program receives a comparison oracle
+  `le : V → V → Bool` and inspects the values only through it (plus unit-cost addition of two of one agent's values; for agents with one or two relevant goods some compared sums count a good twice); the theorems assume `le x y = true ↔ x ≤ y`. It computes
+  L12's natural-number surrogate as an `n × m` table (`EFX.K3.surrogate`, `EFX.K3.surrogateC`: per agent, `m` oracle
+  calls `v_i(g) ≤ 0` find the relevant goods, twelve more give the pattern of the first three, and the first row of
+  `EFX.Pat.reps` with that pattern gives the values) and runs `EFX.K3.algoC` on it (`EFX.K3.algoOrdC`,
+  `EFX.K3.algoOrd`; `EFX.K3.algoOrd_eq`: `algoOrd` is `algo` on the surrogate). Correctness:
+  `EFX.K3.algoOrd_efx0`, EFX₀ for the original values (via `EFX.K3.agree_surrogate`, the constructive L12, and
+  `EFX.efx0_iff_of_agree`). Cost: `EFX.K3.surrogateC_cost` charges `c` units per oracle call and bounds the surrogate
+  by `c · n (m + 12) + 10 n m + 971 n`, so at most `n (m + 12)` calls; `EFX.K3.algoOrdC_cost` (`c = 1`) bounds the
+  whole run by `n (m + 12) + 10 n m + 971 n + 400 (n + m + 1)⁴`. An example over `Int` checked by `decide`
+  (`EFX.K3.Examples.peelOwnerZ_algoOrd`).
+- `EFX/K3Extras.lean`: four results of the k = 3 paper (`paper/k3/`) that were written only (ledger K3.LASTBLOCK,
+  K3.SIZE, K3.SD2, K3.RAT).
+  - `r` lies in the last block: `EFX.LB.lastOut_lastBlock` (in the setting of `EFX.LB.lastOut_terminal`) and the
+    general `EFX.LB.blk_le_lastOut` (Phase 1 in any order; no upgraded agent picks its top).
+  - The size of the large bundle, for every valid pre-allocation: `EFX.LB.numFrozen_eq_numNA` (`|F| = |NA|`),
+    `EFX.LB.omega_eq` (`ω = |J| − S = m − 2n + |NA|`), `EFX.LB.Completion.owner_length_ge` (every completion with an
+    owner gives it at least `ω + 2` goods), `EFX.LB.Completion.owner_length_eq` (exactly `ω + 2` when the other
+    terminals' slots are full), together `EFX.LB.largeBundle_size`; `EFX.LB.BadCase.omega_le` (the rotation does
+    not increase `ω`); `EFX.LB.complete_owner_length` (K3ALG's completion `complete` fills every other slot when `H`
+    repeats no good, so its owner gets exactly `ω + 2`); `EFX.K3.Examples.repeatedGood_state`,
+    `EFX.K3.Examples.repeatedGood_algo` (the paper's remark "a repeated good", by `decide`: `HitSet = (g₀, g₀)`,
+    `ω = 1`, and K3ALG's owner gets `ω + 3 = 4` goods).
+  - At most two relevant goods: `EFX.SDRun` (every run of serial dictatorship: any order, any favourite at every
+    step, the last agent takes the rest), `EFX.sdRun_efx0` (over lists) and `EFX.Inst.sdRun_efx0` (model): every
+    run is EFX₀; `EFX.Inst.serialDict`, a computable run, and `EFX.Inst.serialDict_efx0`; example
+    `EFX.K3.Examples.twoRel_serialDict`.
+  - Rational values: `OrderedValue Rat`; `EFX.denProd`, `EFX.scaleNat`, `EFX.ratScale` (each agent's values times
+    the product of their denominators, as natural numbers); `EFX.scaleNat_cast`, `EFX.agree_scaleNat`,
+    `EFX.ratScale_agree` (every subset-sum comparison preserved), `EFX.ratScale_relevant`,
+    `EFX.ratScale_numRelevant`, `EFX.ratScale_efx0_iff`; `EFX.K3.algoRat` (K3ALG on the scaled values) and
+    `EFX.K3.algoRat_efx0`.
+- `EFX/RealValues.lean`: L12 (`proofs/real_values.md`) and TARGET and D over any `EFX.OrderedValue`. The value
+  class and mirrored model above; `EFX.Agree` (same answer to every comparison between two subset sums);
+  `EFX.OrderedValue.tri_le_iff` (for three positive values, every such comparison is decided by twelve basic
+  comparisons, after cancelling common goods); `EFX.Pat.table` (every consistent pattern of those twelve answers is
+  realized by one of the 31 permutations of the representatives of L12, checked by `decide +kernel`);
+  `EFX.OrderedValue.tri_rep`, `EFX.OrderedValue.exists_agree`, `EFX.l12`; the transfers `EFX.efx0_iff_of_agree`,
+  `EFX.numRelevant_eq_of_agree`, `EFX.OrderedValue.balanced_iff_of_agree`; `EFX.target_ordered`,
+  `EFX.corollaryD_ordered`.
+
+## Correspondence with the paper
+
+Each row is a claim of the paper (with its row ID in the research repository's ledger) and the Lean theorems that
+prove it, as `file : names`.
+
+| Ledger | Statement | Lean (file : name) |
+|---|---|---|
+| K3S.PO.LEAN | The Improvement Lemma: a valid state in which no free agent is a valid absorber (can finish) and some agent is not a pair holder is Pareto-dominated by a valid state (a chain or a ring; computed by `step`), in which every agent of the ring or chain has a higher score and every other agent the same; every undominated valid state has a valid absorber, free unless every agent holds its pair; the distinct leftover goods are chosen by the paper's rule (the first blocker whose leftover good no earlier free agent took) | K3DEImprove : `EFX.DE.improvement`, `EFX.DE.completable_of_undominated`, `EFX.DE.step_stop`, `EFX.DE.step_stop_of_none`, `EFX.DE.step_next`, `EFX.DE.step_next_cycle`, `EFX.DE.step_next_scores`, `EFX.DE.cycleStep_cycle`, `EFX.DE.succ_pair`, `EFX.DE.succ_exchange`, `EFX.DE.cycleStep_spec`, `EFX.DE.reps_spec`, `EFX.DE.reps_first_blocker`, `EFX.DE.repOf_reps_append`, `EFX.DE.find?_Hset` |
+| K3S.PO.LEAN | Lemmas staying valid (transfer), ring and chain (one lemma: valid, every agent of the cycle strictly gains, every other agent keeps its score), the finishing test (a)–(c) (Lemmas empty and forced of the earlier version: under (NC) nobody is a blocker of a free agent holding nothing, which has `H_o = ∅` and passes the count); soundness of the completion (EFX₀ for every consistent valuation, only the absorber's bundle larger than two goods) | K3DE : `EFX.DE.transfer`, `EFX.DE.exchange`, `EFX.DE.exchange_scores`, `EFX.DE.completeDE_completion`, `EFX.DE.soundness`; K3DEImprove : `EFX.DE.not_exposed_of_none`, `EFX.DE.absorber_empty`, `EFX.DE.forced_hOf`, `EFX.DE.absorber_forced`, `EFX.DE.absorber_iff`, `EFX.DE.Hset_eq_nil`, `EFX.DE.count_of_none`, `EFX.DE.holds_of_count` |
+| K3S.PO.LEAN | Algorithm DE is correct: on every instance with at most three relevant goods per agent it returns an EFX₀ allocation with all bundles but at most one of at most two goods, after at most `4n` exchanges; the paper's worked example and small example | K3DEAlgo : `EFX.DE.draft_valid`, `EFX.DE.loop_spec`, `EFX.DE.deCore_spec`, `EFX.DE.deStage_sound`, `EFX.DE.run_sound`, `EFX.DE.deSpec_correct`; K3DEExamples : `EFX.DE.Examples.worked_spec`, `EFX.DE.Examples.small_spec` |
+| K3S.PRELIM.LEAN | Threats and safety (EFX₀ iff every agent is safe); Lemma threats (a)–(c); Lemma safety (a), (b); Lemma peeling (P of at most one good); Lemma R1fail | K3DEPrelim : `EFX.DE.efx0L_iff_safe`, `EFX.DE.threat_pair`, `EFX.DE.safe_of_pair`, `EFX.DE.safe_of_gy`, `EFX.DE.peeling`, `EFX.DE.R1fail` |
+| K3S.LIMITS | Lemma cases of safety; Proposition limits of the shape (a), (b) for every valuation with distinct, strictly balanced values (natural numbers and ordered values) | K3DELimits : `EFX.DE.Limits.safe_iff_cases`, `EFX.DE.Limits.limits_a`, `EFX.DE.Limits.limits_b`, `EFX.DE.Limits.limits_a_ordered`, `EFX.DE.Limits.limits_b_ordered` |
+| K3S.SHORT | Proposition short moves: without a short move, at least 2 free agents, n ≥ 6, m ≥ 8 (n ≥ 9, m ≥ 12 with 3); both bounds attained | K3DEShort : `EFX.DE.prop_short`, `EFX.DE.short_counts`; K3DEShortExamples : `EFX.DE.ShortExamples.w_attains`, `EFX.DE.ShortExamples.s8_attains`, `EFX.DE.ShortExamples.s8_remark` |
+| K3S.EX.LEAN | The worked example: exactly four dominating valid states; all ten candidate completions fail EFX₀; every cycle of want and pair arrows has two pair arrows; DE's step and the completion; Example EFX-but-not-EFX₀; the protecting goods cannot be dropped (a remark of the earlier version of the paper, kept in Lean) | K3DEShortExamples : `EFX.DE.ShortExamples.w_facts`, `EFX.DE.ShortExamples.w_exactly_four`, `EFX.DE.ShortExamples.w_completions`; K3DERemarks : `EFX.DE.Remarks.w_cycles`, `EFX.DE.Remarks.w_after`, `EFX.DE.Remarks.efx_not_efx0`, `EFX.DE.Remarks.pg_undominated`, `EFX.DE.Remarks.pg_only_g2` |
+| K3S.RINGS | The ring family: every cycle of want and pair arrows uses exactly k pair arrows; no free agent absorbs iff k ≤ 2^d | K3DERings : `EFX.DE.Rings.gen_tree_ring`, `EFX.DE.Rings.nExp_eq`, `EFX.DE.Rings.no_free_absorber_iff` |
+| K3S.TIME | The running time of DE: a counted program that computes exactly DE's output takes at most 750 (n + 1)(n + m + 1) operations (array reads and writes one unit each); on ordered values, plus the surrogate's n(m + 12) oracle calls and O(nm) operations | K3DECostRun : `EFX.DE.de_eq_spec`; K3DECostBound : `EFX.DE.deC_cost`, `EFX.DE.deC_cost_poly`, `EFX.DE.stepC_cost`; K3DECostReal : `EFX.DE.deOrdC_cost` |
+| K3S.REAL.LEAN | DE on ordered values (comparison model through L12's surrogate); existence with the shape for ordered values; at most n peeling rounds | K3DEReal : `EFX.DE.deOrd_correct`, `EFX.DE.thmD_ordered`, `EFX.DE.de_correct`, `EFX.DE.peels_le` |

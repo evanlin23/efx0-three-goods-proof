@@ -1,0 +1,7 @@
+every profile n=2 m=5: 60 profiles, 0s; cycle_not_rainbow=4, pair_chain_ok=72, rainbow_cycle_ok_X0=3, rainbow_cycle_ok_X1=12, rainbow_cycle_ok_X2=8, states=165
+every profile n=2 m=6: 120 profiles, 0s; cycle_not_rainbow=4, pair_chain_ok=192, rainbow_cycle_ok_X0=4, rainbow_cycle_ok_X1=16, rainbow_cycle_ok_X2=12, states=352
+every profile n=3 m=5: 3600 profiles, 1s; cycle_not_rainbow=632, pair_chain_ok=2430, rainbow_cycle_ok_X0=1912, rainbow_cycle_ok_X1=2376, rainbow_cycle_ok_X2=432, states=12698
+every profile n=3 m=6: 14400 profiles, 5s; cycle_not_rainbow=1632, pair_chain_ok=19872, rainbow_cycle_ok_X0=4248, rainbow_cycle_ok_X1=7200, rainbow_cycle_ok_X2=2304, rainbow_cycle_ok_X3=96, states=53880
+every profile n=3 m=7: 44100 profiles, 15s; cycle_not_rainbow=3280, pair_chain_ok=91260, rainbow_cycle_ok_X0=8360, rainbow_cycle_ok_X1=17040, rainbow_cycle_ok_X2=7200, rainbow_cycle_ok_X3=384, states=177588
+every profile n=4 m=5: 216000 profiles, 180s; cycle_not_rainbow=33360, pair_chain_ok=93600, rainbow_cycle_ok_X0=689640, rainbow_cycle_ok_X1=218400, states=1446882
+random K=3000 seed=4 n<=7: 3000 profiles, 7s; cycle_not_rainbow=482, pair_chain_ok=18419, rainbow_cycle_ok_X0=6930, rainbow_cycle_ok_X1=3816, rainbow_cycle_ok_X2=713, rainbow_cycle_ok_X3=50, rainbow_cycle_ok_X4=3, states=31361

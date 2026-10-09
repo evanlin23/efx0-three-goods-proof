@@ -1,0 +1,12 @@
+all profiles n=2 m=3: 6 profiles, 2 needed >=1 step, max steps 1, 0s
+all profiles n=2 m=4: 24 profiles, 16 needed >=1 step, max steps 1, 0s
+all profiles n=2 m=5: 60 profiles, 48 needed >=1 step, max steps 2, 0s
+all profiles n=2 m=6: 120 profiles, 104 needed >=1 step, max steps 2, 0s
+all profiles n=3 m=4: 576 profiles, 56 needed >=1 step, max steps 2, 0s
+all profiles n=3 m=5: 3600 profiles, 1448 needed >=1 step, max steps 2, 0s
+all profiles n=3 m=6: 14400 profiles, 8760 needed >=1 step, max steps 2, 1s
+all profiles n=3 m=7: 44100 profiles, 32408 needed >=1 step, max steps 3, 3s
+all profiles n=4 m=5: 216000 profiles, 10868 needed >=1 step, max steps 3, 13s
+all profiles n=4 m=6: 1728000 profiles, 512256 needed >=1 step, max steps 3, 120s
+{'L4-cycle': 3872, 'L5-cycle': 34754, 'L5-exposure-arcs-1': 34754, 'P2-path': 557703, 'steps-0': 1440920, 'steps-1': 537030, 'steps-2': 27509, 'steps-3': 1427}
+exit 0

@@ -1,0 +1,30 @@
+every profile n=2 m=3: 6 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=1, maxU_sumU=0, maxF=2
+  first maxU: ([(0, 1, 2), (1, 0, 2)], 3, (2, 2))
+  first maxF: ([(0, 1, 2), (0, 1, 2)], 3, (1, 2))
+every profile n=2 m=4: 24 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=1, maxU_sumU=0, maxF=6
+  first maxU: ([(0, 1, 2), (1, 0, 2)], 4, (2, 2))
+  first maxF: ([(0, 1, 2), (0, 1, 2)], 4, (1, 2))
+every profile n=2 m=5: 60 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=1, maxU_sumU=0, maxF=12
+  first maxU: ([(0, 1, 2), (1, 0, 2)], 5, (2, 2))
+  first maxF: ([(0, 1, 2), (0, 1, 2)], 5, (1, 2))
+every profile n=2 m=6: 120 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=1, maxU_sumU=0, maxF=20
+  first maxU: ([(0, 1, 2), (1, 0, 2)], 6, (2, 2))
+  first maxF: ([(0, 1, 2), (0, 1, 2)], 6, (1, 2))
+every profile n=3 m=4: 576 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=154, maxU_sumU=0, maxF=12
+  first maxU: ([(0, 1, 2), (0, 1, 2), (0, 2, 1)], 4, (1, 3, 3))
+  first maxF: ([(0, 1, 2), (0, 1, 2), (1, 2, 3)], 4, (1, 3, 1))
+every profile n=3 m=5: 3600 profiles, 0s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=348, maxU_sumU=0, maxF=54
+  first maxU: ([(0, 1, 2), (0, 1, 2), (0, 2, 1)], 5, (1, 3, 3))
+  first maxF: ([(0, 1, 2), (0, 1, 2), (1, 2, 3)], 5, (1, 3, 1))
+every profile n=3 m=6: 14400 profiles, 2s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=614, maxU_sumU=0, maxF=144
+  first maxU: ([(0, 1, 2), (0, 1, 2), (0, 2, 1)], 6, (1, 3, 3))
+  first maxF: ([(0, 1, 2), (0, 1, 2), (1, 2, 3)], 6, (1, 3, 1))
+every profile n=3 m=7: 44100 profiles, 4s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=952, maxU_sumU=0, maxF=300
+  first maxU: ([(0, 1, 2), (0, 1, 2), (0, 2, 1)], 7, (1, 3, 3))
+  first maxF: ([(0, 1, 2), (0, 1, 2), (1, 2, 3)], 7, (1, 3, 1))
+every profile n=4 m=5: 216000 profiles, 35s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=54948, maxU_sumU=0, maxF=104
+  first maxU: ([(0, 1, 2), (0, 1, 2), (0, 1, 3), (2, 3, 0)], 5, (2, 3, 3, 3))
+  first maxF: ([(0, 1, 2), (0, 1, 2), (0, 1, 2), (2, 3, 4)], 5, (0, 1, 2, 1))
+random K=5000 seed=3 n<=7: 5000 profiles, 6s; profiles with a non-completable maximiser: sumU=0, sumV=0, leximin=0, minNA_sumU=0, minNA=0, maxU=235, maxU_sumU=0, maxF=204
+  first maxU: ([(5, 3, 2), (3, 4, 5), (4, 2, 3)], 6, (2, 3, 1))
+  first maxF: ([(2, 0, 1), (2, 0, 1)], 3, (1, 2))

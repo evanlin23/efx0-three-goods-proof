@@ -1,0 +1,18 @@
+every profile n=2 m=3: 6 profiles, 0s; absorber_free=8, alg_moves_0=4, alg_moves_1=2, move_D_cycle=1, move_rainbow=4, not_completable=5, not_completable_D-cycle=1, not_completable_rainbow=4, pareto_optimal=8, rainbow_len_1=4, states=13
+  first rainbow: ([(0, 1, 2), (0, 1, 2)], 3, (1, 2), (4, 1))
+every profile n=2 m=4: 24 profiles, 0s; absorber_all_pairs=4, absorber_free=32, alg_moves_0=8, alg_moves_1=16, move_D_cycle=2, move_pair_chain=14, move_rainbow=8, not_completable=14, not_completable_D-cycle=2, not_completable_pair-chain=4, not_completable_rainbow=8, pareto_optimal=32, rainbow_len_1=8, states=60
+  first rainbow: ([(0, 1, 2), (0, 1, 2)], 4, (1, 2), (4, 1))
+every profile n=2 m=5: 60 profiles, 0s; absorber_all_pairs=18, absorber_free=72, alg_moves_0=12, alg_moves_1=38, alg_moves_2=10, move_D_cycle=3, move_pair_chain=60, move_rainbow=12, not_completable=27, not_completable_D-cycle=3, not_completable_pair-chain=12, not_completable_rainbow=12, pareto_optimal=82, rainbow_len_1=12, states=165
+  first rainbow: ([(0, 1, 2), (0, 1, 2)], 5, (1, 2), (4, 1))
+every profile n=2 m=6: 120 profiles, 0s; absorber_all_pairs=48, absorber_free=128, alg_moves_0=16, alg_moves_1=68, alg_moves_2=36, move_D_cycle=4, move_pair_chain=156, move_rainbow=16, not_completable=44, not_completable_D-cycle=4, not_completable_pair-chain=24, not_completable_rainbow=16, pareto_optimal=164, rainbow_len_1=16, states=352
+  first rainbow: ([(0, 1, 2), (0, 1, 2)], 6, (1, 2), (4, 1))
+every profile n=3 m=4: 576 profiles, 0s; absorber_free=1368, alg_moves_0=520, alg_moves_1=56, move_D_cycle=528, move_rainbow=216, not_completable=576, not_completable_D-cycle=360, not_completable_rainbow=216, pareto_optimal=966, rainbow_len_1=216, states=2112
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3)], 4, (2, 3, 1), (1, 2, 4))
+every profile n=3 m=5: 3600 profiles, 1s; absorber_free=8146, alg_moves_0=2152, alg_moves_1=1376, alg_moves_2=72, move_D_cycle=1574, move_pair_chain=2018, move_rainbow=960, not_completable=2060, not_completable_D-cycle=872, not_completable_pair-chain=444, not_completable_rainbow=744, pareto_optimal=5578, rainbow_len_1=960, states=12698
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3)], 5, (2, 3, 1), (1, 2, 4))
+every profile n=3 m=6: 14400 profiles, 4s; absorber_all_pairs=384, absorber_free=31112, alg_moves_0=5640, alg_moves_1=6504, alg_moves_2=2256, move_D_cycle=3736, move_pair_chain=15840, move_rainbow=2808, not_completable=5464, not_completable_D-cycle=1720, not_completable_pair-chain=2088, not_completable_rainbow=1656, pareto_optimal=22670, rainbow_len_1=2808, states=53880
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3)], 6, (2, 3, 1), (1, 2, 4))
+every profile n=3 m=7: 44100 profiles, 13s; absorber_all_pairs=3000, absorber_free=90162, alg_moves_0=11692, alg_moves_1=19328, alg_moves_2=11904, alg_moves_3=1176, move_D_cycle=7638, move_pair_chain=70164, move_rainbow=6624, not_completable=11988, not_completable_D-cycle=2988, not_completable_pair-chain=5976, not_completable_rainbow=3024, pareto_optimal=70794, rainbow_len_1=6624, states=177588
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3)], 7, (2, 3, 1), (1, 2, 4))
+every profile n=4 m=5: 216000 profiles, 96s; absorber_free=788448, absorber_nothing=109680, alg_moves_0=205132, alg_moves_1=10868, move_D_cycle=461922, move_pair_chain=48432, move_rainbow=38400, not_completable=248850, not_completable_D-cycle=162018, not_completable_pair-chain=48432, not_completable_rainbow=38400, pareto_optimal=666288, rainbow_len_1=38400, states=1446882
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3), (0, 3, 4)], 5, (2, 3, 3, 1), (1, 2, 2, 4))

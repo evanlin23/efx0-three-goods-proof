@@ -1,0 +1,120 @@
+[1] Introduction: Example "EFX, but not EFX0"; serial dictatorship at three goods; Corollary "two relevant goods"
+  ok    X1 = {b}, X2 = {a, c} is EFX: agent 1 may remove only a, {c} is worth 0 <= 2; agent 2 values {b} at 0
+  ok    it is not EFX0: removing c from X2 leaves {a}, worth 3 > 2 to agent 1
+  ok    X1 = {a}, X2 = {b, c} is EFX0
+  ok    values 4, 3, 2 on a, b, c: the agent takes a, b and c end up with a third good; without it they are worth 5 > 4
+  ok    DE on the same instance is EFX0 (the second agent is peeled first)
+  ok    Corollary (two relevant goods): serial dictatorship in random orders, with random choices among favourites, on 5000 random instances with |R_i| <= 2: every output EFX0
+[2] Section 6, "A small example" (agents z, x, o in this index order; goods g0, g1, g2, g3, g4)
+  ok    values 4, 3, 2, nobody values g3; rule R1 applies to nobody: nobody is peeled
+  ok    the draft: z takes g4, x takes g0, o takes g1; leftover goods g2, g3
+  ok    o wants g0 and g4, held alone: valid; o is the only free agent; no chain applies
+  ok    x is a blocker of o: if o took {g1, g2, g3}, x would remove g3 and see g1, g2, worth 5 > 4 (that completion is not EFX0)
+  ok    x is o's only blocker; H_o = {g2}, no other free agent to take it: o cannot finish (definition, all H)
+  ok    sigma(o) = x, a pair arrow (x's pair is o's g1 and the leftover g2); sigma(x) = sigma(z) = o, want arrows (o wants g0, g4)
+  ok    following sigma from z (the first agent outside U) closes the ring o -> x -> o
+  ok    the trade: x takes {g1, g2}, o takes g0
+  ok    then nobody wants anything, the free agents are z and o, z has no blocker: z finishes with H = {}
+  ok    DE returns X_z = {g3, g4}, X_x = {g1, g2}, X_o = {g0}: EFX0 (raw definition); the same with peeling included
+[3] Section 7 "A Worked Example" (goods g0..g9; agents x1, x1', x2, x2', o1, o2 in this index order)
+  ok    values 4, 3, 2: strictly balanced, rule R1 applies to nobody, so nobody is peeled
+  ok    the draft: the four x's take their tops, o1 takes g4 (its c), o2 takes g5 (its c)
+  ok    o1 wants g2, g3; o2 wants g0, g1; the x's want nothing; the four wanted goods are held alone (valid)
+  ok    leftover goods g6..g9; free agents o1, o2
+  ok    no chain applies: the b of each x is held by o1 or o2
+  ok    blockers of o1: x1 (pair {g4, g6}), x1' (pair {g4, g7}); H_o1 = {g6, g7}
+  ok    blockers of o2: x2, x2'; H_o2 = {g8, g9}
+  ok    |H_o| = 2 > |F| - 1 for both: nobody can finish (also by the definition, all H)
+  ok    if o1 takes the leftovers, only o2 can take one of g6, g7
+  ok    with H = {g6}: X_o1 = {g4, g7, g8, g9}; x1', holding g1 (worth 4), values X_o1 without g8 at 3 + 2 = 5
+  ok    all ten candidate completions (finisher o1 or o2, H empty or one leftover good) fail the EFX0 test
+  ok    Figure 1: the arrows are exactly the pair arrows o1 -> x1 (g6), o1 -> x1' (g7), o2 -> x2 (g8), o2 -> x2' (g9) and the want arrows x1 -> o2 (g0), x1' -> o2 (g1), x2 -> o1 (g2), x2' -> o1 (g3)
+  ok    no ring of want arrows: it would have to leave o1 or o2 by a want arrow, but nobody wants g4 or g5
+  ok    x1 and x1' have want arrows only to o2, and the arrows from o2 are pair arrows
+  ok    every cycle of these arrows has four agents and two pair arrows (4 cycles, all rings)
+  ok    no short move: no chain, no ring with at most one pair arrow
+  ok    exactly four valid states Pareto-dominate the draft state (found 4), each gives pairs to two agents
+        dominating: x1:a, x1':pair, x2:a, x2':pair, o1:b, o2:b
+        dominating: x1:a, x1':pair, x2:pair, x2':a, o1:a, o2:b
+        dominating: x1:pair, x1':a, x2:a, x2':pair, o1:b, o2:a
+        dominating: x1:pair, x1':a, x2:pair, x2':a, o1:a, o2:a
+  ok    DE picks q_o1 = g6 (blocker x1), then q_o2 = g8 (blocker x2)
+  ok    sigma(o1) = x1, sigma(x1) = o2 (o2 wants g0), sigma(o2) = x2, sigma(x2) = o1 (o1 wants g2)
+  ok    the ring o1 -> x1 -> o2 -> x2 -> o1 of Figure 1 (walk from x1: x1 -> o2 -> x2 -> o1)
+  ok    along it x1 takes {g4, g6}, o2 takes g0, x2 takes {g5, g8}, o1 takes g2 (table: after the trade)
+  ok    the total score rises from 14 to 20
+  ok    then nobody wants anything; leftover goods g7, g9; free agents x1', x2', o1, o2
+  ok    no chain applies (b of x1' is g4, now held by x1; b of x2' is g5, held by x2)
+  ok    x1', the first free agent, has no blocker: no other agent holding its top has b, c in {g1, g7, g9}
+  ok    x1' finishes with H = {}
+  ok    DE returns x1 {g4, g6}, x1' {g1, g7, g9}, x2 {g5, g8}, x2' {g3}, o1 {g2}, o2 {g0}
+  ok    directly: X_x1' is worth 3 to o2 (holding 4), 2 to x2' (holding 4), 0 to the others; a two-good bundle minus a good is worth at most 3 to any other agent; every agent holds at least 4 >= 3
+  ok    the output is EFX0 (raw definition, values 4, 3, 2), one bundle of more than two goods
+  ok    2000 random strictly balanced valuations with these rankings (ties allowed): DE peels nobody and makes the same run (one trade, the same output), EFX0 (raw)
+[4] Appendix A, Proposition "when short moves are not enough"
+  ok    the draft state of Section 7: valid, not all pairs, nobody can finish, no short move; |F| = 2, n = 6 (m = 10)
+  ok    m = 8: o1 holds g0, o2 holds g1, every x its top; a valid state
+  ok    J = {g2, g3}, F = {o1, o2}
+  ok    blockers of o2: x1, x1' (leftover goods g2, g3)
+  ok    blockers of o1: x2, x2' (leftover goods g2, g3)
+  ok    nobody can finish and no short move applies: the bounds n = 6, m = 8 are attained
+  ok    remark: the cycles of arrows are the four o2 -> x -> o1 -> x' -> o2 with two pair arrows; two use the same leftover good twice (trading would give it to two agents), the other two are rings (each trade: a valid state, two new pairs)
+        cycle o1 -[pair g3] -> x2' -[want g7] -> o2 -[pair g3] -> x1' -[want g5] -> o1   (reuses a leftover good: not a ring)
+        cycle o1 -[pair g3] -> x2' -[want g7] -> o2 -[pair g2] -> x1 -[want g4] -> o1
+        cycle o1 -[pair g2] -> x2 -[want g6] -> o2 -[pair g3] -> x1' -[want g5] -> o1
+        cycle o1 -[pair g2] -> x2 -[want g6] -> o2 -[pair g2] -> x1 -[want g4] -> o1   (reuses a leftover good: not a ring)
+  ok    DE's loop started at this state: one ring with two pair arrows, then o1 finishes; EFX0
+  ok    DE from the draft on this instance: 0 trade(s), EFX0
+[5] Appendix A, the ring family: k free agents, trees of depth d (values 4, 3, 2)
+  ok    k=2 d=1 private leftover goods: n=6 m=10; valid, F = {o_0..o_1}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 4 cycles, all with 2 pair arrows, 4 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=2 d=1 shared leftover goods: n=6 m=8; valid, F = {o_0..o_1}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 4 cycles, all with 2 pair arrows, 2 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=2 d=2 private leftover goods: n=14 m=22; valid, F = {o_0..o_1}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 16 cycles, all with 2 pair arrows, 16 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=2 d=2 shared leftover goods: n=14 m=16; valid, F = {o_0..o_1}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 16 cycles, all with 2 pair arrows, 8 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=2 d=3 private leftover goods: n=30 m=46; valid, F = {o_0..o_1}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 64 cycles, all with 2 pair arrows, 64 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 2 trade(s), EFX0
+  ok    k=2 d=3 shared leftover goods: n=30 m=32; valid, F = {o_0..o_1}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 64 cycles, all with 2 pair arrows, 32 rings; DE's loop from this state: 1 trade(s) (the first a ring with 2 pair arrows), EFX0; DE from the draft: 2 trade(s), EFX0
+  ok    k=3 d=1 private leftover goods: n=9 m=15; valid, F = {o_0..o_2}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: False (k <= 2^d: False); 8 cycles, all with 3 pair arrows, 8 rings; DE's loop from this state: 0 trade(s), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=3 d=1 shared leftover goods: n=9 m=12; valid, F = {o_0..o_2}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: False (k <= 2^d: False); 8 cycles, all with 3 pair arrows, 0 rings; DE's loop from this state: 0 trade(s), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=3 d=2 private leftover goods: n=21 m=33; valid, F = {o_0..o_2}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 64 cycles, all with 3 pair arrows, 64 rings; DE's loop from this state: 1 trade(s) (the first a ring with 3 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=3 d=2 shared leftover goods: n=21 m=24; valid, F = {o_0..o_2}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 64 cycles, all with 3 pair arrows, 12 rings; DE's loop from this state: 1 trade(s) (the first a ring with 3 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=3 d=3 private leftover goods: n=45 m=69; valid, F = {o_0..o_2}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 512 cycles, all with 3 pair arrows, 512 rings; DE's loop from this state: 1 trade(s) (the first a ring with 3 pair arrows), EFX0; DE from the draft: 3 trade(s), EFX0
+  ok    k=3 d=3 shared leftover goods: n=45 m=48; valid, F = {o_0..o_2}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 512 cycles, all with 3 pair arrows, 108 rings; DE's loop from this state: 1 trade(s) (the first a ring with 3 pair arrows), EFX0; DE from the draft: 3 trade(s), EFX0
+  ok    k=4 d=1 private leftover goods: n=12 m=20; valid, F = {o_0..o_3}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: False (k <= 2^d: False); 16 cycles, all with 4 pair arrows, 16 rings; DE's loop from this state: 0 trade(s), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=4 d=1 shared leftover goods: n=12 m=16; valid, F = {o_0..o_3}, the 2^d = 2 leaves of tree i+1 are the blockers of o_i; no free agent can finish: False (k <= 2^d: False); 16 cycles, all with 4 pair arrows, 0 rings; DE's loop from this state: 0 trade(s), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=4 d=2 private leftover goods: n=28 m=44; valid, F = {o_0..o_3}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 256 cycles, all with 4 pair arrows, 256 rings; DE's loop from this state: 1 trade(s) (the first a ring with 4 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=4 d=2 shared leftover goods: n=28 m=32; valid, F = {o_0..o_3}, the 2^d = 4 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 256 cycles, all with 4 pair arrows, 24 rings; DE's loop from this state: 1 trade(s) (the first a ring with 4 pair arrows), EFX0; DE from the draft: 0 trade(s), EFX0
+  ok    k=4 d=3 private leftover goods: n=60 m=92; valid, F = {o_0..o_3}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 4096 cycles, all with 4 pair arrows, 4096 rings; DE's loop from this state: 1 trade(s) (the first a ring with 4 pair arrows), EFX0; DE from the draft: 4 trade(s), EFX0
+  ok    k=4 d=3 shared leftover goods: n=60 m=64; valid, F = {o_0..o_3}, the 2^d = 8 leaves of tree i+1 are the blockers of o_i; no free agent can finish: True (k <= 2^d: True); 4096 cycles, all with 4 pair arrows, 384 rings; DE's loop from this state: 1 trade(s) (the first a ring with 4 pair arrows), EFX0; DE from the draft: 4 trade(s), EFX0
+  ok    Conclusion (2), "on the rings of Appendix A many more [trades than 8]": DE from the draft on the family with d = 4 (private leftover goods) makes 6 trades for k = 2 (n = 62), 9 trades for k = 3 (n = 93), 12 trades for k = 4 (n = 124); outputs EFX0
+[6] Appendix B: Lemma "cases of safety" and Proposition "limits of the shape", by listing every allocation
+  ok    values (4, 3, 2): the facts on theta for every bundle of 6 goods; safe iff (T), (BC), (B), (C) or (E) in all 4096 allocations of a, b, c and 3 other goods to 4 bundles
+  ok    values (5, 4, 3): the facts on theta for every bundle of 6 goods; safe iff (T), (BC), (B), (C) or (E) in all 4096 allocations of a, b, c and 3 other goods to 4 bundles
+  ok    values (10, 9, 2): the facts on theta for every bundle of 6 goods; safe iff (T), (BC), (B), (C) or (E) in all 4096 allocations of a, b, c and 3 other goods to 4 bundles
+  ok    values (7, 5, 3): the facts on theta for every bundle of 6 goods; safe iff (T), (BC), (B), (C) or (E) in all 4096 allocations of a, b, c and 3 other goods to 4 bundles
+  ok    (a) values (4, 3, 2): 6 EFX0 allocations, none with all bundles of at most two goods; {g0}, {g1}, {p0, p1, p2} is EFX0 in every order, with the agents in cases (T), (B), (C)
+  ok    (a) values (5, 4, 3): 6 EFX0 allocations, none with all bundles of at most two goods; {g0}, {g1}, {p0, p1, p2} is EFX0 in every order, with the agents in cases (T), (B), (C)
+  ok    (a) values (10, 9, 2): 6 EFX0 allocations, none with all bundles of at most two goods; {g0}, {g1}, {p0, p1, p2} is EFX0 in every order, with the agents in cases (T), (B), (C)
+  ok    (a) values (7, 5, 3): 6 EFX0 allocations, none with all bundles of at most two goods; {g0}, {g1}, {p0, p1, p2} is EFX0 in every order, with the agents in cases (T), (B), (C)
+  ok    (b) values (4, 3, 2): 8 EFX0 allocations, every one of sizes 4, 1, 1, 1; the stated one is EFX0, cases T, B, T, C
+  ok    (b) values (5, 4, 3): 8 EFX0 allocations, every one of sizes 4, 1, 1, 1; the stated one is EFX0, cases T, B, T, C
+  ok    (b) values (10, 9, 2): 8 EFX0 allocations, every one of sizes 4, 1, 1, 1; the stated one is EFX0, cases T, B, T, C
+  ok    (b) values (7, 5, 3): 8 EFX0 allocations, every one of sizes 4, 1, 1, 1; the stated one is EFX0, cases T, B, T, C
+[7] Every valid state of every core profile, n = 2 (m <= 6) and n = 3 (m <= 7), up to renaming goods (values 4, 3, 2)
+  ok    n = 2, m <= 6: 97 profiles, 1889 states, 255 valid; finishing test on 178 valid and 1332 invalid states with (NC) (and the running-time remark: an agent holding only its top blocks at most one free agent holding a good; it fails in 0 valid states without (NC), where DE does not use it); soundness on 318 + 46 completions; Lemma ring on 47 rings; Improvement Lemma on 51 states; hall.improve() gives the same new state on 51; states with no short move: 0; DE's loop from each valid state: EFX0, 125 trades in all, at most 2
+        Improvement Lemma, (NC) fails: chain of x (every x violating (NC)): 16
+        Improvement Lemma, (NC) holds: the ring of the proof, 0 pair arrow(s): 7
+        Improvement Lemma, (NC) holds: the ring of the proof, 1 pair arrow(s): 28
+  ok    n = 3, m <= 7: 8073 profiles, 565986 states, 30252 valid; finishing test on 22881 valid and 422715 invalid states with (NC) (and the running-time remark: an agent holding only its top blocks at most one free agent holding a good; it fails in 3684 valid states without (NC), where DE does not use it); soundness on 175071 + 567 completions; Lemma ring on 9914 rings; Improvement Lemma on 5306 states; hall.improve() gives the same new state on 5306; states with no short move: 0; DE's loop from each valid state: EFX0, 13587 trades in all, at most 3
+        Improvement Lemma, (NC) fails: chain of x (every x violating (NC)): 1266
+        Improvement Lemma, (NC) fails: the walk from x (every x violating (NC)) closes a ring of want arrows: 168
+        Improvement Lemma, (NC) holds: the ring of the proof, 0 pair arrow(s): 2102
+        Improvement Lemma, (NC) holds: the ring of the proof, 1 pair arrow(s): 1860
+[8] DE, peeling included, on random instances (evidence, seed 2026)
+  ok    20000 instances with n <= 8, 0-3 valued goods per agent, values 1..6 (ties, unbalanced agents, goods nobody values) and 20000 strictly balanced cores with n <= 9: every output complete, EFX0 (raw), at most one bundle of more than two goods, at most 4n trades
+  stats: 21214 runs reached the loop, 10523 needed a trade, at most 8 trades; peeled agents 67988; trades: chain 16167, ring with 1 pair arrow(s) 638; finish: every agent holds its pair 899, finish: free agent holding a good 17208, finish: free agent holding nothing 3107
+  ok    on the 21214 cores reached: the previous paper's loop (a free agent holding nothing finishes first) picks another finishing agent in 2079 run(s), another output in 1300; hall.py (another tie-break among the leftover goods) differs in 146; all these outputs EFX0 (raw, the instance's values)
+[9] Section 1, "What is new": an instance of the model that no earlier existence result covers
+  ok    six agents, eleven goods (m = n + 5: neither m <= n + 3 nor m = n + 4), each agent values exactly three goods
+  ok    three agents value g0 (not at most two valuers per good)
+  ok    the first two agents share g0 and g1: the hypergraph of goods (edges) on agents has girth 2
+  ok    2000 random draws of pairwise distinct values in (1, 2): six different valuations, every agent strictly balanced; DE returns a complete EFX0 allocation with at most one bundle of more than two goods every time
+0 failure(s)

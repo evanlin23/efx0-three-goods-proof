@@ -1,0 +1,9 @@
+n=3 m=5 patterns=all deep=True: profiles=2197000 ok=2197000 fail=0 time=624.1s
+  trades distribution {0: 1297300, 1: 852388, 2: 47312}
+  move kinds {'chain': 776071, 'ring': 170941}  pair arrows per DE ring {1: 170941}
+n=3 m=6 patterns=rank deep=True: profiles=1728000 ok=1728000 fail=0 time=705.9s
+  trades distribution {0: 676800, 1: 780480, 2: 270720}
+  move kinds {'chain': 1221120, 'ring': 100800}  pair arrows per DE ring {1: 100800}
+n=3 m=7 patterns=rank deep=True: profiles=9261000 ok=9261000 fail=0 time=848.3s
+  trades distribution {0: 2455320, 1: 4058880, 2: 2499840, 3: 246960}
+  move kinds {'chain': 9344160, 'ring': 455280}  pair arrows per DE ring {1: 455280}

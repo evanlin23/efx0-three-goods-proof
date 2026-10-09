@@ -1,0 +1,10 @@
+exh2  {'states': 384828, 'valid': 53658, 'stay_pairs': 97620, 'stuck': 7266, 'completions': 158592, 'po': 25416, 'profiles': 18612, 'chains': 27744, 'stuck_chain': 3696} pair arrows in improvement rings {0: 714, 1: 2856}
+
+real	0m8.679s
+user	0m8.500s
+sys	0m0.008s
+rand ['20000'] {'states': 6592288, 'valid': 280064, 'completions': 1503220, 'chains': 21668, 'chain_rings': 610, 'stuck': 16696, 'stuck_chain': 4030, 'po': 129309, 'profiles': 20000, 'stay_pairs': 85286} pair arrows in improvement rings {0: 10330, 1: 2336}
+
+real	3m28.159s
+user	2m35.681s
+sys	0m0.116s

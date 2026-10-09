@@ -1,0 +1,7 @@
+# Core Lean only: no `require` entries (no Mathlib, no other packages). CI enforces this.
+name = "EFX"
+version = "0.1.0"
+defaultTargets = ["EFX"]
+
+[[lean_lib]]
+name = "EFX"

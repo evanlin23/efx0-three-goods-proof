@@ -1,0 +1,2 @@
+every profile n=4 m=6: 1728000 profiles, 704s; absorber_free=5924496, absorber_nothing=271488, alg_moves_0=1215744, alg_moves_1=501984, alg_moves_2=10272, move_D_cycle=2007024, move_pair_chain=1345392, move_rainbow=278784, not_completable=1308912, not_completable_D-cycle=678768, not_completable_pair-chain=418176, not_completable_rainbow=211968, pareto_optimal=4010064, rainbow_len_1=278784, states=9827184
+  first rainbow: ([(0, 1, 2), (0, 1, 2), (0, 2, 3), (0, 3, 4)], 6, (2, 3, 3, 1), (1, 2, 2, 4))

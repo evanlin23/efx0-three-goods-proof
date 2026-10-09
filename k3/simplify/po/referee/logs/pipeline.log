@@ -1,0 +1,3 @@
+pipeline: 100000 random instances, all EFX0 with real values; {'single': 93034, 'core': 6966}; 9s
+{'L4-cycle': 4, 'L5-cycle': 415, 'L5-exposure-arcs-1': 415, 'P2-path': 9417, 'steps-0': 920, 'steps-1': 2773, 'steps-2': 2803, 'steps-3': 424, 'steps-4': 45, 'steps-5': 1}
+exit 0

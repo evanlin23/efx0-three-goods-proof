@@ -1,0 +1,4 @@
+lean/EFX/Model.lean is copied verbatim from MRD.lean in evanlin23/mrd-efx (https://github.com/evanlin23/mrd-efx),
+tag v1.2.0, by Evan Lin and Gerald Osterhaus, licensed under the Apache License, Version 2.0; only its namespace was
+renamed from MRD to EFX. The other files of this repository were extracted from evanlin23/efx0-three-goods at commit
+31202dc.

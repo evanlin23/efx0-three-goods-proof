@@ -1,0 +1,4 @@
+random n<=9 (SD order 0..n-1): 100000 profiles, 53094 needed >=1 step, max steps 7, 11s
+random n<=9 (random SD order): 100000 profiles, 53185 needed >=1 step, max steps 7, 12s
+{'L4-cycle': 64, 'L5-cycle': 4663, 'L5-exposure-arcs-0': 2, 'L5-exposure-arcs-1': 4661, 'P2-path': 152849, 'P2-walk-cycle': 5, 'steps-0': 93721, 'steps-1': 70026, 'steps-2': 24893, 'steps-3': 8386, 'steps-4': 2354, 'steps-5': 531, 'steps-6': 83, 'steps-7': 6}
+exit 0

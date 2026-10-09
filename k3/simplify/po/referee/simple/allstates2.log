@@ -1,0 +1,15 @@
+rand ['20000'] {'states': 8344457, 'valid': 291611, 'stay_pairs': 77678, 'completions': 1788727, 'po': 131609, 'profiles': 20000, 'chains': 31665, 'stuck': 15559, 'stuck_chain': 4393, 'chain_rings': 723} pair arrows in improvement rings {0: 8975, 1: 2191}
+
+real	7m43.324s
+user	3m7.176s
+sys	0m0.050s
+exh3 ['4'] {'states': 777600, 'valid': 50688, 'stay_pairs': 32295, 'completions': 169344, 'po': 23184, 'profiles': 13824, 'stuck': 14400} pair arrows in improvement rings {0: 9216, 1: 5184}
+
+real	0m27.224s
+user	0m14.510s
+sys	0m0.030s
+exh3 ['5'] {'states': 14316480, 'valid': 761880, 'stay_pairs': 428707, 'completions': 4497120, 'po': 334680, 'profiles': 216000, 'stuck': 146280, 'chains': 138240, 'stuck_chain': 32400, 'chain_rings': 5760} pair arrows in improvement rings {0: 56280, 1: 57600}
+
+real	6m35.252s
+user	4m4.854s
+sys	0m0.265s

@@ -1,0 +1,3 @@
+pipeline (mostly balanced agents, ties): 200000 instances, all EFX0 with real values; residual sizes {'core2': 27441, 'core3': 22862, 'core4': 19425, 'core5': 16301, 'core6': 13808, 'core7': 11663, 'core8': 9144, 'core9': 5586, 'single': 73770}; 29s
+{'L4-cycle': 46, 'L5-cycle': 4431, 'L5-exposure-arcs-0': 5, 'L5-exposure-arcs-1': 4426, 'P2-path': 128655, 'P2-walk-cycle': 5, 'steps-0': 48279, 'steps-1': 38721, 'steps-2': 27056, 'steps-3': 9089, 'steps-4': 2485, 'steps-5': 511, 'steps-6': 81, 'steps-7': 8}
+exit 0

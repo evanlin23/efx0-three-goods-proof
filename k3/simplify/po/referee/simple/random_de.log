@@ -1,0 +1,9 @@
+random general: runs=20000 ok=20000 fail=0 time=2.2s
+   {'ok': 20000, 'core': 1126, 'peeled': 68519, 'kind_chain': 1453, 'kind_ring': 57, 'finisher_holds_nothing': 4}
+   trades {0: 19020, 1: 486, 2: 459, 3: 34, 4: 1}  pair arrows per DE ring {1: 57}
+random core: runs=20000 ok=20000 fail=0 time=3.8s
+   {'ok': 20000, 'core': 9195, 'peeled': 40568, 'kind_ring': 495, 'kind_chain': 4807, 'finisher_holds_nothing': 1302}
+   trades {0: 15954, 1: 2889, 2: 1061, 3: 93, 4: 3}  pair arrows per DE ring {1: 495}
+random tight: runs=20000 ok=20000 fail=0 time=4.4s
+   {'ok': 20000, 'core': 17486, 'peeled': 0, 'finisher_holds_nothing': 5344, 'kind_ring': 971, 'kind_chain': 1740}
+   trades {0: 17324, 1: 2641, 2: 35}  pair arrows per DE ring {1: 971}

@@ -1,0 +1,3 @@
+n=4 m=4 patterns=rank deep=True: profiles=331776 ok=331776 fail=0 time=163.4s
+  trades distribution {0: 331776}
+  move kinds {}  pair arrows per DE ring {}

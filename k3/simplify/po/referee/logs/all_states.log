@@ -1,0 +1,13 @@
+n=2 m=3 done 0s {'valid': 13, 'not completable': 5, 'improved': 5, 'not completable -> improved': 5, 'completable': 8, 'completions checked': 12}
+n=2 m=4 done 0s {'valid': 73, 'not completable': 19, 'improved': 29, 'not completable -> improved': 19, 'completable': 54, 'completions checked': 108}
+n=2 m=5 done 0s {'valid': 238, 'not completable': 46, 'improved': 104, 'not completable -> improved': 46, 'completable': 192, 'completions checked': 432}
+n=2 m=6 done 0s {'valid': 590, 'not completable': 90, 'improved': 280, 'not completable -> improved': 90, 'completable': 500, 'completions checked': 1200}
+n=3 m=4 done 1s {'valid': 2702, 'not completable': 666, 'improved': 880, 'not completable -> improved': 666, 'completable': 2036, 'completions checked': 4440, 'completable only via U': 24}
+n=3 m=5 done 4s {'valid': 15400, 'not completable': 2726, 'improved': 4946, 'not completable -> improved': 2726, 'completable': 12674, 'completions checked': 38910, 'completable only via U': 402}
+n=3 m=6 done 20s {'valid': 69280, 'not completable': 8190, 'improved': 26178, 'not completable -> improved': 8190, 'completable': 61090, 'completions checked': 243102, 'completable only via U': 2706}
+n=3 m=7 done 73s {'valid': 246868, 'not completable': 20178, 'improved': 108354, 'not completable -> improved': 20178, 'completable': 226690, 'completions checked': 1068312, 'completable only via U': 11406}
+n=4 m=5 sampled done 79s {'valid': 256875, 'not completable': 21962, 'improved': 110281, 'not completable -> improved': 21962, 'completable': 234913, 'completions checked': 1083930, 'completable only via U': 11549}
+n=4 m=6 sampled done 86s {'valid': 265433, 'not completable': 23092, 'improved': 112428, 'not completable -> improved': 23092, 'completable': 242341, 'completions checked': 1103851, 'completable only via U': 11734}
+n=4 m=7 sampled done 93s {'valid': 273805, 'not completable': 23910, 'improved': 115304, 'not completable -> improved': 23910, 'completable': 249895, 'completions checked': 1130775, 'completable only via U': 11957}
+{'L4-cycle': 8758, 'L5-cycle': 11716, 'L5-exposure-arcs-0': 246, 'L5-exposure-arcs-1': 11470, 'P2-path': 93357, 'P2-walk-cycle': 1473}
+exit 0
