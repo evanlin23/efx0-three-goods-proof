@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Recompute every example and every computed number of the paper (paper/k3-simple/main.tex; the same examples and
-numbers appear in long.tex), and test its lemmas and algorithm DE.
+"""Recompute every example and every computed number of the paper (paper/k3-simple/main.tex), and test its lemmas and
+algorithm DE.
 
     python3 paper/k3-simple/examples/check_examples.py          (from the repository root, or from anywhere)
 
@@ -15,8 +15,9 @@ raw definition of EFX0 with exact integer arithmetic. `k3/simplify/po/hall/hall.
 only for cross-checks of claims that are still the same: the improving step of the Improvement Lemma, and DE's output.
 
 Sections (as printed):
-  [1] Introduction: Example "EFX, but not EFX0" (long.tex), and the instance of "What is new" (main.tex), which is
-      EFX but not EFX0; three goods break serial dictatorship; two relevant goods suffice.
+  [1] Introduction: a small allocation that is EFX but not EFX0 (an extra example, not in the paper), and the
+      instance of "What is new", which is EFX but not EFX0; three goods break serial dictatorship; two relevant
+      goods suffice.
   [2] "A small example": three agents, one ring with one pair arrow, then a completion.
   [3] The worked example and its figure: the draft state, wants, free agents, blockers, the sets H_o, the ten
       candidate completions, no small trade, the four dominating valid states, the arrows and cycles, DE's ring and
@@ -588,8 +589,8 @@ def with_core(c, Xc):
 
 # ============================================================================================ [1]
 def sec_intro():
-    out('[1] Introduction: Example "EFX, but not EFX0"; serial dictatorship at three goods; serial dictatorship for "two relevant '
-        'goods"')
+    out('[1] Introduction: EFX but not EFX0 (an extra example, then the instance of "What is new"); serial '
+        'dictatorship at three goods; serial dictatorship for "two relevant goods"')
     a, b, c = 0, 1, 2
     v = [{a: 3, b: 2}, {c: 1}]
     X = [{b}, {a, c}]

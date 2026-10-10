@@ -4,13 +4,14 @@ import EFX.K3DERings
 /-!
 # Draft and Exchange: two small examples of the paper (ledger K3S.EX.LEAN)
 
-Statements of `paper/k3-simple/main.tex` (and `long.tex`) about concrete instances, checked by kernel evaluation
+Statements of `paper/k3-simple/main.tex` about concrete instances, checked by kernel evaluation
 (`decide`) with the decision procedures of `EFX/K3DEShortExamples.lean`.
 
 - **EFX versus EFX₀** (main.tex §1, "What is new"): an agent values `a, b, c` at `4, 3, 2` and holds `a`; another
   bundle is `{b, c, g}` with `g` worth `0` to it. Removing `b` or `c` leaves at most `3`, so this is EFX, but
   removing `g` leaves `5 > 4`, so it is not EFX₀ (`efx_not_efx0_intro`).
-- **Example "EFX, but not EFX₀"** (long.tex §1, `ex:efx-vs-efx0`): two agents and goods `a, b, c`; agent 1 values `a, b, c`
+- **A second example of EFX but not EFX₀** (not in the paper; it was Example 1 of an earlier, longer exposition):
+  two agents and goods `a, b, c`; agent 1 values `a, b, c`
   at `3, 2, 0`, agent 2 values only `c`, at `1` (here agents `0`, `1` and goods `0, 1, 2`). The allocation
   `X₁ = {b}`, `X₂ = {a, c}` is EFX (`EFX`: only goods the envier values positively may be removed) but not EFX₀,
   and `X₁ = {a}`, `X₂ = {b, c}` is EFX₀ (`efx_not_efx0`). EFX₀ implies EFX (`efx_of_efx0`).
@@ -62,7 +63,7 @@ def exX : exI.Alloc := fun g => if g.val = 1 then 0 else 1
 /-- `X₁ = {a}`, `X₂ = {b, c}`. -/
 def exX' : exI.Alloc := fun g => if g.val = 0 then 0 else 1
 
-/-- **Example "EFX, but not EFX₀"**: `exX` is EFX and not EFX₀; `exX'` is EFX₀. -/
+/-- **A second example of EFX but not EFX₀**: `exX` is EFX and not EFX₀; `exX'` is EFX₀. -/
 theorem efx_not_efx0 : EFX exI exX ∧ ¬ exI.EFX0 exX ∧ exI.EFX0 exX' := by
   unfold EFX Inst.EFX0
   decide

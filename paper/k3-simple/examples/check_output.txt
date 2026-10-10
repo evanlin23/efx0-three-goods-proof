@@ -1,4 +1,4 @@
-[1] Introduction: Example "EFX, but not EFX0"; serial dictatorship at three goods; serial dictatorship for "two relevant goods"
+[1] Introduction: EFX but not EFX0 (an extra example, then the instance of "What is new"); serial dictatorship at three goods; serial dictatorship for "two relevant goods"
   ok    X1 = {b}, X2 = {a, c} is EFX: agent 1 may remove only a, {c} is worth 0 <= 2; agent 2 values {b} at 0
   ok    it is not EFX0: removing c from X2 leaves {a}, worth 3 > 2 to agent 1
   ok    X1 = {a}, X2 = {b, c} is EFX0

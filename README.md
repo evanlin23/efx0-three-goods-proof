@@ -12,8 +12,7 @@ every good h ∈ X_j, including goods that i values at 0.
 
 | Path | What |
 |---|---|
-| `paper/k3-simple/main.pdf` | **The paper** (about 9 pages of body, with appendices). |
-| `paper/k3-simple/long.pdf` | A detailed exposition of the same result (21 pages): every proof in the main text, an informal overview and the worked examples; self-contained. |
+| `paper/k3-simple/main.pdf` | **The paper** (about 10 pages of body, with appendices). |
 | `paper/k3-simple/` | LaTeX sources, bibliography, and `examples/check_examples.py`, which recomputes every example and number of the paper. |
 | `lean/` | The Lean 4 formalization: the algorithm, its correctness, the bound on trades, the running time, real values, and the results of the appendices. |
 | `k3/simplify/po/` | The proof notes (`hall/NOTES.md`, `potential/NOTES.md` for a second, independent proof), their test programs, and the reviews (`referee/`). |
@@ -40,7 +39,6 @@ every good h ∈ X_j, including goods that i values at 0.
 
        cd paper/k3-simple
        pdflatex main && bibtex main && pdflatex main && pdflatex main
-       pdflatex long && bibtex long && pdflatex long && pdflatex long
 
 ## What you have to trust
 
@@ -65,9 +63,10 @@ paper.
   that DE run directly on real values makes the same decisions as on their encoding; and a second, independently
   found proof (`k3/simplify/po/potential/NOTES.md`), which the paper only mentions.
 - **Reviewed by AI agents**, all separate sessions of the coding assistant (Claude Code) that helped write this work:
-  the proof by a referee given only the written proof (`k3/simplify/po/referee/README.md`), the current text by a
-  referee given only the detailed exposition, `long.tex` (`k3/simplify/po/referee/simple/REPORT.md`, with its own
-  implementation and tests), and the Lean statements against the paper by four audits
+  the proof by a referee given only the written proof (`k3/simplify/po/referee/README.md`), the current proofs by a
+  referee given only `long.tex`, a longer exposition of the same proofs (`k3/simplify/po/referee/simple/REPORT.md`,
+  with its own implementation and tests; `long.tex` was removed from this repository after commit `ffeae05` and is
+  in its history), and the Lean statements against the paper by four audits
   (`k3/simplify/po/referee/lean_audit*.md`). **There has been no human peer review.**
 - **Tested**: three earlier implementations and the paper's script, on tens of millions of states and instances,
   without failure.
