@@ -2,29 +2,33 @@
 
 Every instance with nonnegative additive valuations in which each agent positively values at most three goods has a
 complete EFX₀ allocation, in which all bundles but at most one have at most two goods, and algorithm Draft and
-Exchange (DE) computes one in time O(n(n + m)), with at most 4n trades. After peeling and a draft, DE's loop has three
+Exchange (DE) computes one in O(n(n + m)) steps of a unit-cost
+random-access machine, with at most 4n trades. After peeling and a draft, DE's loop has three
 steps: a chain (an agent holding its top takes its two other goods, both leftover), finish (a free agent takes the
 leftover goods, each of its blockers' leftover goods going to another free agent), or a ring of trades. The proof
-rests on the Improvement Lemma: in a valid state in which no free agent can finish, a chain or a ring makes some agent
-better off and nobody worse off; the ring exists because every agent can point at an agent that would gladly take its
+rests on the Improvement Lemma: in a valid state in which no free agent can finish, a chain or a ring raises some agent's
+score (its rank, never at a loss of value) and lowers nobody's; the ring exists because every agent can point at an agent that would gladly take its
 good. The novelty claim (§1, "What is new") rests on the literature search of `proofs/novelty.md` (25 September
 2026). Both documents below are in Springer's LLNCS format, 11pt, and each is self-contained.
 
-- `main.tex` → `main.pdf`: **the paper** (about 9 pages of body before the references): what is new (with an instance
-  no earlier result covers), peeling, states, finishing (with the soundness proof), improving (chain, ring, the
-  finishing test, the Improvement Lemma, all with proofs), DE with pseudocode and a three-agent example; in the
-  appendix the proofs of §2–§3, the corollary on Pareto-optimal states, the worked example with its figure, how
-  large a ring must be, the limits of the shape, the verification in detail and the related-work table.
+- `main.tex` → `main.pdf`: **the paper** (about 10 pages of body before the references): what is new (EFX versus
+  EFX₀ on an example, and the comparison with earlier results), peeling, states, finishing (with the soundness
+  proof), improving (chain, ring, the finishing test, the Improvement Lemma, all with proofs), DE with pseudocode, a
+  three-agent example and the running time step by step; in the appendix the proofs of §2–§3, the corollary on
+  score-Pareto-maximal valid states, the worked example with its figure, how large a ring must be, the limits of the
+  shape, the related-work table with an instance that no earlier result covers (checked row by row), and the
+  verification in detail (Table 2: every result and its Lean theorem; how real values are encoded; what is not
+  formalized).
 - `long.tex` → `long.pdf`: a detailed exposition of the same result, with every proof in the main text, an informal
-  overview, the three-agent example and the worked example in the body, and appendices on how large a ring must be,
-  the limits of the shape and related work.
+  overview, the three-agent example, the worked example and the verification (with the same table of Lean theorems)
+  in the body, and appendices on how large a ring must be, the limits of the shape and related work.
 - `refs.bib`: the bibliography of both; `Repo` is this repository at tag `v1.0`, which holds the notes, tests,
   referee reports and Lean files.
 - `llncs.cls` and `splncs04.bst`: Springer's LLNCS package, unmodified.
 - `examples/check_examples.py`: an independent implementation of the definitions (wants, free agents, blockers,
   finishing, want and pair arrows, rings, chains) and of DE with its loop chain / finish / ring, written from the
-  text, that recomputes every example and number of both documents: Example EFX-but-not-EFX₀ and the remark on two
-  relevant goods; the three-agent example; the worked example (draft state, wants, free agents, blockers, the sets
+  text, that recomputes every example and number of both documents: Example EFX-but-not-EFX₀, the instance of "What
+  is new" that is EFX but not EFX₀, and the remark on two relevant goods; the three-agent example; the worked example (draft state, wants, free agents, blockers, the sets
   H_o, all 10 candidate completions failing, no short move, the 4 dominating valid states, the arrows and cycles of
   its figure, DE's ring and output, raw EFX₀, also for 2,000 random valuations); both instances of Proposition short
   moves and the remark on the reused leftover good; the ring family for k ≤ 4, d ≤ 3, and DE's trades on it at depth
@@ -49,12 +53,18 @@ machine-checked in Lean, except a second, independently found proof of the Impro
   files use other names for some notions: needs for wants, exposed for blocker, protecting good for leftover good, valid
   absorber for an agent that can finish);
 - the lemmas of §2, Lemma cases of safety and Proposition limits of the shape (Appendix D), Proposition short moves
-  with its instances and the ring family (Appendix C; every k and depth), the worked example's facts, Example
-  EFX-but-not-EFX₀, at most n peeling rounds, and DE on ordered values such as ℝ≥0 (`lean/EFX/K3DEPrelim.lean`,
+  with its instances and the ring family (Appendix C; every k and depth), the worked example's facts, both examples
+  of EFX but not EFX₀, at most n peeling rounds, and DE on ordered values such as ℝ≥0 (`lean/EFX/K3DEPrelim.lean`,
   `K3DELimits.lean`, `K3DEShort.lean`, `K3DEShortExamples.lean`, `K3DERings.lean`, `K3DEReal.lean`,
   `K3DERemarks.lean`; ledger rows K3S.PRELIM.LEAN, K3S.LIMITS, K3S.SHORT, K3S.EX.LEAN, K3S.RINGS, K3S.REAL.LEAN);
 - the running time O(n(n + m)) (`lean/EFX/K3DECost*.lean`, ledger row K3S.TIME: at most 750 (n + 1)(n + m + 1)
   counted operations, array reads and writes one unit each).
+
+Not formalized (Appendix F of `main.pdf`, "What is not formalized"): that a counted unit matches a machine step
+(checked by reading the counted program); that the nonnegative reals satisfy the axioms of Lean's class of values
+(core Lean has no real numbers); that DE run directly on real values makes the same decisions as on their
+natural-number encoding (Lean states the theorem for the encoding); and that the Lean statements say what the text
+says (compared by AI audits, not by a human).
 
 The formal statements were written by AI assistant sessions; independent AI referee sessions compared them with the
 text (`k3/simplify/po/referee/lean_audit.md`, `lean_audit2.md`, `lean_audit3.md` for earlier drafts;

@@ -15,7 +15,8 @@ raw definition of EFX0 with exact integer arithmetic. `k3/simplify/po/hall/hall.
 only for cross-checks of claims that are still the same: the improving step of the Improvement Lemma, and DE's output.
 
 Sections (as printed):
-  [1] Introduction: Example "EFX, but not EFX0"; three goods break serial dictatorship; two relevant goods suffice.
+  [1] Introduction: Example "EFX, but not EFX0" (long.tex), and the instance of "What is new" (main.tex), which is
+      EFX but not EFX0; three goods break serial dictatorship; two relevant goods suffice.
   [2] "A small example": three agents, one ring with one pair arrow, then a completion.
   [3] The worked example and its figure: the draft state, wants, free agents, blockers, the sets H_o, the ten
       candidate completions, no small trade, the four dominating valid states, the arrows and cycles, DE's ring and
@@ -601,6 +602,8 @@ def sec_intro():
     check(not is_efx0(v, [{0}, {1, 2, 3}]) and val(v[0], {1, 2}) == 5 > 4,
           'values 4, 3, 2 on a, b, c: the agent takes a, b and c end up with a third good; without it they are worth '
           '5 > 4')
+    check(is_efx(v, [{0}, {1, 2, 3}]) and val(v[0], {2, 3}) == 2 and val(v[0], {1, 3}) == 3,
+          '"What is new": the same allocation is EFX; removing b or c leaves 2 or 3 <= 4 (g, worth 0, is not removed)')
     check(is_efx0(v, de(v, 2, 4)), 'DE on the same instance is EFX0 (the second agent is peeled first)')
     # Corollary (two relevant goods): serial dictatorship in any order, a favourite remaining good each (any one of
     # them if several), the last agent taking all remaining goods

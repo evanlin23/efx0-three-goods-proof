@@ -2,7 +2,8 @@
 
 **Theorem.** Every instance with nonnegative additive valuations in which each agent positively values at most three
 goods has a complete EFX₀ allocation, in which all bundles but at most one have at most two goods. Algorithm
-*Draft and Exchange* (DE) computes one in time O(n(n + m)), with at most n peeling rounds and at most 4n trades.
+*Draft and Exchange* (DE) computes one in O(n(n + m)) steps of a unit-cost random-access machine, with at most n
+peeling rounds and at most 4n trades.
 
 EFX₀ is envy-freeness up to any good in its all-goods form: v_i(X_i) ≥ v_i(X_j ∖ {h}) for all agents i ≠ j and
 every good h ∈ X_j, including goods that i values at 0.
@@ -58,8 +59,11 @@ paper.
 
 - **Machine-checked** in Lean: every result of the paper's Sections 2–6 and appendices, the worked examples, the
   running time (a counted program equal to DE, at most 750 (n + 1)(n + m + 1) steps) and real values (through
-  natural-number values that answer the same comparisons). Not formalized: a second, independently found proof
-  (`k3/simplify/po/potential/NOTES.md`), which the paper only mentions.
+  natural-number values that answer the same comparisons). Table 2 of the paper (Appendix F) maps every result to
+  its Lean theorem. Not formalized: that a counted unit matches a machine step (checked by reading the counted
+  program); that the nonnegative reals satisfy the axioms of Lean's class of values (core Lean has no real numbers);
+  that DE run directly on real values makes the same decisions as on their encoding; and a second, independently
+  found proof (`k3/simplify/po/potential/NOTES.md`), which the paper only mentions.
 - **Reviewed by AI agents**, all separate sessions of the coding assistant (Claude Code) that helped write this work:
   the proof by a referee given only the written proof (`k3/simplify/po/referee/README.md`), the current text by a
   referee given only the detailed exposition, `long.tex` (`k3/simplify/po/referee/simple/REPORT.md`, with its own

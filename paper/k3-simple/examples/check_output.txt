@@ -3,6 +3,7 @@
   ok    it is not EFX0: removing c from X2 leaves {a}, worth 3 > 2 to agent 1
   ok    X1 = {a}, X2 = {b, c} is EFX0
   ok    values 4, 3, 2 on a, b, c: the agent takes a, b and c end up with a third good; without it they are worth 5 > 4
+  ok    "What is new": the same allocation is EFX; removing b or c leaves 2 or 3 <= 4 (g, worth 0, is not removed)
   ok    DE on the same instance is EFX0 (the second agent is peeled first)
   ok    Corollary (two relevant goods): serial dictatorship in random orders, with random choices among favourites, on 5000 random instances with |R_i| <= 2: every output EFX0
 [2] "A small example" (agents z, x, o in this index order; goods g0, g1, g2, g3, g4)
@@ -111,7 +112,7 @@
 [8] DE, peeling included, on random instances (evidence, seed 2026)
   ok    20000 instances with n <= 8, 0-3 valued goods per agent, values 1..6 (ties, unbalanced agents, goods nobody values) and 20000 strictly balanced cores with n <= 9: every output complete, EFX0 (raw), at most one bundle of more than two goods, at most 4n trades
   stats: 21214 runs reached the loop, 10523 needed a trade, at most 8 trades; peeled agents 67988; trades: chain 16167, ring with 1 pair arrow(s) 638; finish: every agent holds its pair 899, finish: free agent holding a good 17208, finish: free agent holding nothing 3107
-  ok    on the 21214 cores reached: the previous paper's loop (a free agent holding nothing finishes first) picks another finishing agent in 2079 run(s), another output in 1300; hall.py (another tie-break among the leftover goods) differs in 146; all these outputs EFX0 (raw, the instance's values)
+  ok    on the 21214 cores reached: an alternative loop (a free agent holding nothing finishes first) picks another finishing agent in 2079 run(s), another output in 1300; hall.py (another tie-break among the leftover goods) differs in 146; all these outputs EFX0 (raw, the instance's values)
 [9] "What is new": an instance of the model that no earlier existence result covers
   ok    six agents, eleven goods (m = n + 5: neither m <= n + 3 nor m = n + 4), each agent values exactly three goods
   ok    three agents value g0 (not at most two valuers per good)

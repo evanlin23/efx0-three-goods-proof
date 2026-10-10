@@ -473,7 +473,8 @@ theorem exchange_scores {onC : A → Bool} {σ π : A → A} (hC : Cycle P agent
     · simp [util, h, mt hiff.mp h, hpr]
 
 /-- **Lemma ring** (with chains): the exchange along a `Cycle` is a valid state that Pareto-dominates the state. The
-scores (every agent of the cycle strictly gains, every other agent keeps its utility) are `exchange_scores`. -/
+scores (every agent of the cycle gets a strictly higher utility, i.e. score, and loses no value; every other agent keeps
+its utility) are `exchange_scores`. -/
 theorem exchange (hV : Valid P agents goods Y up) (hWF : WF P agents goods) {onC : A → Bool} {σ π : A → A}
     (hC : Cycle P agents goods Y up onC σ π) :
     Valid P agents goods (exchY P agents up Y onC π) (exchUp P agents up Y onC π) ∧

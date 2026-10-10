@@ -4,10 +4,13 @@ import EFX.K3DERings
 /-!
 # Draft and Exchange: two small examples of the paper (ledger K3S.EX.LEAN)
 
-Two statements of `paper/k3-simple/main.tex` about concrete instances, checked by kernel evaluation (`decide`) with the
-decision procedures of `EFX/K3DEShortExamples.lean`.
+Statements of `paper/k3-simple/main.tex` (and `long.tex`) about concrete instances, checked by kernel evaluation
+(`decide`) with the decision procedures of `EFX/K3DEShortExamples.lean`.
 
-- **Example "EFX, but not EFX₀"** (§1, `ex:efx-vs-efx0`): two agents and goods `a, b, c`; agent 1 values `a, b, c`
+- **EFX versus EFX₀** (main.tex §1, "What is new"): an agent values `a, b, c` at `4, 3, 2` and holds `a`; another
+  bundle is `{b, c, g}` with `g` worth `0` to it. Removing `b` or `c` leaves at most `3`, so this is EFX, but
+  removing `g` leaves `5 > 4`, so it is not EFX₀ (`efx_not_efx0_intro`).
+- **Example "EFX, but not EFX₀"** (long.tex §1, `ex:efx-vs-efx0`): two agents and goods `a, b, c`; agent 1 values `a, b, c`
   at `3, 2, 0`, agent 2 values only `c`, at `1` (here agents `0`, `1` and goods `0, 1, 2`). The allocation
   `X₁ = {b}`, `X₂ = {a, c}` is EFX (`EFX`: only goods the envier values positively may be removed) but not EFX₀,
   and `X₁ = {a}`, `X₂ = {b, c}` is EFX₀ (`efx_not_efx0`). EFX₀ implies EFX (`efx_of_efx0`).
@@ -61,6 +64,19 @@ def exX' : exI.Alloc := fun g => if g.val = 0 then 0 else 1
 
 /-- **Example "EFX, but not EFX₀"**: `exX` is EFX and not EFX₀; `exX'` is EFX₀. -/
 theorem efx_not_efx0 : EFX exI exX ∧ ¬ exI.EFX0 exX ∧ exI.EFX0 exX' := by
+  unfold EFX Inst.EFX0
+  decide
+
+/-- The instance of main.tex §1 ("What is new"): agent `0` values goods `a, b, c, g` (here `0, 1, 2, 3`) at
+`4, 3, 2, 0`; agent `1` values only `g`, at `1`. -/
+abbrev introI : Inst := ⟨2, 4, fun i g => ([[4, 3, 2, 0], [0, 0, 0, 1]].getD i.val []).getD g.val 0⟩
+
+/-- `X₀ = {a}`, `X₁ = {b, c, g}`. -/
+def introX : introI.Alloc := fun g => if g.val = 0 then 0 else 1
+
+/-- **EFX versus EFX₀** (main.tex §1): agent `0` holds `a`, worth `4`, and the other bundle is `{b, c, g}`.
+Removing `b` or `c` leaves `2` or `3`, so the allocation is EFX; removing `g` leaves `5`, so it is not EFX₀. -/
+theorem efx_not_efx0_intro : EFX introI introX ∧ ¬ introI.EFX0 introX := by
   unfold EFX Inst.EFX0
   decide
 
@@ -280,6 +296,7 @@ end EFX
 
 #print axioms EFX.DE.Remarks.efx_of_efx0
 #print axioms EFX.DE.Remarks.efx_not_efx0
+#print axioms EFX.DE.Remarks.efx_not_efx0_intro
 #print axioms EFX.DE.Remarks.pg_facts
 #print axioms EFX.DE.Remarks.pg_check
 #print axioms EFX.DE.Remarks.pg_undominated

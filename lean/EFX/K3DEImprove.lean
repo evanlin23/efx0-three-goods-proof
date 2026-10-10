@@ -35,7 +35,7 @@ by its last arc, or a ring of want arrows.
   or a ring); `step_next`: it returns a valid state that Pareto-dominates the state; `step_next_scores`: every agent
   of the cycle gets a strictly higher utility (score), every other agent the same (Lemmas ring and chain, through
   `EFX.DE.exchange_scores`).
-- `improvement` (**the Improvement Lemma**), `completable_of_undominated` (**Corollary**, Pareto-optimal states).
+- `improvement` (**the Improvement Lemma**), `completable_of_undominated` (**Corollary**, score-Pareto-maximal valid states).
 - The finishing test: `forced_hOf` ((b): the pair of a blocker `x` is `o`'s good and `h_x`), `absorber_forced`,
   `Hset_le_of_absorber` and `absorber_iff` ((c), both directions: `o` absorbs iff `|H_o| ≤ |F| − 1`, and then with
   `H_o`); `not_exposed_of_none` ((a)), `Hset_eq_nil`, `count_of_none`, `holds_of_count` (a free agent holding
@@ -995,7 +995,8 @@ theorem improvement (hV : Valid P agents goods Y up) (hWF : WF P agents goods) (
     · exact absurd (hall i hi) hiu
   | next Y' up' => exact ⟨Y', up', step_next hV hWF hag h⟩
 
-/-- **Corollary (Pareto-optimal states).** In the core case, a valid state that no valid state Pareto-dominates is
+/-- **Corollary (score-Pareto-maximal valid states).** In the core case, a valid state that no valid state
+Pareto-dominates in utilities (scores) is
 completable: it has a valid absorber, which is free unless every agent holds its pair. -/
 theorem completable_of_undominated (hV : Valid P agents goods Y up) (hWF : WF P agents goods) (hag : agents.Nodup)
     (hne : agents ≠ []) (hmax : ∀ Y' up', Valid P agents goods Y' up' → ¬ Dominates P agents Y' up' Y up) :
