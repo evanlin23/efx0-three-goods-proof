@@ -71,6 +71,8 @@ per-agent gains of a ring, are resolved). The written proof was derived independ
 `long.tex`, a longer exposition of the same proofs (removed from this repository after commit `ffeae05`; it is in
 the history): no mathematical error, four one-line gaps fixed (`k3/simplify/po/referee/simple/REPORT.md`, with its own
 implementation of DE and its tests, zero failures on about 14.9 million instances). The provers and referees were AI
-agents: separate sessions of the coding assistant (Claude Code). There has been no human peer review. Every claim is
+agents: separate sessions of the coding assistant (Claude Code). The October 2026 revision (an external review, a
+referee of the revision, two prose passes and a final read: no error, no gap) is recorded in
+`k3/simplify/po/referee/simple/REVISION.md`. There has been no human peer review. Every claim is
 taken from the claims ledger of the research repository evanlin23/efx0-three-goods (`LEDGER.md` at commit `31202dc`;
 the rows above, and K3S.PO, K3S.SA, K3S.ST) and the notes it cites, or from the runs of `examples/check_examples.py`.

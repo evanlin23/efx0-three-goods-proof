@@ -6,7 +6,7 @@ import EFX.K3Real
 
 `EFX/K3DEAlgo.lean` formalizes algorithm DE and Theorem "DE is correct" (`thm:de`) over natural-number values, with
 the bound of `4n` exchanges. This file adds the two parts of §6 that it leaves out: the bound "DE peels at most
-`n` agents" of `thm:de`, and the paragraph "Real values" with the proof of Theorems `thm:target`, `thm:D` and
+`n` agents" of `thm:de`, and the paragraph "Real values" with the proof of Theorems `thm:main` and
 `thm:algo`: the results "hold for nonnegative real values" (the count in the comparison model is
 `EFX.DE.deOrdC_cost`, `EFX/K3DECostReal.lean`).
 Core Lean has no reals: values lie in any `EFX.OrderedValue` type `V` (`ℝ≥0` satisfies its axioms by the textbook
@@ -37,7 +37,7 @@ nothing (`s = none`) or with its favourite remaining good (`s = some p`). `run` 
   applies at most `4n` exchanges on the surrogate. Proof: `w` agrees with `v` on every comparison of two subset sums
   (`EFX.K3.agree_surrogate`), so it has the same relevant goods (`EFX.numRelevant_eq_of_agree`) and the same EFX₀
   allocations (`EFX.efx0_iff_of_agree`), and `de_correct` applies to `w`.
-- `thmD_ordered` (**Theorems `thm:target` and `thm:D` on ordered values, in general**): every instance with
+- `thmD_ordered` (**Theorem `thm:main` on ordered values, in general**): every instance with
   `n ≥ 1` agents, nonnegative values in `V` and at most three relevant goods per agent has an EFX₀ allocation in
   which all bundles but at most one have at most two goods. It needs neither exactly three relevant goods nor
   balance (unlike Corollary D of the research repository's earlier construction). Proof: L12 (`EFX.l12`) and
@@ -200,7 +200,7 @@ theorem deOrd_eq_surrogateC (c : Nat) (le : V → V → Bool) (I : OInst V) (hn 
   rw [K3.surrogateC_val]; rfl
 
 /-- **Theorem DE is correct, on ordered values** (`paper/k3-simple/main.tex` §6, the proof of Theorems
-`thm:target`, `thm:D` and `thm:algo` for nonnegative real values). For a correct comparison oracle, every instance
+`thm:main` and `thm:algo` for nonnegative real values). For a correct comparison oracle, every instance
 with `n ≥ 1` agents, nonnegative values in an `EFX.OrderedValue` type (e.g. `ℝ≥0`) and at most three relevant goods
 per agent: `deOrd le I hn` is EFX₀ for the original values, all its bundles but at most one have at most two goods,
 and DE peels at most `n` agents and applies at most `4n` exchanges. -/
@@ -215,7 +215,7 @@ theorem deOrd_correct {le : V → V → Bool} (hle : ∀ x y, le x y = true ↔ 
   exact ⟨(efx0_iff_of_agree I _ hw _).mpr hE, hS, hP, hM⟩
 
 /-- **Theorem existence and shape on ordered values, in general** (`paper/k3-simple/main.tex`,
-Theorems `thm:target` and `thm:D`, for nonnegative real values). Every instance with `n ≥ 1` agents, nonnegative
+Theorem `thm:main`, for nonnegative real values). Every instance with `n ≥ 1` agents, nonnegative
 values in an `EFX.OrderedValue` type (e.g. `ℝ≥0`) and at most three relevant goods per agent has an EFX₀
 allocation in which all bundles but at most one have at most two goods. -/
 theorem thmD_ordered (I : OInst V) (hn : 0 < I.n) (hv : ∀ i g, 0 ≤ I.v i g) (h : ∀ i, I.numRelevant i ≤ 3) :

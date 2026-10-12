@@ -67,7 +67,9 @@ paper.
   referee given only `long.tex`, a longer exposition of the same proofs (`k3/simplify/po/referee/simple/REPORT.md`,
   with its own implementation and tests; `long.tex` was removed from this repository after commit `ffeae05` and is
   in its history), and the Lean statements against the paper by four audits
-  (`k3/simplify/po/referee/lean_audit*.md`). **There has been no human peer review.**
+  (`k3/simplify/po/referee/lean_audit*.md`). The October 2026 revision (an external review, a referee of the
+  revision, two prose passes and a final read of the whole text: no error, no gap) is recorded in
+  `k3/simplify/po/referee/simple/REVISION.md`. **There has been no human peer review.**
 - **Tested**: three earlier implementations and the paper's script, on tens of millions of states and instances,
   without failure.
 - **Novelty**: as far as the literature search of `proofs/novelty.md` (25 September 2026) found, no earlier result
