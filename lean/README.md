@@ -159,7 +159,7 @@ and notes (`proofs/…`), which are not copied here.
   `k3/simplify/po/hall/NOTES.md`; ledger K3S.PO.LEAN), over the valid pre-allocations of `PreAlloc` (rank-based
   states: each agent holds nothing, one of its goods, or its pair `{b, c}`). The Lean names are the earlier ones of
   the paper: needs (wants), utility (score), exposed (blocker), protecting good (the blocker's leftover good `h_x`),
-  valid absorber (an agent that can finish), need and exposure arcs (want and pair arrows), need and exchange cycles
+  valid absorber (an agent that can finish), need and exposure arcs (want and pair arrows, reversed: Lean's arcs point the way goods move, as `σ` does), need and exchange cycles
   (rings), pair chain (chain), (P) (NC).
   - `K3DE`: utilities (`EFX.DE.util`, pair 4 > a 3 > b 2 > c 1 > nothing 0), Pareto domination, free agents,
     exposure, valid absorbers (`EFX.DE.Absorber`), the paper's completion (`EFX.DE.completeDE`: the goods of `H` to

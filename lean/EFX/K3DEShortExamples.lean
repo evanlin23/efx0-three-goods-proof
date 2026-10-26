@@ -24,7 +24,8 @@ propositions of `EFX/K3DE.lean`, `EFX/K3DEImprove.lean` and `EFX/K3DEShort.lean`
 **The worked example** (Appendix B; agents `x₁, x₁', x₂, x₂', o₁, o₂` are `0, …, 5`, goods `g₀, …, g₉` are `0, …, 9`,
 rankings `Pw`, values `4, 3, 2`: `vw`, the instance `EFX.DE.Examples.worked`). The draft state `Yw`
 (`w_draft`: the draft of Lemma draft in index order) has `NA = {g₀, g₁, g₂, g₃}`, is valid, `J = {g₆, g₇, g₈, g₉}`,
-`F = {o₁, o₂}`, the need arcs `x₁ → o₂`, `x₁' → o₂`, `x₂ → o₁`, `x₂' → o₁` (so `D` has no cycle), (P) holds,
+`F = {o₁, o₂}`, the need arcs `x₁ → o₂`, `x₁' → o₂`, `x₂ → o₁`, `x₂' → o₁` (Lean's arcs point the way goods move: the
+paper's want arrows reversed; so `D` has no cycle), (P) holds,
 `H_{o₁} = {g₆, g₇}`, `H_{o₂} = {g₈, g₉}`, no free agent absorbs, and no short move applies (`w_facts`). Exactly four
 valid states Pareto-dominate `Yw` (`w_exactly_four`): the exchanges along the four cycles `o₁ → x → o₂ → x' → o₁` of
 `D⁺` (`w_exchanges`), and no other (`w_dominators`, with `valid_ext`); each gives pairs to exactly two agents. All ten

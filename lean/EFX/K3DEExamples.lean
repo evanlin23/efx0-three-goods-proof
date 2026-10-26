@@ -8,7 +8,8 @@ EFX₀ with at most one large bundle by `EFX.DE.deSpec_correct`.
 
 - `worked`: the worked example of `paper/k3-simple/main.tex` Appendix B (n = 6, m = 10, values 4, 3, 2): the draft state has
   no ring of want arrows and no chain applies, no free agent can finish, and one ring with two pair arrows
-  (`o₁ → x₁ → o₂ → x₂ → o₁`) gives two pairs; then `x₁'` finishes (absorbs) with `H = ∅`. The output is the paper's.
+  (`o₁ → x₁ → o₂ → x₂ → o₁` in Lean's direction, along which goods move; the paper's ring `o₁ → x₂ → o₂ → x₁ → o₁`)
+  gives two pairs; then `x₁'` finishes (absorbs) with `H = ∅`. The output is the paper's.
 - `small`: the small example at the end of §6 (n = 3, m = 5; the paper's `g₄`): `o` cannot finish (`H_o = {g₂}`, no
   other free agent), the ring `o → x → o` gives `x` its pair `{g₁, g₂}` and `o` the good `g₀`, then `z` finishes with
   `H = ∅`: `X_z = {g₄, g₃}`, `X_x = {g₁, g₂}`, `X_o = {g₀}`. The output is the paper's.

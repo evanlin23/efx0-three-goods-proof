@@ -12,8 +12,8 @@
   ok    o wants g0 and g4, held alone: valid; o is the only free agent; no chain applies
   ok    x is a blocker of o: if o took {g1, g2, g3}, x would remove g3 and see g1, g2, worth 5 > 4 (that completion is not EFX0)
   ok    x is o's only blocker; H_o = {g2}, no other free agent to take it: o cannot finish (definition, all H)
-  ok    sigma(o) = x, a pair arrow (x's pair is o's g1 and the leftover g2); sigma(x) = sigma(z) = o, want arrows (o wants g0, g4)
-  ok    following sigma from z (the first agent outside U) closes the ring o -> x -> o
+  ok    sigma(o) = x, for the pair arrow x -> o (x's pair is o's g1 and the leftover g2); sigma(x) = sigma(z) = o, for the want arrows o -> x and o -> z (o wants g0, g4)
+  ok    following sigma from z (the first agent outside U) reaches o, then x, which points back to o: the ring x -> o -> x
   ok    the trade: x takes {g1, g2}, o takes g0
   ok    then nobody wants anything, the free agents are z and o, z has no blocker: z finishes with H = {}
   ok    DE returns X_z = {g3, g4}, X_x = {g1, g2}, X_o = {g0}: EFX0 (raw definition); the same with peeling included
@@ -29,9 +29,9 @@
   ok    if o1 takes the leftovers, only o2 can take one of g6, g7
   ok    with H = {g6}: X_o1 = {g4, g7, g8, g9}; x1', holding g1 (worth 4), values X_o1 without g8 at 3 + 2 = 5
   ok    all ten candidate completions (finisher o1 or o2, H empty or one leftover good) fail the EFX0 test
-  ok    Figure 1: the arrows are exactly the pair arrows o1 -> x1 (g6), o1 -> x1' (g7), o2 -> x2 (g8), o2 -> x2' (g9) and the want arrows x1 -> o2 (g0), x1' -> o2 (g1), x2 -> o1 (g2), x2' -> o1 (g3)
-  ok    no ring of want arrows: it would have to leave o1 or o2 by a want arrow, but nobody wants g4 or g5
-  ok    x1 and x1' have want arrows only to o2, and the arrows from o2 are pair arrows
+  ok    Figure 1: the arrows are exactly the pair arrows x1 -> o1 (g6), x1' -> o1 (g7), x2 -> o2 (g8), x2' -> o2 (g9) and the want arrows o2 -> x1 (g0), o2 -> x1' (g1), o1 -> x2 (g2), o1 -> x2' (g3)
+  ok    no ring of want arrows: every want arrow starts at o1 or o2, so it would have to enter one of them by a want arrow, but nobody wants g4 or g5
+  ok    a ring with one pair arrow, say into o1, would leave o1 by a want arrow; these end at x2 and x2', which want nothing, and the only arrows from x2 and x2' are pair arrows into o2
   ok    every cycle of these arrows has four agents and two pair arrows (4 cycles, all rings)
   ok    no short move: no chain, no ring with at most one pair arrow
   ok    exactly four valid states Pareto-dominate the draft state (found 4), each gives pairs to two agents
@@ -41,7 +41,7 @@
         dominating: x1:pair, x1':a, x2:pair, x2':a, o1:a, o2:a
   ok    DE picks q_o1 = g6 (blocker x1), then q_o2 = g8 (blocker x2)
   ok    sigma(o1) = x1, sigma(x1) = o2 (o2 wants g0), sigma(o2) = x2, sigma(x2) = o1 (o1 wants g2)
-  ok    the ring o1 -> x1 -> o2 -> x2 -> o1 of Figure 1 (walk from x1: x1 -> o2 -> x2 -> o1)
+  ok    each sigma(j) -> j is an arrow, so this is the ring o1 -> x2 -> o2 -> x1 -> o1 of Figure 1 (as DE lists it: o1 -> x2 -> o2 -> x1 -> o1)
   ok    along it x1 takes {g4, g6}, o2 takes g0, x2 takes {g5, g8}, o1 takes g2 (table: after the trade)
   ok    the total score rises from 14 to 20
   ok    then nobody wants anything; leftover goods g7, g9; free agents x1', x2', o1, o2
@@ -59,11 +59,11 @@
   ok    blockers of o2: x1, x1' (leftover goods g2, g3)
   ok    blockers of o1: x2, x2' (leftover goods g2, g3)
   ok    nobody can finish and no short move applies: the bounds n = 6, m = 8 are attained
-  ok    remark: the cycles of arrows are the four o2 -> x -> o1 -> x' -> o2 with two pair arrows; two use the same leftover good twice (trading would give it to two agents), the other two are rings (each trade: a valid state, two new pairs)
-        cycle o1 -[pair g3] -> x2' -[want g7] -> o2 -[pair g3] -> x1' -[want g5] -> o1   (reuses a leftover good: not a ring)
-        cycle o1 -[pair g3] -> x2' -[want g7] -> o2 -[pair g2] -> x1 -[want g4] -> o1
-        cycle o1 -[pair g2] -> x2 -[want g6] -> o2 -[pair g3] -> x1' -[want g5] -> o1
-        cycle o1 -[pair g2] -> x2 -[want g6] -> o2 -[pair g2] -> x1 -[want g4] -> o1   (reuses a leftover good: not a ring)
+  ok    remark: the cycles of arrows are the four o2 -> x' -> o1 -> x -> o2 (x in {x1, x1'}, x' in {x2, x2'}) with two pair arrows; two use the same leftover good twice (trading would give it to two agents), the other two are rings (each trade: a valid state, two new pairs)
+        cycle o1 -[want g5] -> x1' -[pair g3] -> o2 -[want g7] -> x2' -[pair g3] -> o1   (reuses a leftover good: not a ring)
+        cycle o1 -[want g5] -> x1' -[pair g3] -> o2 -[want g6] -> x2 -[pair g2] -> o1
+        cycle o1 -[want g4] -> x1 -[pair g2] -> o2 -[want g7] -> x2' -[pair g3] -> o1
+        cycle o1 -[want g4] -> x1 -[pair g2] -> o2 -[want g6] -> x2 -[pair g2] -> o1   (reuses a leftover good: not a ring)
   ok    DE's loop started at this state: one ring with two pair arrows, then o1 finishes; EFX0
   ok    DE from the draft on this instance: 0 trade(s), EFX0
 [5] The ring family: k free agents, trees of depth d (values 4, 3, 2)

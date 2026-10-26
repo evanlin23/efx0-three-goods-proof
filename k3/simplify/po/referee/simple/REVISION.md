@@ -53,5 +53,15 @@ pointers for real values (`RealValues.lean`, `K3Real.lean`), two rows of Table 2
 `EFX.DE.Limits.limits_a_ordered`, `limits_b_ordered`), and the description of the referee implementation of
 `../README.md` (written from the proof notes, not from the paper).
 
+## 5. Arrow direction (later)
+
+At the author's request, the arrows of rings now follow the convention of envy graphs: a want arrow points from an
+agent to the holder of a good it wants, a pair arrow from a blocker to the free agent whose good completes its pair,
+and goods move against the arrows (Definition 4, Lemmas 5 and 6, the proof of Theorem 4, the examples of Section 6
+and Appendix B, Figure 1, Appendix C). The pointer σ is unchanged: σ(j) is the agent that receives the good of j, so
+σ(j) → j is an arrow and the ring of the Improvement Lemma is the σ-cycle in reverse order. Lean's need and exposure
+arcs, like σ, point the way goods move, so they are the paper's arrows reversed; no Lean statement changed. The
+paper's script `paper/k3-simple/examples/check_examples.py` uses the new convention.
+
 The review of section 1 was supplied by the author, and its source is not recorded here. The reviews of sections 2 to 4
 were by AI agents (separate sessions of Claude Code).

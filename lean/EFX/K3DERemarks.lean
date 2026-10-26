@@ -24,7 +24,8 @@ Statements of `paper/k3-simple/main.tex` about concrete instances, checked by ke
 - **The worked example's remaining numbers** (Appendix B, with `EFX/K3DEShortExamples.lean`): with `H = {g₆}` and absorber
   `o₁`, `X_{o₁} = {g₄, g₇, g₈, g₉}`, which `x₁'` values at `5` without `g₈`, more than its `4` (`w_detail`); every
   cycle of the exchange digraph `D⁺` of the draft state has four agents and two exposure arcs (`w_cycles`, the
-  Figure's caption; cycles as in `EFX.DE.Rings.DCycle`); DE's step moves along `o₁ → x₁ → o₂ → x₂ → o₁` (`w_step`);
+  Figure's caption; cycles as in `EFX.DE.Rings.DCycle`); DE's step moves goods along `o₁ → x₁ → o₂ → x₂ → o₁` (`w_step`; the paper's
+  ring `o₁ → x₂ → o₂ → x₁ → o₁`, whose arrows point the other way);
   the sum of utilities rises from `14` to `20` (`w_totals`); in the new state nobody needs a good, `J = {g₇, g₉}`, the
   free agents are `x₁', x₂', o₁, o₂`, nobody is exposed for `x₁'`, and DE's next step stops with absorber `x₁'` and
   `H = ∅` (`w_after`).

@@ -9,7 +9,8 @@ agent can finish) and some agent is not a pair holder is Pareto-dominated by a v
 ring. It is proved for a computable step (`step`), which either stops with a valid absorber or returns the dominating
 state, in the order of the three steps of the loop of the paper's Algorithm DE (chain, finish, ring). The names are
 those of `EFX/K3DE.lean`: exposed for blocker, protecting good `hOf x` for the leftover good `h_x`, need arcs and
-exposure arcs for want and pair arrows, pair chain for chain, (P) (`PropP`) for (NC).
+exposure arcs for want and pair arrows (reversed: Lean's arcs point the way goods move, as `σ` does), pair chain for
+chain, (P) (`PropP`) for (NC).
 
 1. **Chain.** (P) fails at some `x` (`pairB`: `x` holds only `a x`, and `b x`, `c x` are junk): the chain from `x`,
    or the ring of want arrows it runs into (Lemma chain).

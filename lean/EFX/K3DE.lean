@@ -10,8 +10,9 @@ ranked `a i`, `b i`, `c i` (`EFX.LB.Profile`, well formed: `EFX.LB.WF`).
 **Names.** The Lean files use other names for some notions of the paper: *needs* for the paper's wants, *utility*
 for score, *exposed* (`Exposed o x`) for "`x` is a blocker of `o`", *protecting good* (`hOf x`) for the blocker's
 leftover good `h_x`, *junk* for the leftover goods `J`, *valid absorber* (`Absorber o H`) for "`o` can finish with
-`H`", *need arcs* and *exposure arcs* for want and pair arrows, *need cycles* and *exchange cycles* for rings, *pair
-chain* for chain, and (P) (`EFX.DE.PropP`) for (NC).
+`H`", *need arcs* and *exposure arcs* for want and pair arrows (Lean's arcs, like `σ`, point the way goods move, from
+a holder to the agent that receives its good: the paper's arrows reversed), *need cycles* and *exchange cycles* for
+rings, *pair chain* for chain, and (P) (`EFX.DE.PropP`) for (NC).
 
 **States.** A state is a pick map `Y` and a list `up` of pair holders, as in `EFX.LB.Valid`: an agent holds nothing,
 one of its three goods (`Y i`), or, if `i ∈ up`, its pair `{b i, c i}` (then `Y i = some (b i)`). The needs are
@@ -39,8 +40,9 @@ some agent (`EFX.LB.Valid.na_picked`). The utilities (the paper's scores) are `4
   non-pair holder, is valid (the needs only shrink, `na_of_util`).
 - `exchange`, `exchange_scores` (**Lemma ring**, and **Lemma chain** through choice 3: one lemma for both moves): let
   `onC` mark a set of agents outside `up` on which `σ` and `π` are inverse bijections (`Cycle`). Every agent `z` of
-  the set hands its holding to `σ z`: if `z` is not free, `σ z` needs `z`'s good and takes it alone (a want arrow); if
-  `z` is free, `σ z` takes its pair, whose goods are junk or `z`'s good (a pair arrow, or the last arc of a chain; the
+  the set hands its holding to `σ z`: if `z` is not free, `σ z` needs `z`'s good and takes it alone (the want arrow
+  `σ z → z`); if `z` is free, `σ z` takes its pair, whose goods are junk or `z`'s good (the pair arrow `σ z → z`, or
+  the last arc of a chain; the
   paper's receiver holds only its top, which the proof does not need), and the junk goods taken by different
   receivers are different. The result `exchY`, `exchUp` is valid and Pareto-dominates the state (`exchange`); every
   agent of the set gets a strictly higher utility and every other agent the same utility (`exchange_scores`). The
@@ -392,8 +394,9 @@ def exchUp (P : Profile A G) (agents up : List A) (Y : A → Option G) (onC : A 
 
 /-- **An exchange cycle** (the paper's rings, cycles of want and pair arrows, and chains closed by their last arc):
 `onC` marks a nonempty set of listed agents outside `up` on which `σ` (successor) and `π` (predecessor) are inverse
-bijections. A non-free agent `z` holds a good that `σ z` needs (a want arrow); a free agent `z` points to an agent
-`σ z` whose `b` and `c` are each junk or `z`'s good (a pair arrow, or the arc that closes a chain); different
+bijections. A non-free agent `z` holds a good that `σ z` needs (the paper's want arrow `σ z → z`); a free agent `z`
+points to an agent `σ z` whose `b` and `c` are each junk or `z`'s good (the pair arrow `σ z → z`, or the arc that
+closes a chain); different
 receivers from free agents use different junk goods. -/
 structure Cycle (P : Profile A G) (agents : List A) (goods : List G) (Y : A → Option G) (up : List A)
     (onC : A → Bool) (σ π : A → A) : Prop where

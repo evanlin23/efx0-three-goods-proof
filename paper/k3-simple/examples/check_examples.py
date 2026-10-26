@@ -249,20 +249,21 @@ class State:
         return H
 
     def arrow(self, s, t):
-        """Definition (rings): the arrow s -> t between agents outside U holding a single good: ('want', y_s) if t wants
-        y_s; ('pair', h) if s is free, t is a blocker of s and the pair of t is {y_s, h} with h leftover; else None"""
+        """Definition (rings): the arrow s -> t between agents outside U holding a single good: ('want', y_t) if s wants
+        y_t; ('pair', h) if t is free, s is a blocker of t and the pair of s is {y_t, h} with h leftover; else None.
+        Goods move against the arrows: along s -> t, the good of t goes to s."""
         if s == t or s in self.U or t in self.U or len(self.Y[s]) != 1 or len(self.Y[t]) != 1:
             return None
-        y = self.Y[s][0]
-        want = y in self.W[t]
+        y = self.Y[t][0]
+        want = y in self.W[s]
         pair = None
-        if s in self.Fset and t in self.blockers(s):
-            b, c = self.rank[t][1], self.rank[t][2]
+        if t in self.Fset and s in self.blockers(t):
+            b, c = self.rank[s][1], self.rank[s][2]
             if y in (b, c):
                 h = c if b == y else b
                 if h in self.J:
                     pair = h
-        assert not (want and pair is not None)          # an arrow from a free agent is never a want arrow
+        assert not (want and pair is not None)          # an arrow into a free agent is never a want arrow
         return ('want', y) if want else (('pair', pair) if pair is not None else None)
 
     def cycle_arrows(self, cyc):
@@ -286,12 +287,12 @@ class State:
         new = list(self.hold)
         k = len(cyc)
         for t, (kind, _) in enumerate(arr):
-            w = cyc[(t + 1) % k]
-            new[w] = PAIR if kind == 'pair' else self.rank[w].index(self.Y[cyc[t]][0]) + 1
+            w = cyc[t]
+            new[w] = PAIR if kind == 'pair' else self.rank[w].index(self.Y[cyc[(t + 1) % k]][0]) + 1
         return tuple(new)
 
     def trade(self, cyc):
-        """trading along a ring: w_{t+1} gets y_t, with h_{t+1} for a pair arrow (its pair)"""
+        """trading along a ring: w_t gets y_{t+1}, with h_t for a pair arrow (its pair)"""
         arr = self.ring_arrows(cyc)
         assert arr is not None, 'not a ring'
         return self.raw_trade(cyc, arr)
@@ -401,8 +402,8 @@ def chain(st, x):
     while len(st.Y[path[-1]]) == 1 and st.wanters(st.Y[path[-1]][0]):
         nxt = st.wanters(st.Y[path[-1]][0])[0]
         assert nxt != x                                  # x holds its top and wants nothing
-        if nxt in path:
-            return 'ring', path[path.index(nxt):], None
+        if nxt in path:                                  # j_s, ..., j_{t-1}: the ring is j_{t-1} -> ... -> j_s
+            return 'ring', path[path.index(nxt):][::-1], None
         path.append(nxt)
     new = list(st.hold)
     new[x] = PAIR
@@ -439,7 +440,8 @@ def proof_ring(st):
     """the ring of the proof of Theorem (Improvement Lemma), under (NC) when no free agent can finish: distinct
     leftover goods (free agents in index order; x_o the first blocker of o whose leftover good is not yet picked,
     q_o = h_{x_o}); sigma(j) = x_j for free j, else the first agent that wants the good of j; follow sigma from the
-    first agent outside U until an agent repeats. Returns (q, x_o, sigma, cycle)."""
+    first agent outside U until an agent repeats; the ring is that cycle in reverse order (sigma(j) -> j is an
+    arrow, and sigma follows the goods). Returns (q, x_o, sigma, cycle)."""
     f = len(st.F)
     q, xo = {}, {}
     for o in st.F:
@@ -458,12 +460,15 @@ def proof_ring(st):
     while sigma[path[-1]] not in seen:
         path.append(sigma[path[-1]])
         seen.add(path[-1])
-    cyc = path[path.index(sigma[path[-1]]):]
-    assert len(cyc) >= 2 and all(len(st.Y[w]) == 1 for w in cyc)
+    cyc = path[path.index(sigma[path[-1]]):][::-1]                 # reverse order: sigma(w_{t+1}) = w_t
+    k = len(cyc)
+    assert k >= 2 and all(len(st.Y[w]) == 1 for w in cyc)
+    assert all(sigma[cyc[(t + 1) % k]] == cyc[t] for t in range(k))
     arr = st.ring_arrows(cyc)
     assert arr is not None                                          # the cycle is a ring
-    for t, w in enumerate(cyc):
-        assert arr[t] == (('pair', q[w]) if w in st.Fset else ('want', st.Y[w][0]))
+    for t in range(k):                                              # the arrow into w_{t+1}
+        w1 = cyc[(t + 1) % k]
+        assert arr[t] == (('pair', q[w1]) if w1 in st.Fset else ('want', st.Y[w1][0]))
     return q, xo, sigma, cyc
 
 
@@ -660,12 +665,13 @@ def sec_small():
     X, o, H, trace, fst = de_loop(rank, m)
     t = trace[0] if len(trace) == 1 else {}
     sg = t.get('sigma', {})
-    check(t.get('kind') == 'ring' and sg == {O: XX, XX: O, Z: O} and st.arrow(O, XX) == ('pair', G2)
-          and st.arrow(XX, O) == ('want', G0) and st.arrow(Z, O) == ('want', G5),
-          'sigma(o) = x, a pair arrow (x\'s pair is o\'s g1 and the leftover g2); sigma(x) = sigma(z) = o, want '
-          'arrows (o wants g0, g4)')
-    check(t.get('seq') == [O, XX] and t.get('npair') == 1,
-          'following sigma from z (the first agent outside U) closes the ring o -> x -> o')
+    check(t.get('kind') == 'ring' and sg == {O: XX, XX: O, Z: O} and st.arrow(XX, O) == ('pair', G2)
+          and st.arrow(O, XX) == ('want', G0) and st.arrow(O, Z) == ('want', G5),
+          'sigma(o) = x, for the pair arrow x -> o (x\'s pair is o\'s g1 and the leftover g2); sigma(x) = sigma(z) = o, '
+          'for the want arrows o -> x and o -> z (o wants g0, g4)')
+    check(t.get('seq') == [XX, O] and t.get('npair') == 1,
+          'following sigma from z (the first agent outside U) reaches o, then x, which points back to o: the ring '
+          'x -> o -> x')
     new = t.get('new')
     s2 = State(rank, m, new) if new else None
     check(new == (TOP, PAIR, TOP) and s2.Y[XX] == (G1, G2) and s2.Y[O] == (G0,),
@@ -719,15 +725,19 @@ def sec_worked():
           'all ten candidate completions (finisher o1 or o2, H empty or one leftover good) fail the EFX0 test')
     # arrows and cycles (Figure 1)
     nodes, succ, arr = st.arrow_digraph()
-    fig = {(O1, X1): ('pair', 6), (O1, X1P): ('pair', 7), (O2, X2): ('pair', 8), (O2, X2P): ('pair', 9),
-           (X1, O2): ('want', 0), (X1P, O2): ('want', 1), (X2, O1): ('want', 2), (X2P, O1): ('want', 3)}
-    check(arr == fig, 'Figure 1: the arrows are exactly the pair arrows o1 -> x1 (g6), o1 -> x1\' (g7), o2 -> x2 '
-                      '(g8), o2 -> x2\' (g9) and the want arrows x1 -> o2 (g0), x1\' -> o2 (g1), x2 -> o1 (g2), '
-                      'x2\' -> o1 (g3)')
-    check(not st.wanters(4) and not st.wanters(5),
-          'no ring of want arrows: it would have to leave o1 or o2 by a want arrow, but nobody wants g4 or g5')
-    check(succ[X1] == succ[X1P] == [O2] and all(arr[(O2, t)][0] == 'pair' for t in succ[O2]),
-          'x1 and x1\' have want arrows only to o2, and the arrows from o2 are pair arrows')
+    fig = {(X1, O1): ('pair', 6), (X1P, O1): ('pair', 7), (X2, O2): ('pair', 8), (X2P, O2): ('pair', 9),
+           (O2, X1): ('want', 0), (O2, X1P): ('want', 1), (O1, X2): ('want', 2), (O1, X2P): ('want', 3)}
+    check(arr == fig, 'Figure 1: the arrows are exactly the pair arrows x1 -> o1 (g6), x1\' -> o1 (g7), x2 -> o2 '
+                      '(g8), x2\' -> o2 (g9) and the want arrows o2 -> x1 (g0), o2 -> x1\' (g1), o1 -> x2 (g2), '
+                      'o1 -> x2\' (g3)')
+    check(all(s in (O1, O2) for (s, _), a in arr.items() if a[0] == 'want') and not st.wanters(4)
+          and not st.wanters(5),
+          'no ring of want arrows: every want arrow starts at o1 or o2, so it would have to enter one of them by a '
+          'want arrow, but nobody wants g4 or g5')
+    check(succ[O1] == [X2, X2P] and all(arr[(O1, t)][0] == 'want' for t in succ[O1])
+          and succ[X2] == succ[X2P] == [O2] and arr[(X2, O2)][0] == arr[(X2P, O2)][0] == 'pair',
+          'a ring with one pair arrow, say into o1, would leave o1 by a want arrow; these end at x2 and x2\', which '
+          'want nothing, and the only arrows from x2 and x2\' are pair arrows into o2')
     cycles, rings = cycles_and_rings(st)
     check(len(cycles) == 4 and all(len(c) == 4 and npair(ca) == 2 for c, ca in cycles) and len(rings) == 4,
           'every cycle of these arrows has four agents and two pair arrows (4 cycles, all rings)')
@@ -749,8 +759,9 @@ def sec_worked():
           'sigma(o1) = x1, sigma(x1) = o2 (o2 wants g0), sigma(o2) = x2, sigma(x2) = o1 (o1 wants g2)')
     cyc = t.get('seq', [])
     rot = cyc[cyc.index(O1):] + cyc[:cyc.index(O1)] if O1 in cyc else []
-    check(rot == [O1, X1, O2, X2], f'the ring o1 -> x1 -> o2 -> x2 -> o1 of Figure 1 (walk from x1: '
-                                   f'{" -> ".join(nm(w) for w in cyc)})')
+    check(rot == [O1, X2, O2, X1] and all(sg.get(cyc[(i + 1) % 4]) == cyc[i] for i in range(4)),
+          f'each sigma(j) -> j is an arrow, so this is the ring o1 -> x2 -> o2 -> x1 -> o1 of Figure 1 (as DE '
+          f'lists it: {" -> ".join(nm(w) for w in cyc)} -> {nm(cyc[0]) if cyc else ""})')
     new = t.get('new')
     check(new == (PAIR, TOP, PAIR, TOP, TOP, TOP) and State(rank, m, new).Y[O2] == (0,)
           and State(rank, m, new).Y[O1] == (2,),
@@ -846,7 +857,8 @@ def sec_short():
         st2 = State(rank, m, new)
         ring_ok &= st2.valid and dominates(new, S) and sum(h == PAIR for h in new) == 2
     check(len(cycles) == 4 and form and len(reuse) == 2 and gives_twice and len(rings) == 2 and ring_ok,
-          'remark: the cycles of arrows are the four o2 -> x -> o1 -> x\' -> o2 with two pair arrows; two use the '
+          'remark: the cycles of arrows are the four o2 -> x\' -> o1 -> x -> o2 (x in {x1, x1\'}, x\' in {x2, x2\'}) '
+          'with two pair arrows; two use the '
           'same leftover good twice (trading would give it to two agents), the other two are rings (each trade: a '
           'valid state, two new pairs)')
     for c, ca in cycles:
