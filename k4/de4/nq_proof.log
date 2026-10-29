@@ -1,0 +1,20 @@
+  type  1 a<bc a<bd a<cd b<cd ad<bc    (NQ) True  (L1) True  (L2) True
+  type  2 a<bc a<bd a<cd b<cd ad>bc    (NQ) True  (L1) True  (L2) True
+  type  3 a<bc a<bd a>cd b<cd ad<bc    (NQ) False (L1) False (L2) False
+  type  4 a<bc a<bd a>cd b<cd ad>bc    (NQ) False (L1) False (L2) False
+  type  5 a<bc a<bd a>cd b>cd ad<bc    (NQ) True  (L1) True  (L2) True
+  type  6 a<bc a<bd a>cd b>cd ad>bc    (NQ) True  (L1) True  (L2) True
+  type  7 a<bc a>bd a>cd b<cd ad<bc    (NQ) False (L1) False (L2) False
+  type  8 a<bc a>bd a>cd b<cd ad>bc    (NQ) False (L1) False (L2) False
+  type  9 a<bc a>bd a>cd b>cd ad<bc    (NQ) True  (L1) True  (L2) True
+  type 10 a<bc a>bd a>cd b>cd ad>bc    (NQ) True  (L1) True  (L2) True
+  type 11 a>bc a>bd a>cd b<cd ad>bc    (NQ) False (L1) False (L2) False
+  type 12 a>bc a>bd a>cd b>cd ad>bc    (NQ) True  (L1) True  (L2) True
+Lemma 5: (L1) and (L2) hold exactly for the (NQ) types: True
+the attempted proof on random (NQ) instances (3000 with seed 2, 4000 with seed 3):
+  finishable                                                 99014
+  grab                                                       4479
+  ring                                                       15017
+  ring (start later)                                         1
+collision12 (all agents (NQ): True): draft valid True, an owner can finish: False
+  the proof stops at: no start gives a valid ring

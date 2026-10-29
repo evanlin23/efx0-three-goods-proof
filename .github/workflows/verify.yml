@@ -41,10 +41,14 @@ jobs:
         run: |
           python k4/de4/test_de4.py
           python k4/de4/check_barrier.py
-      - name: Four relevant goods (k4/de4) - the candidate algorithm DER and its extremal statements (evidence)
+      - name: Four relevant goods (k4/de4) - E_lex and DER on the test data (evidence; DER is refuted by gadgets.py)
         run: |
           python k4/de4/lex.py
           python k4/de4/lex_test.py
           python k4/de4/der_test.py
           python k4/de4/der_check.py
           python k4/de4/der_run.py
+      - name: Four relevant goods (k4/de4) - the proof attempt (Lemma 5, the walk) and the counterexample to DER
+        run: |
+          python k4/de4/nq_proof.py 300 1
+          python k4/de4/gadgets.py 3 2
