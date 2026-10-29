@@ -1,0 +1,2 @@
+6000 instances (2607 agents of type 7 in all): {'states': 71985, 'chain': 4680, 'finish': 54006, 'ring': 13044, 'allpairs': 255}
+states where the attempted proof fails: 0; stuck score-Pareto-maximal states: 0

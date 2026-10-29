@@ -1,0 +1,17 @@
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      bd < bc < ab
+   no counterexample: a<bc a<bd a<cd b<cd ad<bc      cd < bd < bc < ac < ab
+   no counterexample: a<bc a<bd a<cd b<cd ad<bc      cd < bd < ad < bc < ac < ab
+   no counterexample: a<bc a<bd a<cd b<cd ad>bc      cd < bd < bc < ad < ac < ab
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      bd < bc < ac < ab
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      cd < bd < bc < ab
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      bd < ad < bc < ac < ab
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      cd < bd < bc < ac < ab
+   counterexample: a<bc a<bd a>cd b>cd ad>bc      bd < bc < ad < ac              n=2 m=5
+   no counterexample: a<bc a<bd a>cd b>cd ad<bc      cd < bd < ad < bc < ac < ab
+   no counterexample: a<bc a<bd a>cd b>cd ad>bc      bd < bc < ad < ac < ab
+   counterexample: a<bc a<bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac         n=2 m=5
+   no counterexample: a<bc a<bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac < ab
+   no counterexample: a<bc a>bd a>cd b>cd ad>bc      bc < ad < ac < ab
+   no counterexample: a<bc a>bd a>cd b>cd ad>bc      bd < bc < ad < ac < ab
+   no counterexample: a<bc a>bd a>cd b>cd ad>bc      cd < bc < ad < ac < ab
+   no counterexample: a<bc a>bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac < ab

@@ -1,0 +1,3 @@
+a<bc a<bd a>cd b>cd ad<bc    bd < bc < ab                 1423 score-Pareto-maximal states: free 1329, top 72, pair bd 12, pair bc 5, pair bc, pair bd 5
+a<bc a<bd a<cd b<cd ad<bc    cd < bd < bc < ac < ab       1718 score-Pareto-maximal states: free 1485, top 176, pair ac, pair bc 13, pair bd 9, pair cd 8, pair ac 8, pair ac, pair bd 7, pair bc, pair bd 5, pair ac, pair bc, pair bd 2, pair ac, pair bd, pair cd 2, pair bd, pair cd 2, pair ac, pair cd 1
+a<bc a>bd a>cd b>cd ad>bc    bc < ad < ac < ab            1675 score-Pareto-maximal states: free 1495, top 129, pair bc 24, pair ac 8, pair ac, pair ad 8, pair ac, pair bc 8, pair ad, pair bc 2, pair ac, pair ad, pair bc 1

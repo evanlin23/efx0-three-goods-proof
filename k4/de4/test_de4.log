@@ -1,0 +1,13 @@
+[1] DE on random admissible instances
+  ok    4000 runs (2234 with a four-good agent, 386 reaching the core), all complete, EFX0, of the shape; 11435 peels, 416 trades, at most 3 in one run
+  ok    3000 core runs (9027 four-good agents in all), all complete, EFX0, of the shape, within 5n trades
+[2] every valid state of random core instances (classc.py)
+  ok    7091 valid states: 480 chains, 37 with every agent holding its pair, 5315 finishable, 1259 rings, all valid and dominating; every score-Pareto-maximal state finishable (0 stuck)
+[3] the two implementations agree
+  ok    1500 final states of de4.py are valid in classc.py, with the same scores, and finishable there
+[4] each condition of (S) is needed by DE as it stands
+  ok    dropping b + d <= a: DE returns a non-EFX0 allocation, smallest found n = 3, m = 5: 0: 0:28 2:26 3:16 4:10; 1: 2:22 1:21 0:7 3:2; 2: 2:15 0:13 3:9; X = [[0], [2], [1, 3, 4]]; envious pairs [(1, 2)]
+  ok    dropping c + d <= b: DE returns a non-EFX0 allocation, smallest found n = 3, m = 5: 0: 0:16 4:12 3:11 2:2; 1: 3:28 0:18 1:15 4:5; 2: 0:25 4:18 3:17 1:6; X = [[0], [1, 2, 3], [4]]; envious pairs [(2, 1)]
+  ok    dropping a + d <= b + c: DE returns a non-EFX0 allocation, smallest found n = 2, m = 5: 0: 1:27 3:18 0:10 4:8; 1: 1:17 4:12 2:6 0:5; X = [[0, 1, 3], [2, 4]]; envious pairs [(1, 0)]
+
+ALL CHECKS PASSED

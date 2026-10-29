@@ -1,0 +1,72 @@
+instance: 0: 1:10 2:7 6:6; 1: 0:10 4:7 6:6; 2: 0:10 1:7 2:6 3:2; 3: 1:10 0:7 4:6 5:2
+state: x {A'}, x' {A}, z {C1, D1}, z' {C2, D2}  leftover {h}
+valid: True  free agents: []  chains: []
+owners that can finish (classc): []
+   blockers of x as owner: []
+   blockers of x' as owner: []
+   blockers of z as owner: [('x', '{C1, h}')]
+   blockers of z' as owner: [("x'", '{C2, h}')]
+classc: 22 valid states; stuck score-Pareto-maximal states: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+every ladder of the extended family containing {c, d} (states.py, liberal finishing):
+   cd < ab                      stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ac < ab                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < ab                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bc < ab                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ab                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < ac < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bc < ac < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ac < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bc < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bc < ab            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bc < ac < ab       stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < ac < ab       stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bc < ac < ab       stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bc < ab       stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bc < ac < ab  stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ac                      stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < ac                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bc < ac                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ac                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bc < ac            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < ac            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bc < ac            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bc < ac       stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bc                      stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bc                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bc                 stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bc            stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bcd                     stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bcd                stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bc < bcd                stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bcd                stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < ad < bc < bcd           stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bcd           stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < bc < bcd           stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+   cd < bd < ad < bc < bcd      stuck: ["{A'}, {A}, {C1, D1}, {C2, D2}"]
+EFX0 allocations: 26
+   in which z keeps C1, D1 and z' keeps C2, D2: 0
+   in which z or z' is worth less to itself than {c, d} (8): 8 of 26
+   in which some agent is worth less to itself than in the stuck state [10, 10, 8, 8]: 26 of 26
+      x {A'}, x' {A}, z {C1, D1, D2}, z' {C2, h}   values [10, 10, 8, 6]
+      x {A'}, x' {A}, z {C1, h}, z' {D1, C2, D2}   values [10, 10, 6, 8]
+      x {C1, D2, h}, x' {A}, z {A'}, z' {D1, C2}   values [13, 10, 7, 6]
+      x {C1, h}, x' {A}, z {A'}, z' {D1, C2, D2}   values [13, 10, 7, 8]
+      x {C1, D1, D2, h}, x' {C2}, z {A}, z' {A'}   values [13, 7, 10, 10]
+      x {C1, D1, D2}, x' {C2, h}, z {A}, z' {A'}   values [7, 13, 10, 10]
+the gadget on the tall ladders not refuted (values of x, x' = 4, 3, 2; z, z' = the type's values):
+   a<bc a<bd a>cd b>cd ad<bc    bd < bc < ab                   stuck: 0  
+   a<bc a<bd a<cd b<cd ad<bc    cd < bd < bc < ac < ab         stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a<cd b<cd ad<bc    cd < bd < ad < bc < ac < ab    stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a<cd b<cd ad>bc    cd < bd < bc < ad < ac < ab    stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a>cd b>cd ad<bc    bd < bc < ac < ab              stuck: 0  
+   a<bc a<bd a>cd b>cd ad<bc    cd < bd < bc < ab              stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a>cd b>cd ad<bc    bd < ad < bc < ac < ab         stuck: 0  
+   a<bc a<bd a>cd b>cd ad<bc    cd < bd < bc < ac < ab         stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a>cd b>cd ad<bc    cd < bd < ad < bc < ac < ab    stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a<bd a>cd b>cd ad>bc    bd < bc < ad < ac < ab         stuck: 0  
+   a<bc a<bd a>cd b>cd ad>bc    cd < bd < bc < ad < ac < ab    stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a>bd a>cd b>cd ad>bc    bc < ad < ac < ab              stuck: 0  
+   a<bc a>bd a>cd b>cd ad>bc    bd < bc < ad < ac < ab         stuck: 0  
+   a<bc a>bd a>cd b>cd ad>bc    cd < bc < ad < ac < ab         stuck: 0  gadget state valid, dominated by 2 valid states
+   a<bc a>bd a>cd b>cd ad>bc    cd < bd < bc < ad < ac < ab    stuck: 0  gadget state valid, dominated by 2 valid states

@@ -29,3 +29,15 @@ jobs:
           python-version: "3.12"
       - name: Every example and number of the paper, the exhaustive checks and DE on random instances
         run: python paper/k3-simple/examples/check_examples.py
+  k4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Four relevant goods (k4/de4) - tests of Theorem 1, and the barrier certificates re-checked
+        run: |
+          python k4/de4/test_de4.py
+          python k4/de4/check_barrier.py

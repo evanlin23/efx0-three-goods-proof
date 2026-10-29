@@ -1,0 +1,38 @@
+ladder T       instances 300  every-form fails 16  some-form fails 1
+   every-form failure: n=4 m=8  0: 4:29 7:27 0:19 6:7; 1: 1:29 5:22 4:19 0:14; 2: 4:28 6:20 2:13; 3: 1:14 4:11 6:9 5:7
+      stuck Pareto-maximal state: [[0, 7], [1], [2, 6], [4]]
+      EFX0 allocations exist: True
+   every-form failure: n=3 m=7  0: 4:12 5:10 1:8 2:7; 1: 4:28 3:26 0:19; 2: 6:13 0:9 5:8 4:3
+      stuck Pareto-maximal state: [[4], [3], [0, 5]]
+      EFX0 allocations exist: True
+   every-form failure: n=3 m=6  0: 1:26 0:18 5:14 3:9; 1: 1:30 2:26 5:21 4:1; 2: 4:29 2:21 1:17 5:11
+      stuck Pareto-maximal state: [[1], [2], [4, 5]]
+      EFX0 allocations exist: True
+   some-form failure: n=3 m=6  0: 1:21 3:14 2:6 5:2; 1: 3:27 5:24 1:20 4:18; 2: 1:29 3:24 5:21 4:19
+      EFX0 allocations exist: True
+ladder triple  instances 300  every-form fails 53  some-form fails 3
+   every-form failure: n=4 m=8  0: 4:29 7:27 0:19 6:7; 1: 1:29 5:22 4:19 0:14; 2: 4:28 6:20 2:13; 3: 1:14 4:11 6:9 5:7
+      stuck Pareto-maximal state: [[7], [1], [2, 6], [4]]
+      EFX0 allocations exist: True
+   every-form failure: n=3 m=6  0: 1:30 3:24 4:20 5:18; 1: 0:29 2:26 5:25 4:17; 2: 1:24 2:23 5:20 4:15
+      stuck Pareto-maximal state: [[1], [0], [2, 4, 5]]
+      EFX0 allocations exist: True
+   every-form failure: n=3 m=7  0: 2:18 4:13 0:12 6:10; 1: 3:24 1:21 0:20 6:9; 2: 2:22 5:20 1:15
+      stuck Pareto-maximal state: [[0, 4, 6], [3], [1, 5]]
+      EFX0 allocations exist: True
+   some-form failure: n=3 m=6  0: 1:30 3:24 4:20 5:18; 1: 0:29 2:26 5:25 4:17; 2: 1:24 2:23 5:20 4:15
+      EFX0 allocations exist: True
+   some-form failure: n=2 m=6  0: 4:29 2:22 3:11 1:3; 1: 4:24 3:17 1:13 2:1
+      EFX0 allocations exist: True
+   some-form failure: n=3 m=6  0: 1:21 3:14 2:6 5:2; 1: 3:27 5:24 1:20 4:18; 2: 1:29 3:24 5:21 4:19
+      EFX0 allocations exist: True
+ladder pairs   instances 300  every-form fails 70  some-form fails 0
+   every-form failure: n=4 m=7  0: 2:29 5:24 6:17 3:9; 1: 6:23 0:22 1:17; 2: 6:17 5:15 4:8; 3: 2:30 4:28 0:10 3:3
+      stuck Pareto-maximal state: [[3, 6], [0, 1], [4, 5], [2]]
+      EFX0 allocations exist: True
+   every-form failure: n=4 m=8  0: 0:30 5:18 7:7 1:6; 1: 2:29 1:19 0:16 5:5; 2: 7:20 1:19 6:11 5:4; 3: 2:30 7:18 4:15 6:4
+      stuck Pareto-maximal state: [[0, 1], [2], [5, 7], [4, 6]]
+      EFX0 allocations exist: True
+   every-form failure: n=3 m=7  0: 4:12 5:10 1:8 2:7; 1: 4:28 3:26 0:19; 2: 6:13 0:9 5:8 4:3
+      stuck Pareto-maximal state: [[1, 5], [0, 3], [4, 6]]
+      EFX0 allocations exist: True

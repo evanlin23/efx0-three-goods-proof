@@ -1,0 +1,47 @@
+all 969 certificates verified (967 with liberal finishing, 2 with DE's own finishing)
+natural family (intermediate rungs not envy-free, top an envy-free pair):
+   a<bc a<bd a<cd b<cd ad<bc      refuted  24   unrefuted   0 
+   a<bc a<bd a<cd b<cd ad>bc      refuted  24   unrefuted   0 
+   a<bc a<bd a>cd b<cd ad<bc      refuted  24   unrefuted   0 
+   a<bc a<bd a>cd b<cd ad>bc      refuted  24   unrefuted   0 
+   a<bc a<bd a>cd b>cd ad<bc      refuted  24   unrefuted   0 
+   a<bc a<bd a>cd b>cd ad>bc      refuted  24   unrefuted   0 
+   a<bc a>bd a>cd b<cd ad<bc      refuted  24   unrefuted   0 
+   a<bc a>bd a>cd b<cd ad>bc      refuted  24   unrefuted   0 
+   a<bc a>bd a>cd b>cd ad<bc      refuted  20   unrefuted   4 (small-d)
+   a<bc a>bd a>cd b>cd ad>bc      refuted  24   unrefuted   0 
+   a>bc a>bd a>cd b<cd ad>bc      refuted  24   unrefuted   0 
+   a>bc a>bd a>cd b>cd ad>bc      refuted  24   unrefuted   0 
+extended family (any pairs below the top; top an envy-free pair or {b, c, d}):
+   a<bc a<bd a<cd b<cd ad<bc      refuted 118   unrefuted   2 
+   a<bc a<bd a<cd b<cd ad>bc      refuted 119   unrefuted   1 
+   a<bc a<bd a>cd b<cd ad<bc      refuted  88   unrefuted   0 
+   a<bc a<bd a>cd b<cd ad>bc      refuted  88   unrefuted   0 
+   a<bc a<bd a>cd b>cd ad<bc      refuted  82   unrefuted   6 
+   a<bc a<bd a>cd b>cd ad>bc      refuted  84   unrefuted   4 
+   a<bc a>bd a>cd b<cd ad<bc      refuted  72   unrefuted   0 
+   a<bc a>bd a>cd b<cd ad>bc      refuted  72   unrefuted   0 
+   a<bc a>bd a>cd b>cd ad<bc      refuted  48   unrefuted  24 (small-d)
+   a<bc a>bd a>cd b>cd ad>bc      refuted  68   unrefuted   4 
+   a>bc a>bd a>cd b<cd ad>bc      refuted  64   unrefuted   0 
+   a>bc a>bd a>cd b>cd ad>bc      refuted  64   unrefuted   0 
+not refuted (liberal finishing), types other than small-d:
+   a<bc a<bd a<cd b<cd ad<bc      cd < bd < ad < bc < ac < ab      not refuted with DE's own finishing either
+   a<bc a<bd a<cd b<cd ad<bc      cd < bd < bc < ac < ab           not refuted with DE's own finishing either
+   a<bc a<bd a<cd b<cd ad>bc      cd < bd < bc < ad < ac < ab      not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      bd < ad < bc < ac < ab           not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      bd < bc < ab                     not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      bd < bc < ac < ab                not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      cd < bd < ad < bc < ac < ab      not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      cd < bd < bc < ab                not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad<bc      cd < bd < bc < ac < ab           not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad>bc      bd < bc < ad < ac                refuted with DE's own finishing (absorber certificate)
+   a<bc a<bd a>cd b>cd ad>bc      bd < bc < ad < ac < ab           not refuted with DE's own finishing either
+   a<bc a<bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac           refuted with DE's own finishing (absorber certificate)
+   a<bc a<bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac < ab      not refuted with DE's own finishing either
+   a<bc a>bd a>cd b>cd ad>bc      bc < ad < ac < ab                not refuted with DE's own finishing either
+   a<bc a>bd a>cd b>cd ad>bc      bd < bc < ad < ac < ab           not refuted with DE's own finishing either
+   a<bc a>bd a>cd b>cd ad>bc      cd < bc < ad < ac < ab           not refuted with DE's own finishing either
+   a<bc a>bd a>cd b>cd ad>bc      cd < bd < bc < ad < ac < ab      not refuted with DE's own finishing either
+value-monotone obstruction (every EFX0 allocation lowers some agent below the stuck state):
+   175 of the 969 certificates with at most 200,000 allocations (0 larger ones not listed)
