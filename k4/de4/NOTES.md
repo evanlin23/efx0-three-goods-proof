@@ -25,6 +25,15 @@ clean algorithm in the style of Draft and Exchange (DE), with a proof.
   lexicographically maximal valid state of the threat ladder can be finished. It holds on everything tried, including
   every adversarial label-collision gadget, where the improving move demotes one agent inside a ring. Proving E_lex,
   or finding moves that reach its maximal states, is the open target.
+- **A second proof attempt, with cheap demotions** (§9). A busy big-top blocker drops from a to b, which needs at most
+  one leftover good. That restores DE's counting, at the price of a score potential instead of Pareto moves.
+  - For *class D′*, an algorithm of DE's shape: Draft–Exchange–Demote. The class is three-good agents,
+    small-d agents, and big-top agents with c + d ≤ b, on the threat ladder.
+  - Its proof is written except for one step: rings of total gain 0 that also leave a secondary potential Ψ
+    unchanged, apart from a case that is proved.
+  - It has no failure on 22,930 valid states that cannot be finished.
+  - A priority version for class D has no failure either, but its last step is a search.
+  - For general four-good agents, maximum total score is not enough (suite instance gm4-B), so the target stays E_lex.
 - **DER as specified** (§5–§6) still returns EFX₀ allocations on all 159 instances of the research repository's
   k = 4 counterexample suite and on all random instances tried. It fails on the gadgets of §7.2.
 - **Theorem 1** (§2, written proof, not machine-checked, not refereed): the paper's theorem and algorithm extend
@@ -546,8 +555,163 @@ Open, in order of usefulness:
   reaching priority-maximal states would give the algorithm.
 - **A smaller target:** the (NQ) agents without type 12. Every pair arrow there needs at most one leftover good, and
   Lemmas 1–8 of §7.1 leave only the counting of leftover goods along the walk open.
+- **Demotions as arcs (§9).** The total score is a potential that tolerates a demotion. For class D′ it gives a
+  DE-shaped algorithm with one open step in its proof. For general four-good agents the total score fails (gm4-B), so
+  demotions have to be governed by priority.
 
-## 9. Files and how to reproduce
+## 9. A second proof attempt: cheap demotions
+
+§7.2 located the failure: a big-top blocker's full move needs two leftover goods, and DE's counting of labels works
+only with one. This section tries the move that E_lex uses in §7.3, a **demotion**, as a regular arc. It gives an
+algorithm of DE's shape for one class of agents, whose correctness proof has exactly one open step.
+
+### 9.1 The cheap demotion
+
+Let o be free and x a busy blocker of type T (big-top with c + d ≤ b), so that Y_x = {a_x}, P_x = {b_x, c_x, d_x} ⊆
+J ∪ Y_o, and someone wants a_x. Instead of taking P_x (score +1, label P_x ∖ Y_o: two leftover goods), x drops to
+b_x: score −1, label {b_x} ∩ J, at most **one** leftover good, and none if b_x = y_o. The good a_x goes on along a want
+arc as before.
+
+Each cheap label is contained in the full label of the same blocker. A free agent that cannot finish has no hitting set
+of size |F| − 1 for its full labels. So any set of at most |F| − 1 used goods misses one of its full labels entirely,
+and with it the cheap label. DE's counting therefore works again: a walk that leaves every free agent by a cheap arc
+with a fresh label never gets stuck. The price is that rings are no longer Pareto improvements, so the potential
+becomes the **total score**.
+
+On `collision12` the priority ring of §7.3 is of this kind: x1 takes {y1, h1, h2} (+1), o2 takes A1 (+2), x4 drops
+from A4 to its b, y2 (−1), and o1 takes A4 (+1). Total +3.
+
+### 9.2 Class D with priority (`pde_proof.py`)
+
+**Class D:** every core agent is a three-good agent, a small-d agent (type 9: b + d ≤ a < b + c, c + d ≤ b,
+a + d ≤ b + c), or a type-T agent (b + c ≤ a < b + c + d, c + d ≤ b). The ladder is nothing < d < c < b < a < P, with
+P = {b, c} for the first two kinds and {b, c, d} for type T. Only a holder of a is ever threatened, by a set containing
+P.
+
+The candidate **Priority Improvement Lemma**: for every order, a valid state that no free agent can finish has a chain,
+a grab, or a ring of want arcs, full arcs and demoted arcs. The ring's labels must be pairwise disjoint, and its
+highest-priority agent must improve. It would show that for every order the priority-maximal valid state of this
+ladder can be finished, and with it EFX₀ existence for class D.
+
+`improve_pde` constructs such a move in five steps:
+1. chain;
+2. grab;
+3. a want ring, if no agent is free;
+4. a cycle of a demoted system of distinct labels whose top agent is entered by a want arc;
+5. the **PDE-3** ring: try the blockers x in priority order as the one full arc o_x → x, and search for a path back to
+   o_x along want arcs and demoted arcs into blockers of lower priority than x, with all labels disjoint.
+
+It never failed (`pde_proof.log`: 1,500 instances, every valid state that cannot be finished, 4 orders each, 11,832
+cases). Two simpler versions fail:
+- PDE-1, a demoted system of distinct labels with at most one upgraded arc, fails in 120 cases. In 119 the upgrade's
+  label collides; in 1 the upgrade is not valid.
+- PDE-2, which uses only the highest-priority blocker as the full arc, fails in 187.
+
+Step 5 is a search, so this is evidence, not a proof.
+
+### 9.3 Class D′ and E_sum (`sum_proof.py`)
+
+**Class D′** has the same agents, but type T uses its threat ladder (§5):
+nothing < d < c < b < a < {b, c, d} < {a, d} < {a, c} < {a, b}. Three-good and small-d agents keep the class-D ladder.
+In every case only a holder of a is threatened, by a set containing P, and b lies in P.
+
+**E_sum (conjecture for class D′):** every valid state of maximum total score can be finished. Finishing is DE's: a
+free agent o and a set H ⊆ J that meets P_x ∩ J for every blocker x of o, with |H| ≤ |F| − 1.
+
+The algorithm, Draft–Exchange–Demote, starts from the draft and applies improving moves until some free agent can
+finish. Every move raises the total score, which is at most 8n, so there are at most 8n moves, each polynomial.
+`improve` returns the move and asserts every claim of the proof below.
+
+**Proved (written arguments; class D′, strict values):**
+1. *Soundness.* Lemma 1 of §7.1: in class D′ the blockers are exactly the holders of a with P ⊆ Y_o ∪ J. If every
+   agent holds two or more goods, any agent can take J.
+2. *Grabs and chains are valid* (Lemmas 2 and 3). In particular (NC): no holder of its a has P ⊆ J.
+3. *No free agent ⇒ ring of want arcs.* Every rung of two or more goods lies above a, so its holder wants nothing.
+   Lemma 8's argument applies.
+4. *No free type-T blocker.* A free T agent x with P_x ⊆ Y_o ∪ J has a good g ∈ P_x ∩ J by (NC). It could grab
+   {a_x, g}, which is a rung of its ladder. The grab is valid: a pair threatens only by a single good, and neither a_x
+   nor g is wanted. So, when no grab applies, every blocker is a busy T agent or a three-good or small-d agent.
+5. *Free agents.* Each free agent holds a good and has a blocker; otherwise it finishes.
+6. *Arcs.* The arcs out of a free agent o are:
+   - demoted arcs, into its busy T blockers (−1, label {b_x} ∩ J);
+   - full arcs, into its three-good and small-d blockers (+1). By (NC) their pair is y_o plus one leftover good, which
+     is the label.
+
+   Every label has at most one good. Out of a busy agent: a want arc to its best wanter (gain ≥ 1).
+7. *Counting.* The walk never gets stuck (§9.1).
+8. *Cheap rings are valid.* No new triple appears. A demoted T agent at b wants only a_x, which its wanter now holds
+   alone. Two of its lower goods are worth at most c + d ≤ b. Pairs threaten only by single goods. Lemma 2 handles the
+   rest.
+9. *Gain.* Every demoted arc is followed by a want arc, so a cheap ring has gain at least the number of full arcs, so
+   at least 0. The gain is 0 only for an **exact alternation**:
+   o_1 → x_1 → o_2 → x_2 → … → o_r → x_r → o_1. Each x_i is a demoted busy T blocker of o_i, and o_{i+1} is free and
+   receives a_{x_i}, exactly one rung above its holding.
+10. *Upgrades.* In an exact alternation, let x take its full triple P_x instead of b_x (gain +2). The result is valid
+    unless some three-good or small-d agent z off the ring holds a_z with P_z ⊆ P_x.
+
+    *Proof.* Only the new triple P_x needs checking, because the rest is item 8. Nobody wants a good of P_x, since
+    they are leftover or y_o. Take an agent z ≠ x:
+    - *z holds two or more goods, or nothing.* Then z is never threatened, or has no good in P_x.
+    - *z holds a single y, off the ring.* Then z ranks its goods in P_x below y. Two of them exceed y only if y = a_z
+      and they are z's pair: a three-good or small-d z with P_z ⊆ P_x. A T agent at a values any two of b, c, d at
+      most b + c ≤ a.
+    - *z is a demoted agent at b.* It is threatened only by a bundle containing its a, which is held alone, or by its
+      c and d, worth c + d ≤ b.
+    - *z is a free agent other than o on the ring.* Its goods in P_x lie below its old holding, which is b or c
+      (z moves up by one single). So two of them are worth at most c + d ≤ b.
+    - *z = o.* Then o moves up one single: from b_o to a_o, from c_o to b_o, or from d_o to c_o. Its goods in P_x
+      are y_o and goods below it.
+      - From b to a is safe for type T, since b + c ≤ a. For a three-good or small-d o, {b_o, c_o} ⊆ P_x ⊆ Y_o ∪ J
+        would give o a grab of its pair.
+      - From c or d up is safe, since c + d ≤ b.
+    The upgrade also needs P_x ∩ J to avoid the other labels on the ring. ∎
+
+**Open: the exact-alternation step.** It remains to show that when every cheap ring has gain 0, some move still raises
+the total score. The two moves that `improve` tries are:
+- an upgrade with a free label (10);
+- a *demotion chain*: a busy holder of a whose b is leftover drops to b, and its a goes down the want chain, with
+  positive total gain.
+
+In `sum_proof.log` (6,000 instances, a quarter each from four families: random, the collision pattern, mostly type-T
+agents with shared tops, and an adversarial gadget whose two upgrades collide), 22,930 valid states cannot be
+finished. In 134 of them every cheap ring has gain 0. An upgrade (30) or a demotion chain (104) always exists, and
+there is no failure.
+
+A secondary potential narrows the gap. Let Ψ be the number of type-T agents that do not hold exactly their a. Under
+the pair (total score, Ψ), an exact alternation that raises Ψ is itself an improving move. It leaves Ψ unchanged only
+if every o_{i+1} is a type-T agent at b_{o_{i+1}} and receives its **own** top from x_i. A ring that raises Ψ exists in
+125 of the 134 states.
+
+In the 9 states where no ring raises Ψ, every cheap ring is a "Ψ-flat" alternation of length r = 1, and there is a
+single free agent. With r = 1 no label can collide, so only the agent z of (10) can block the upgrade. For r = 1 and
+|F| = 1 that is impossible:
+- z is not free, since o is the only free agent;
+- so z is busy. Follow, from z, the agents that want the current good. None of them is o, which wants only a_x, and
+  none is x, which holds its top and wants nothing. So the walk closes a ring of want arcs among busy agents, which has
+  positive gain.
+
+So under (total score, Ψ), every one of the 134 states is handled by a written argument. What is missing is the
+general Ψ-flat alternation, of length r ≥ 2 or with |F| ≥ 2. Targeted searches for it (80,000 gadgets with four type-T
+agents in two crossed pairs that share tops, plus extra blockers and wanters; the scripts are not kept) produced no
+state in which every cheap ring has gain 0.
+
+**General four-good agents: E_sum is false.** On the suite instance gm4-B (n = 4, m = 7), all four agents are of
+Q-types (b < c + d < a). It has 25 valid states on the threat ladder, 4 of them of maximum total score. One of these,
+with holdings {0, 2}, {1, 4}, {6}, {5}, cannot be finished even by the exhaustive finishing of `lex.py`. E_lex holds
+on gm4-B for every order. So beyond class D′ the total score is the wrong potential, and priority (§5, §9.2) is
+needed.
+
+### 9.4 Where this leaves the problem
+
+- **Class D′:** an algorithm of DE's shape, Draft–Exchange–Demote. With the potential (total score, Ψ), its proof is
+  written except for one concrete combinatorial step (§9.3): the exact alternations that leave Ψ unchanged, other than
+  those of length 1 with a single free agent. Nothing in the data contradicts that step.
+- **Class D:** a priority version with the same arcs, PDE-3, with no failure on the data, but its last step is a
+  search.
+- **All four-good agents:** E_sum fails (gm4-B), so the goal remains E_lex. §9.2 suggests what its moves look like:
+  rings of want arcs, full arcs and demotions of lower-priority blockers.
+
+## 10. Files and how to reproduce
 
 Python 3, no packages. Each script prints a summary; the logs are copies of its output.
 
@@ -574,6 +738,8 @@ Python 3, no packages. Each script prints a summary; the logs are copies of its 
 | `der_run.py` | DER end to end, random instances up to n = 12 and the whole suite (`der_run.log`) |
 | `nq_proof.py` | the proof attempt of §7 as code (Lemmas 5–8 asserted; the walk), and the finite check of Lemma 5 (`nq_proof.log`) |
 | `gadgets.py` | the counterexample `collision12` of §7.2, its random variants, and E_lex on them (`gadgets.log`) |
+| `pde_proof.py` | §9.2: class D with priority, the construction PDE-3 with every step asserted, and the variants PDE-1 and PDE-2 (`pde_proof.log`) |
+| `sum_proof.py` | §9.3: class D′, Draft–Exchange–Demote's improvement step with every claim asserted, and the Ψ classification (`sum_proof.log`) |
 
     cd k4/de4
     python3 test_de4.py          # Theorem 1 and §3; exit status 0 iff all checks pass
@@ -585,6 +751,8 @@ Python 3, no packages. Each script prints a summary; the logs are copies of its 
     python3 der_run.py 1 SUITE   # DER end to end (§6)
     python3 nq_proof.py          # §7.1: the finite check of Lemma 5, and the proof attempt on random (NQ) instances
     python3 gadgets.py           # §7.2-7.3: DER fails on collision12 and on variants; E_lex holds on all of them
+    python3 pde_proof.py 1500 1 --variants   # §9.2 (a few minutes)
+    python3 sum_proof.py 6000 1              # §9.3 (about five minutes)
 
 The suite argument is optional; without it, the scripts skip that part.
 

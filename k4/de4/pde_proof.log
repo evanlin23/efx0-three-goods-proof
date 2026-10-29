@@ -1,0 +1,23 @@
+PDE-3 (the construction): chain, grab, want ring, demoted ring, PDE-3 ring
+    PDE-3 ring                                         775
+    chain                                              2528
+    demoted ring                                       1273
+    grab                                               348
+    want ring                                          6908
+PDE-1: demoted SDR, at most one upgraded arc
+    FAIL: no cycle works: full upgrade not valid       1
+    FAIL: no cycle works: full upgrade: label conflict 119
+    chain                                              632
+    demoted ring                                       8181
+    grab                                               87
+    ring with one full arc                             655
+    example, no cycle works: full upgrade: label conflict: ('0: 0:28 7:20 4:7 6:4; 1: 1:38 9:27 4:11 8:5; 2: 2:33 8:25 6:8 5:6; 3: 3:34 9:21 5:12 7:6; 4: 2:35 3:27 4:9; 5: 0:29 1:23 5:13', (0, 1, 2, 3, 4, 5), [[0], [1], [2], [3], [4], [5]])
+    example, no cycle works: full upgrade not valid: ('0: 2:37 3:20 5:17 0:1; 1: 0:39 3:35 5:16; 2: 1:32 5:23 4:8 3:7; 3: 1:33 2:23 0:10 5:6', (0, 1, 2, 3), [[2], [0], [1], [5]])
+PDE-2: only the highest-priority blocker as the full arc
+    FAIL: no valid path from x* back to o*             187
+    PDE-2 ring                                         1861
+    chain                                              632
+    grab                                               87
+    want ring (no free agent)                          1727
+    example, no valid path from x* back to o*: ('0: 0:29 6:23 7:5 4:2; 1: 1:12 8:7 4:4 9:3; 2: 2:30 5:17 6:9 8:6; 3: 3:28 7:20 9:8 5:7; 4: 2:33 3:26 4:22; 5: 0:34 1:29 5:9', (2, 3, 5, 0, 1, 4), [[0], [1], [2], [3], [4], [5]])
+exit 0

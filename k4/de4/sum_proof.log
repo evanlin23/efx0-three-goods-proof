@@ -1,0 +1,12 @@
+instances, alternation gadget                                  1500
+instances, collision                                           1500
+instances, random                                              1500
+instances, shared tops                                         1500
+step: cheap ring                                               4292
+step: demotion chain                                           104
+step: exact alternation, one arc upgraded                      30
+step: grab                                                     14462
+step: want ring                                                4042
+  (every cheap ring has gain 0; one raises Psi: no)            9
+  (every cheap ring has gain 0; one raises Psi: yes)           125
+exit 0

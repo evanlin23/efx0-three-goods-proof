@@ -52,3 +52,7 @@ jobs:
         run: |
           python k4/de4/nq_proof.py 300 1
           python k4/de4/gadgets.py 3 2
+      - name: Four relevant goods (k4/de4) - cheap demotions, class D with priority and class D' with the total score
+        run: |
+          python k4/de4/pde_proof.py 600 1
+          python k4/de4/sum_proof.py 400 1
