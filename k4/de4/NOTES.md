@@ -1,30 +1,43 @@
-# Four relevant goods: how far Draft and Exchange extends
+# Four relevant goods: Draft and Exchange, and a candidate algorithm DER
 
 Folder `k4/de4/`. An attempt at the first open problem of the paper (`paper/k3-simple/main.tex`, Section 6): does every
-instance in which each agent positively values at most four goods have a complete EFX₀ allocation?
+instance in which each agent positively values at most four goods have a complete EFX₀ allocation? The goal is a
+clean algorithm in the style of Draft and Exchange (DE).
 
-**Status.** The open problem is **not** solved here. What is here:
+**Status.** The open problem is **not** solved: nothing below is a proof for all k = 4 instances. What is here:
 
-- **Theorem 1** (§2, written proof, not machine-checked, not refereed): the paper's theorem and algorithm extend to
-  agents with four relevant goods whose least good is small:
+- **DER, a candidate algorithm for every instance with at most four relevant goods** (§5–§6, evidence only, no proof).
+  It is DE on a different ladder of holdings:
+  - the **threat ladder**: singles, pairs with the top good, and the *threat sets* of the singles (k = 3's pair {b, c}
+    is the threat set of a);
+  - a validity condition that also asks the holdings to be a partial EFX₀ allocation;
+  - DE's finishing rule, with any agent whose holding contains no wanted good as possible owner;
+  - three moves: *grab* (DE's chain, generalized), *ring* (DE's rings, with general upgrade arrows) and, at a dead
+    end, one *release*.
+
+  It returned an EFX₀ allocation on every instance tried. That includes every instance of the research repository's
+  k = 4 counterexample suite (159 instances, up to n = 26, m = 65, among them the chains H_t that defeat LB₄ʳ). From
+  every valid state of about 2,400 test instances, about 32,000 states, its next step is correct. Two extremal
+  statements behind it hold on all data:
+  - **E_lex**: for every priority order of the agents, the lexicographically maximal valid state can be finished;
+  - **E_DER**: every score-Pareto-maximal valid state can be finished, or can be after one agent steps down.
+- **Theorem 1** (§2, written proof, not machine-checked, not refereed): the paper's theorem and algorithm extend
+  unchanged to agents with four relevant goods whose least good is small:
   v(d) ≤ min{v(a) − v(b), v(b) − v(c), v(b) + v(c) − v(a)}. The algorithm is DE with a fifth rung. Only the soundness
-  proof needs new cases. Tested by two implementations (§6).
+  proof needs new cases. Tested by two implementations (§2).
 - **Sharpness for DE** (§3, examples): each of the three inequalities is needed. Dropping any one, DE as it stands
   returns allocations that are not EFX₀.
-- **A barrier for the method** (§4, computation, certificates re-checked by an independent checker). DE's proof needs
-  every score-Pareto-maximal valid state to be finishable. Four-good agents fall into twelve strict order types. For
-  each of the eleven types other than the small-d type, and each of the 24 natural ladders of holdings, an instance
-  breaks this, even when finishing is made as liberal as DE's shape allows. In a wider family of ladders, a few
-  combinations with tall ladders are not refuted by our searches (§4.2).
-- **An obstruction to value-monotone methods** (§4.3): a valid state with n = 4, m = 7 (every wanted good is held
-  alone, and no chain or owner applies) in which **every** EFX₀ allocation gives some agent strictly less value than
-  this state does. So no argument of the form "every stuck valid state can be improved, without lowering any agent's
-  value, until an EFX₀ allocation is reached" holds; this is true for any ladder or potential. The research repository
-  ([evanlin23/efx0-three-goods](https://github.com/evanlin23/efx0-three-goods), `k4/`, `attempts/k4-*.md`) reports the
-  same phenomenon for its own spaces ("the repair lowers w′"). This is a small, explicit instance of it in DE's terms.
+- **A barrier for DE's own proof** (§4, computation, certificates re-checked by an independent checker). DE's proof
+  needs every score-Pareto-maximal valid state to be finishable. Four-good agents fall into twelve strict order types.
+  For each of the eleven types other than the small-d type, and each of the 24 natural ladders of holdings, an instance
+  breaks this, even with liberal finishing. Each of the 969 stuck states is a dead end: no EFX₀ allocation contains
+  its holdings. This is what forces DER's two departures from DE: the priority view and the release move.
+- **An obstruction to value-monotone methods** (§4.3): a valid state with n = 4, m = 7 in which **every** EFX₀
+  allocation gives some agent strictly less value than the state does. DER passes it with one release. The research
+  repository ([evanlin23/efx0-three-goods](https://github.com/evanlin23/efx0-three-goods), `k4/`, `attempts/k4-*.md`)
+  reports the same phenomenon for its own spaces ("the repair lowers w′").
 
-Everything below is about the *method*. EFX₀ allocations exist on every instance used here; the checker verifies this
-by exhaustive search.
+EFX₀ allocations exist on every instance used here; the checker verifies this by exhaustive search.
 
 ## 1. Four-good agents
 
@@ -259,22 +272,137 @@ How common is this among the certificates of §4.2? Among those small enough to 
 below its value in the stuck state. In the others, some EFX₀ allocation lowers nobody, but it lies outside DE's shape
 or the ladder, for example with a holding that is not a rung or with two bundles of three goods.
 
-## 5. What this suggests
+## 5. Beyond the barrier: priority and the threat ladder
+
+Two observations about the dead ends of §4 lead to a different extremal principle.
+
+**Every certificate is a dead end.** For each of the 969 stuck states, no EFX₀ allocation gives every agent a superset
+of its holding (checked by listing all allocations). So the trouble is not DE's finishing shape. These states must not
+be reached, or must be left by lowering some agent.
+
+**Priority instead of Pareto.** In the smallest dead ends, every EFX₀ allocation gives one agent an envy-free pair such
+as {a, b} and lowers the other. That is the move of a *priority* potential: fix an order π of the agents and compare
+score vectors lexicographically in that order, as serial dictatorship does. Earlier agents may then improve at the
+expense of later ones.
+
+**The threat ladder.** A *threat set* of a single holding y is a set S of goods ranked below y with v(S) > v(y). It is
+what can threaten a holder of y in the owner's bundle. In DE the only one is {b, c}, the threat set of a, and it is
+the pair. The threat ladder gives each agent:
+- three goods: nothing < c < b < a < {b, c}, the paper's ladder;
+- four goods: nothing, the four singles, the pairs {a, b}, {a, c}, {a, d}, and the minimal threat sets of the
+  singles, ordered by value. These are the pairs among {b, c, d} worth more than a; {c, d} if worth more than b; and
+  {b, c, d} for a big-top agent (a > b + c), for whom no pair among {b, c, d} beats a.
+
+For each of the twelve types, the minimal threat sets of every rung are again rungs, higher up (`python3 lex.py`
+prints the ladders and checks this; `lex.log`). So DE's principle "a threatened agent can move up to its threat set" holds
+for every type. Pairs worth less than a that are not threat sets are left out on purpose. For example, the small-d
+agent's {b, d} spends two goods without making the agent safe, and including it breaks the next statement (suite
+instance gm4-A).
+
+**Validity** gets one more condition, because the triple of a big-top agent is a bundle of three goods:
+- (V1) every wanted good is the whole holding of some agent, as in DE;
+- (V2) the holdings form a partial EFX₀ allocation. For pairs, (V2) follows from (V1).
+
+> **E_lex** (conjecture). For every core instance with at most four relevant goods per agent (strict values) and every
+> order π of the agents, the π-maximal valid state of the threat ladder can be finished. The owner is an agent whose
+> holding contains no wanted good; the goods of H go to different free agents.
+
+Evidence (`lex_test.py`, `lex_test.log` and `lex_test_scale10.log`):
+- 36,000 random instances with every four-good agent of one type, 3,000 per type;
+- 40,000 random instances with all types mixed;
+- every priority order for n ≤ 4, six orders for n = 5;
+- the 155 instances of the research repository's suite whose core has at most 6 agents;
+- the 969 certificates of §4 and the collision example.
+
+No failure. With all pairs as rungs, the statement fails (gm4-A); with only the pairs worth more than a, it fails at
+n = 3; and with the triple for every four-good agent, also at n = 3.
+
+> **E_DER** (conjecture). Every score-Pareto-maximal valid state of the threat ladder can be finished, or can be after
+> one agent moves to a lower rung (a *release*).
+
+Evidence (`der_test.py`, `der_test.log`): 22,903 score-Pareto-maximal states. 22,842 can be finished directly; the
+other 61 come from the suite and the certificates, and each needs one release. In the collision example, z drops d and
+holds {C1}: it becomes free and can absorb the leftover good h.
+
+## 6. DER: Draft, Exchange, Release
+
+`der.py` (one step), `der_run.py` (the algorithm), `der_check.py` (every step on every valid state).
+
+**Objects.** States on the threat ladder, valid by (V1) and (V2):
+- *wants* and *free agents* are DE's;
+- an *owner* is any agent whose holding contains no wanted good;
+- a *threat set* of agent x is a minimal set T of x's unwanted goods outside its holding, with v_x(T) > v_x(holding);
+- a *blocker* of an owner o is a pair (x, T) with T a threat set of x lying inside J ∪ Y_o.
+
+Owner o *can finish* if some H ⊆ J meets every blocker's T outside Y_o (so no T lies inside Y_o) and
+|H| ≤ |F ∖ {o}|. The completion is DE's: o gets Y_o ∪ (J ∖ H), and each good of H goes to a different free agent.
+
+**Soundness (proof sketch).** Every good in a bundle of two or more goods is unwanted, by (V1). Holdings of two or
+more goods do not threaten anyone, by (V2). A free agent's new pair consists of two unwanted goods. For the owner's
+bundle X_o: an agent x threatened by X_o has v_x(X_o ∩ R_x) > v_x(Y_x), and X_o ∩ R_x consists of unwanted goods,
+so it contains a threat set of x. That set lies in J ∪ Y_o, so x is a blocker, and H removed a good of the set from
+X_o: a contradiction. Every completion found in the tests is also checked against the raw definition.
+
+**Algorithm DER.**
+1. Peel by rule R1, as in DE.
+2. Draft: in index order, each agent takes its best single that is not yet taken.
+3. Repeat:
+   - **finish** if some owner can finish;
+   - else **grab**: some agent moves to a higher rung made of its own goods and leftover goods. If it gives up a
+     single wanted good, that good goes to the first agent that wants it, and so on, exactly as in DE's chain;
+   - else **ring**: a cycle of *upgrade arrows* x_t → x_{t+1}. Agent x_t moves to a higher rung made of its own goods,
+     goods of x_{t+1} and leftover goods. Leftover goods are used at most once, and no good is both given and kept.
+     DE's want arrows and pair arrows are the special cases. `der.py` first tries DE's σ-walk, with a blocker for
+     each owner and fresh leftover goods along the walk, then a depth-first search;
+   - else **release**: one agent moves to a lower rung after which some owner can finish; then finish.
+
+Grabs and rings raise the total score, which is at most the total number of rungs (at most 10 per agent). The release
+is followed at once by finishing. So DER stops after at most 10n trades.
+
+**Evidence.**
+- *Every step on every valid state* (`der_check.py`, `der_check.log`): random instances with n ≤ 4 (each type, and
+  mixed), the suite instances with a core of at most 5 agents, the 969 certificates and the collision example. That is
+  about 32,000 valid states: 24,055 finish; 2,531 chains and 2,352 other grabs; 3,036 σ-walk rings and 84 rings found
+  only by the search; 60 releases. Every completion is EFX₀ by the raw definition, and every trade gives a valid state
+  that dominates in scores. Since a step exists from *every* valid state, DER succeeds from any valid starting state on
+  these instances, not just from the draft.
+- *End to end* (`der_run.py`, `der_run.log`): 1,800 random instances with up to 12 agents, and all 159 instances of
+  the research repository's suite, including the four large ones:
+
+  | instance | n | m | trades |
+  |---|---|---|---|
+  | c4-H2 | 9 | 23 | 6 |
+  | lmbt-Hq3 | 14 | 34 | 6 |
+  | c4-H5 | 21 | 53 | 14 |
+  | lmbt-HH3 | 26 | 65 | 14 |
+
+  Every output is EFX₀. Starting from the draft, no run needed a release.
+- *Shape.* In 4,155 of 4,159 runs, at most one bundle has more than two goods. In the other 4, a big-top agent's triple
+  is a second bundle of three goods. So DE's shape guarantee does not carry over as it stands.
+
+**What is missing for a theorem.**
+1. *An Improvement Lemma*: in a valid state that cannot be finished, a grab, a ring or a finishing release exists.
+   This is the heart of the matter. The data says it holds, and E_lex and E_DER are its extremal forms.
+2. *Polynomial time*: the ring and the hitting set H are found by search. DE finds its ring by a σ-walk and its H is
+   forced. Here the σ-walk succeeds on all but 84 of about 3,100 ring states. A proof would also have to give a rule
+   for choosing among blockers.
+3. *Ties*: the ladders assume strict values. The research repository's tie reduction (K4.TIE) covers existence, not
+   this algorithm.
+4. *A machine-checked version*, as for k = 3.
+
+## 7. What this suggests
 
 - **The small-d class is the reach of DE as it stands.** Within the natural ladders it is also the reach of any proof
-  with DE's architecture, monotone trades followed by one large bundle. That makes it a sharp partial answer to the
-  open problem, but a narrow one.
-- **A proof for k = 4 needs non-monotone moves.** §4.3 gives a small instance where any route to an EFX₀ allocation
-  lowers an agent. One candidate is a potential that rewards the agent that steps down, for instance the
-  lexicographic potentials of the research repository's DL₂ and C₄ᵐⁱⁿ programmes. Those are still open there.
-- **Leads not pursued here.**
-  - The 15 tall ladders of §4.2. They survive every search with a finishing rule close to DE's. Next steps: an
-    exhaustive check of small instances, then a finishing rule with pair holders as owners and an Improvement Lemma
-    for their blockers.
-  - Class C with a move that lets one Q-holder step down to c when two pair arrows collide, as in §4.3. This is what
-    the EFX₀ allocations of the collision example do, but it needs a potential other than the total score.
+  with DE's architecture (monotone trades, then one large bundle).
+- **Two changes get past the barrier on all data.** The ladder must be built from threat sets, and the potential must
+  allow a release (or, equivalently, use priority). The collision example shows that some agent must sometimes be
+  lowered.
+- **Next steps.**
+  - Prove the Improvement Lemma for DER: in which states does each move apply, and why does a release always finish?
+  - Replace the ring search by a σ-walk with a provable choice of blockers.
+  - Test DER with ties and on larger structured families.
 
-## 6. Files and how to reproduce
+## 8. Files and how to reproduce
 
 Python 3, no packages. Each script prints a summary; the logs are copies of its output.
 
@@ -293,11 +421,23 @@ Python 3, no packages. Each script prints a summary; the logs are copies of its 
 | `classc_random.py` | class C on random instances (`classc_random.log`) |
 | `check_barrier.py` | the independent checker of the certificates (`check_barrier.log`) |
 | `collision.py` | the example of §4.3 (`collision.log`) |
+| `lex.py` | the threat ladder, validity (V1) + (V2), priority-maximal states, finishing |
+| `lex_test.py` | E_lex on all data (`lex_test.log`; `lex_test_scale10.log` with ten times the random instances) |
+| `der_test.py` | E_DER on all data (`der_test.log`) |
+| `der.py` | DER: objects and one step (finish, grab, ring, release) |
+| `der_check.py` | every DER step on every valid state of the test instances (`der_check.log`) |
+| `der_run.py` | DER end to end, random instances up to n = 12 and the whole suite (`der_run.log`) |
 
     cd k4/de4
     python3 test_de4.py          # Theorem 1 and §3; exit status 0 iff all checks pass
     python3 check_barrier.py     # re-checks every certificate of §4
     python3 collision.py         # §4.3
+    python3 lex_test.py 1 SUITE  # E_lex (§5); SUITE = path to k4/suite/instances of evanlin23/efx0-three-goods
+    python3 der_test.py 1 SUITE  # E_DER (§5)
+    python3 der_check.py 1 SUITE # every DER step (§6)
+    python3 der_run.py 1 SUITE   # DER end to end (§6)
+
+The suite argument is optional; without it, the scripts skip that part.
 
 To regenerate the certificates, run these in order, on 4 cores:
 

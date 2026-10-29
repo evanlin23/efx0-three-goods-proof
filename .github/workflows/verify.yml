@@ -41,3 +41,10 @@ jobs:
         run: |
           python k4/de4/test_de4.py
           python k4/de4/check_barrier.py
+      - name: Four relevant goods (k4/de4) - the candidate algorithm DER and its extremal statements (evidence)
+        run: |
+          python k4/de4/lex.py
+          python k4/de4/lex_test.py
+          python k4/de4/der_test.py
+          python k4/de4/der_check.py
+          python k4/de4/der_run.py

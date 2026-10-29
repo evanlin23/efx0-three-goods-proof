@@ -17,7 +17,7 @@ every good h ∈ X_j, including goods that i values at 0.
 | `lean/` | The Lean 4 formalization: the algorithm, its correctness, the bound on trades, the running time, real values, and the results of the appendices. |
 | `k3/simplify/po/` | The proof notes (`hall/NOTES.md`, `potential/NOTES.md` for a second, independent proof), their test programs, and the reviews (`referee/`). |
 | `proofs/novelty.md` | The literature search behind the paper's novelty claim (25 September 2026), with `proofs/citations.md` and `results/lit_search_log.md`. |
-| `k4/de4/` | An attempt at four relevant goods (`NOTES.md`). DE extends to agents with a small fourth good (written proof and tests, not in Lean). A computational barrier shows how far DE's method reaches. The open problem itself is not solved. |
+| `k4/de4/` | An attempt at four relevant goods (`NOTES.md`). DE extends to agents with a small fourth good (written proof and tests, not in Lean). A computational barrier shows where DE's own proof stops. A candidate algorithm, DER, returns EFX₀ allocations on every instance tried, the research repository's whole k = 4 counterexample suite included, but it has no proof yet. The open problem is not solved. |
 
 ## How to check it
 

@@ -1,0 +1,9 @@
+random instances, n up to  5: {'bundles > 2': 352, 'runs': 600, 'chain': 51, 'trades': 74, 'grab': 18, 'ring': 5, 'max trades in a run': 3}
+random instances, n up to  8: {'bundles > 2': 397, 'runs': 600, 'chain': 32, 'trades': 43, 'grab': 10, 'max trades in a run': 2, 'ring': 1}
+random instances, n up to 12: {'bundles > 2': 404, 'runs': 600, 'chain': 29, 'trades': 40, 'grab': 9, 'max trades in a run': 4, 'ring': 2}
+   suite c4-H2 (n = 9, m = 23): EFX0, 6 trades, 0 releases
+   suite c4-H5 (n = 21, m = 53): EFX0, 14 trades, 0 releases
+   suite lmbt-HH3 (n = 26, m = 65): EFX0, 14 trades, 0 releases
+   suite lmbt-Hq3 (n = 14, m = 34): EFX0, 6 trades, 0 releases
+suite: {'chain': 89, 'trades': 141, 'grab': 27, 'instances': 159, 'ring': 25, 'bundles > 2': 143}
+ALL RUNS PASSED

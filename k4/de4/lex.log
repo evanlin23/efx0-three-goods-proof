@@ -1,0 +1,26 @@
+The threat ladder of each strict type, and the minimal threat sets of each rung (all are higher rungs).
+a<bc a<bd a<cd b<cd ad<bc    (7, 6, 5, 3)   d < c < b < a < cd < bd < ad < bc < ac < ab
+                                             threats  b: cd; a: bc, bd, cd; cd: ab; bd: ac; ad: bc
+a<bc a<bd a<cd b<cd ad>bc    (8, 6, 5, 4)   d < c < b < a < cd < bd < bc < ad < ac < ab
+                                             threats  b: cd; a: bc, bd, cd; cd: ab; bd: ac; bc: ad
+a<bc a<bd a>cd b<cd ad<bc    (10, 8, 6, 3)  d < c < b < cd < a < bd < ad < bc < ac < ab
+                                             threats  b: cd; a: bc, bd; bd: ac; ad: bc
+a<bc a<bd a>cd b<cd ad>bc    (8, 6, 4, 3)   d < c < b < cd < a < bd < bc < ad < ac < ab
+                                             threats  b: cd; a: bc, bd; bd: ac; bc: ad
+a<bc a<bd a>cd b>cd ad<bc    (8, 7, 4, 2)   d < c < b < a < bd < ad < bc < ac < ab
+                                             threats  a: bc, bd; bd: ac; ad: bc
+a<bc a<bd a>cd b>cd ad>bc    (10, 8, 4, 3)  d < c < b < a < bd < bc < ad < ac < ab
+                                             threats  a: bc, bd; bd: ac; bc: ad
+a<bc a>bd a>cd b<cd ad<bc    (10, 7, 6, 2)  d < c < b < cd < a < ad < bc < ac < ab
+                                             threats  b: cd; a: bc; ad: bc
+a<bc a>bd a>cd b<cd ad>bc    (8, 5, 4, 2)   d < c < b < cd < a < bc < ad < ac < ab
+                                             threats  b: cd; a: bc; bc: ad
+a<bc a>bd a>cd b>cd ad<bc    (8, 6, 4, 1)   d < c < b < a < ad < bc < ac < ab
+                                             threats  a: bc; ad: bc
+a<bc a>bd a>cd b>cd ad>bc    (10, 7, 4, 2)  d < c < b < a < bc < ad < ac < ab
+                                             threats  a: bc; bc: ad
+a>bc a>bd a>cd b<cd ad>bc    (8, 4, 3, 2)   d < c < b < cd < a < bcd < ad < ac < ab
+                                             threats  b: cd; a: bcd
+a>bc a>bd a>cd b>cd ad>bc    (10, 6, 3, 2)  d < c < b < a < bcd < ad < ac < ab
+                                             threats  a: bcd
+closure holds for every type

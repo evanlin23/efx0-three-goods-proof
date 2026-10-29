@@ -1,0 +1,19 @@
+a<bc a<bd a<cd b<cd ad<bc    {'chain': 59, 'finish': 650, 'grab': 51, 'ring': 83}
+a<bc a<bd a<cd b<cd ad>bc    {'chain': 43, 'finish': 680, 'grab': 47, 'ring': 69}
+a<bc a<bd a>cd b<cd ad<bc    {'finish': 670, 'grab': 21, 'ring': 93, 'chain': 34}
+a<bc a<bd a>cd b<cd ad>bc    {'finish': 537, 'grab': 41, 'ring': 58, 'chain': 35}
+a<bc a<bd a>cd b>cd ad<bc    {'finish': 668, 'grab': 13, 'ring': 172, 'chain': 23}
+a<bc a<bd a>cd b>cd ad>bc    {'finish': 598, 'grab': 21, 'ring': 68, 'chain': 11, 'general ring': 1}
+a<bc a>bd a>cd b<cd ad<bc    {'finish': 532, 'grab': 27, 'ring': 114, 'chain': 24}
+a<bc a>bd a>cd b<cd ad>bc    {'finish': 601, 'ring': 108, 'grab': 14, 'chain': 23}
+a<bc a>bd a>cd b>cd ad<bc    {'grab': 14, 'finish': 484, 'ring': 93, 'chain': 10}
+a<bc a>bd a>cd b>cd ad>bc    {'finish': 501, 'ring': 85, 'grab': 11, 'chain': 9}
+a>bc a>bd a>cd b<cd ad>bc    {'chain': 16, 'grab': 8, 'finish': 518, 'ring': 88, 'general ring': 1}
+a>bc a>bd a>cd b>cd ad>bc    {'finish': 410, 'grab': 12, 'ring': 58, 'chain': 1}
+mixed                        {'finish': 1516, 'ring': 250, 'grab': 72, 'chain': 68, 'general ring': 1}
+mixed                        {'chain': 61, 'finish': 1496, 'ring': 291, 'grab': 38, 'general ring': 2}
+mixed                        {'chain': 65, 'finish': 1485, 'ring': 194, 'grab': 45, 'general ring': 2}
+mixed                        {'chain': 66, 'grab': 68, 'finish': 1472, 'ring': 371}
+suite, certificates, collision {'chain': 1983, 'grab': 1849, 'finish': 11237, 'ring': 841, 'general ring': 77, 'release (no blocker with fresh leftover goods)': 60}
+total {'chain': 2531, 'finish': 24055, 'grab': 2352, 'ring': 3036, 'general ring': 84, 'release (no blocker with fresh leftover goods)': 60}
+ALL CHECKS PASSED

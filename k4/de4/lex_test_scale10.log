@@ -1,0 +1,24 @@
+[1] random instances, one type of four-good agent at a time
+  ok    a<bc a<bd a<cd b<cd ad<bc    3000 instances
+  ok    a<bc a<bd a<cd b<cd ad>bc    3000 instances
+  ok    a<bc a<bd a>cd b<cd ad<bc    3000 instances
+  ok    a<bc a<bd a>cd b<cd ad>bc    3000 instances
+  ok    a<bc a<bd a>cd b>cd ad<bc    3000 instances
+  ok    a<bc a<bd a>cd b>cd ad>bc    3000 instances
+  ok    a<bc a>bd a>cd b<cd ad<bc    3000 instances
+  ok    a<bc a>bd a>cd b<cd ad>bc    3000 instances
+  ok    a<bc a>bd a>cd b>cd ad<bc    3000 instances
+  ok    a<bc a>bd a>cd b>cd ad>bc    3000 instances
+  ok    a>bc a>bd a>cd b<cd ad>bc    3000 instances
+  ok    a>bc a>bd a>cd b>cd ad>bc    3000 instances
+[2] random instances, all types mixed
+  ok    40000 instances
+[3] the research repository's counterexample suite
+  ok    suite: 155 instances checked after peeling (0 with ties), 4 skipped (core with more than 6 agents or fewer than 2)
+[4] the instances of the barrier certificates
+  ok    969 certificate instances
+[5] the collision example
+  ok    collision example
+
+ALL CHECKS PASSED
+exit 0

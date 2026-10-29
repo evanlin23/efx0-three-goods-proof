@@ -1,0 +1,19 @@
+a<bc a<bd a<cd b<cd ad<bc    {'finishable': 970}
+a<bc a<bd a<cd b<cd ad>bc    {'finishable': 1039}
+a<bc a<bd a>cd b<cd ad<bc    {'finishable': 837}
+a<bc a<bd a>cd b<cd ad>bc    {'finishable': 901}
+a<bc a<bd a>cd b>cd ad<bc    {'finishable': 910}
+a<bc a<bd a>cd b>cd ad>bc    {'finishable': 890}
+a<bc a>bd a>cd b<cd ad<bc    {'finishable': 945}
+a<bc a>bd a>cd b<cd ad>bc    {'finishable': 859}
+a<bc a>bd a>cd b>cd ad<bc    {'finishable': 850}
+a<bc a>bd a>cd b>cd ad>bc    {'finishable': 1010}
+a>bc a>bd a>cd b<cd ad>bc    {'finishable': 792}
+a>bc a>bd a>cd b>cd ad>bc    {'finishable': 937}
+mixed                        {'finishable': 2260}
+mixed                        {'finishable': 2214}
+mixed                        {'finishable': 2243}
+mixed                        {'finishable': 2388}
+suite                        {'finishable': 589, 'one release finishes': 2}
+certificates and collision   {'finishable': 2208, 'one release finishes': 59}
+total {'finishable': 22842, 'one release finishes': 61}
